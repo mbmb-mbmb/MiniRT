@@ -27,7 +27,7 @@ static int	skip_commas(char *buffer)
 	i = 0;
 	while (buffer[i] && buffer[i] != ',')
 		i++;
-	i++; 
+	i++;
 	return (i);
 }
 
@@ -36,7 +36,7 @@ static int	skip_float(char *buffer)
 	int	i;
 
 	i = 0;
-	while (buffer[i] && (ft_isdigit(buffer[i]) || buffer[i] == '.')) 
+	while (buffer[i] && (ft_isdigit(buffer[i]) || buffer[i] == '.'))
 		i++;
 	return (i);
 }
@@ -107,6 +107,7 @@ static void	check_A(char *buffer, t_data *data)
 		error_parser(NULL);
 }
 
+//this checks the .rt extension
 static int	check_extension(char *filename)
 {
 	int	len;
