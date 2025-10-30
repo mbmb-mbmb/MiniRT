@@ -27,11 +27,11 @@ typedef	struct		s_vec3
 	float			x;
 	float			y;
 	float			z;
-}					t_vec3
+}					t_vec3;
 
 typedef struct		s_plane
 {
-	t_obj_state		state;
+	t_sys_state		state;
 	t_vec3			location;
 	t_vec3			rotation;
 	uint32_t		color;
@@ -39,7 +39,7 @@ typedef struct		s_plane
 
 typedef struct		s_ball
 {
-	t_obj_state		state;
+	t_sys_state		state;
 	t_vec3			location;
 	t_vec3			rotation;
 	float			diameter;
@@ -48,7 +48,7 @@ typedef struct		s_ball
 
 typedef struct		s_cylinder
 {
-	t_obj_state		state;
+	t_sys_state		state;
 	t_vec3			location;
 	t_vec3			rotation;
 	float			length;
@@ -60,9 +60,9 @@ typedef struct		s_cylinder
 
 typedef union		u_object
 {
-	t_plane,
-	t_ball,
-	t_cylinder,
+	t_plane			plane;
+	t_ball			ball;
+	t_cylinder		cylinder;
 }					t_object;
 
 typedef struct		s_world
@@ -108,11 +108,11 @@ typedef struct		s_system
 	t_amb_light		amb_light;
 	t_spot_light	**light_list;
 	t_world			world;
-	
+
 }					t_system;
 
 
-void	rt_parser(char *input, t_data *data);
+void	rt_parser(char *input, t_system *system);
 
 
-#endif
+# endif

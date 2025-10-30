@@ -63,7 +63,7 @@ static int	to_eightbit(char *in, int *value)
 	return (i);
 }
 
-static int	parse_rgb(char *buffer, t_data *data, int i)
+static int	parse_rgb(char *buffer, t_system *system, int i)
 {
 	int	r;
 	int	g;
@@ -77,11 +77,11 @@ static int	parse_rgb(char *buffer, t_data *data, int i)
 	i += skip_commas(buffer + i);
 	i += skip_spaces(buffer + i);
 	i += to_eightbit(buffer + i, &b);
-	data->amb_light.rgb = pack_rgba((uint8_t)r,(uint8_t) g,(uint8_t) b, 255);
+	system->amb_light.rgb = pack_rgba((uint8_t)r,(uint8_t) g,(uint8_t) b, 255);
 	return (i);
 }
 
-static void	check_A(char *buffer, t_data *data)
+static void	check_A(char *buffer, t_system *system)
 {
 	int	i;
 	int	A_found;
@@ -97,9 +97,9 @@ static void	check_A(char *buffer, t_data *data)
 			if(A_found > 1)
 				error_parser("Only one ambient light (A) allowed.\n");
 			i += skip_spaces(buffer + i);
-			data->amb_light.range = atof(buffer + i); //ft_atof tai to_double löytyykö Jyryltä?
+			system->amb_light.range = atof(buffer + i); //ft_atof tai to_double löytyykö Jyryltä?
 			i += skip_float(buffer + i);
-			i += parse_rgb(buffer, data, i);
+			i += parse_rgb(buffer, system, i);
 		}
 		i++;
 	}
@@ -118,7 +118,7 @@ static int	check_extension(char *filename)
 	return (ft_strncmp(filename + len - 3, ".rt", len) == 0);
 }
 
-void	rt_parser(char *input, t_data *data)
+void	rt_parser(char *input, t_system *system)
 {
 	int		fd;
 	char	buffer[2096];
@@ -132,6 +132,6 @@ void	rt_parser(char *input, t_data *data)
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
 	buffer[bytes_read] = '\0';
 	close(fd);
-	check_A(buffer, data);
+	check_A(buffer, system);
 	ft_putstr_fd("Inputfile OK!\n", 1);
 }
