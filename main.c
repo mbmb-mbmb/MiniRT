@@ -35,3 +35,16 @@ int	main(int argc, char **av)
 
 	return (0);
 }
+
+t_system	system;
+system = (t_system){};
+
+init_system(&system);
+if(!(state & SHOULD_EXIT))
+{
+	if(state & DRAFT_MODE)
+		draft_transformations(&system);
+	if(!(state & RENDER_COMPLETE))
+		render(&system);
+}
+return(cleanup(&system);
