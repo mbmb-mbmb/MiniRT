@@ -1,6 +1,6 @@
 NAME	= miniRT
-LIBMLX	= ./MLX42
-LIBFT	= ./libft
+LIBMLX	= ../MLX42
+LIBFT	= ../libft
 
 UNAME = $(shell uname)
 ifeq ($(UNAME), Darwin)

@@ -1,8 +1,8 @@
 #ifndef MINIRT_H
 # define MINIRT_H
 
-# include "MLX42/include/MLX42/MLX42.h"
-# include "libft/libft.h"
+# include "../MLX42/include/MLX42/MLX42.h"
+# include "../libft/libft.h"
 # include <fcntl.h>
 # include <math.h>
 # include <stdbool.h>
@@ -119,11 +119,6 @@ typedef struct s_amb_light
 	uint32_t		rgb;
 }					t_amb_light;
 
-typedef struct s_data
-{
-	t_amb_light		amb_light;
-}					t_data;
-
 typedef struct s_system
 {
 	t_sys_state		state;
@@ -143,6 +138,6 @@ typedef struct s_app
 	t_system		system;
 }					t_app;
 
-void				rt_parser(char *input, t_data *data);
+void				rt_parser(char *input, t_system *sys);
 
 #endif
