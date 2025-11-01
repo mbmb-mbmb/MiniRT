@@ -273,3 +273,10 @@ t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 		* b->z, .z = a->x * b->y - a->y * b->x, .w = VECTOR};
 	return (result);
 }
+
+t_tuple create_color(float red, float green, float blue, float alpha)
+{
+	t_tuple result;
+	result = (t_tuple){ .x = red, .y = green, .z = blue, .w = alpha};
+	return (result);
+}
