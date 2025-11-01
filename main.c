@@ -5,15 +5,11 @@ static void	ft_error(int error_code)
 	exit(error_code);
 }
 
-static void	init_system(t_system *sys, const t_data *data)
+static void	init_system(t_system *sys)
 {
-	*sys = (t_system){0};
+	//*sys = (t_system){0};
 	sys->state = DRAFT_MODE;
 	sys->exit_code = 0;
-	if (data)
-	{
-		sys->amb_light = data->amb_light;
-	}
 }
 
 static void	draft_transformations(t_system *sys)
@@ -68,23 +64,22 @@ static void	frame(void *param)
 
 int	main(int argc, char **av)
 {
-	t_data	parsed;
 	t_app	app;
 	int		code;
 
 	app = (t_app){};
-	parsed = (t_data){};
+	app.system = (t_system){};
 	if (argc != 2)
 		ft_error(1);
-	rt_parser(av[1], &parsed);
-	printf("A: %f (%u)\n", parsed.amb_light.range, parsed.amb_light.rgb);
+	init_system(&app.system);
+	rt_parser(av[1], &app.system);
+	printf("A: %f (%u)\n", app.system.amb_light.range, app.system.amb_light.rgb);
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
 		ft_error(1);
 	app.img = mlx_new_image(app.mlx, WIDTH, HEIGHT);
 	if (!app.img || (mlx_image_to_window(app.mlx, app.img, 0, 0) < 0))
 		ft_error(1);
-	init_system(&app.system, &parsed);
 	mlx_loop_hook(app.mlx, frame, &app);
 	mlx_loop(app.mlx);
 	code = cleanup(&app.system);
