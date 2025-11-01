@@ -27,6 +27,11 @@ typedef enum e_sys_state
 	INIT = (1 << 4),
 }					t_sys_state;
 
+typedef	struct s_mat
+{
+	float	m[4][4];
+}			t_mat;
+
 typedef struct s_tuple
 {
 	float			x;
