@@ -14,9 +14,9 @@
 # define WIDTH 256
 # define HEIGHT 256
 # define EPSILON 0.00001
-# define VECTOR 0
-# define POINT 1
-# define TUPLE_INCORRECT 2
+# define VECTOR 0.0f
+# define POINT 1.0f
+# define TUPLE_INCORRECT 2.0f
 
 typedef enum e_sys_state
 {
