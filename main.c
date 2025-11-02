@@ -71,6 +71,7 @@ int	main(int argc, char **av)
 	app.system = (t_system){};
 	if (argc != 2)
 		ft_error(1);
+	init_arena(&app.system.arena, 1048576);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
 	printf("A: %f (%u)\n", app.system.amb_light.range, app.system.amb_light.rgb);

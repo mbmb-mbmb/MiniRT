@@ -17,6 +17,7 @@
 # define VECTOR 0
 # define POINT 1
 # define TUPLE_INCORRECT 2
+# define FLOAT_MAX 3.40282347e+38F
 
 typedef enum e_sys_state
 {
@@ -40,6 +41,14 @@ typedef enum e_obj_state
 	ALONE,
 	IN_GROUP,
 }					t_obj_state;
+
+typedef struct		s_arena
+{
+	void			*memory;
+	size_t			size;
+	size_t			used;
+}					t_arena;
+
 
 typedef struct s_plane
 {
@@ -115,7 +124,7 @@ typedef struct s_spot_light
 
 typedef struct s_amb_light
 {
-	double			range;
+	float			range; //this to float for now to get my parser logic sorted
 	uint32_t		rgb;
 }					t_amb_light;
 
@@ -123,8 +132,9 @@ typedef struct s_system
 {
 	t_sys_state		state;
 	int				exit_code;
+	t_arena			arena;
 
-	t_camera		*camera;
+	t_camera		camera;
 	t_object		**obj_list;
 	t_amb_light		amb_light;
 	t_spot_light	**light_list;
@@ -139,5 +149,9 @@ typedef struct s_app
 }					t_app;
 
 void				rt_parser(char *input, t_system *sys);
+
+void				init_arena(t_arena *arena, size_t size);
+void				*arena_add(t_arena *arena, size_t size);
+void				delete_arena(t_arena *arena);
 
 #endif
