@@ -7,7 +7,7 @@ static void	ft_error(int error_code)
 
 static void	init_system(t_system *sys)
 {
-	//*sys = (t_system){0};
+	*sys = (t_system){0};
 	sys->state = DRAFT_MODE;
 	sys->exit_code = 0;
 }
@@ -73,7 +73,6 @@ int	main(int argc, char **av)
 		ft_error(1);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
-	printf("A: %f (%u)\n", app.system.amb_light.range, app.system.amb_light.rgb);
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
 		ft_error(1);
