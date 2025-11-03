@@ -18,6 +18,8 @@
 # define POINT 1
 # define TUPLE_INCORRECT 2
 # define FLOAT_MAX 3.40282347e+38F
+# define MAX_LIGHTS 256
+# define MAX_OBJECTS 512
 
 typedef enum e_sys_state
 {
@@ -41,14 +43,6 @@ typedef enum e_obj_state
 	ALONE,
 	IN_GROUP,
 }					t_obj_state;
-
-typedef struct		s_arena
-{
-	void			*memory;
-	size_t			size;
-	size_t			used;
-}					t_arena;
-
 
 typedef struct s_plane
 {
@@ -115,7 +109,7 @@ typedef struct s_camera
 
 typedef struct s_spot_light
 {
-	double			range;
+	float			range; //this to float for now to get my parser logic sorted
 	t_tuple			location;
 	t_tuple			rotation;
 	int				size;
@@ -132,12 +126,13 @@ typedef struct s_system
 {
 	t_sys_state		state;
 	int				exit_code;
-	t_arena			arena;
 
 	t_camera		camera;
-	t_object		**obj_list;
+	t_object		obj_list[MAX_OBJECTS];
+	int				object_count;
 	t_amb_light		amb_light;
-	t_spot_light	**light_list;
+	t_spot_light	light_list[MAX_LIGHTS];
+	int				light_count;
 	t_world			world;
 }					t_system;
 
@@ -150,8 +145,8 @@ typedef struct s_app
 
 void				rt_parser(char *input, t_system *sys);
 
-void				init_arena(t_arena *arena, size_t size);
-void				*arena_add(t_arena *arena, size_t size);
-void				delete_arena(t_arena *arena);
+// void				init_arena(t_arena *arena, size_t size);
+// void				*arena_add(t_arena *arena, size_t size);
+// void				delete_arena(t_arena *arena);
 
 #endif

@@ -25,10 +25,11 @@ static int	skip_commas(char *buffer)
 	int	i;
 
 	i = 0;
-	while (buffer[i] && buffer[i] != ',')
+	while (buffer[i] && buffer[i] != ',' && buffer[i] != '\n')
 		i++;
-	i++;
-	return (i);
+	if (buffer[i] != ',')
+		error_parser("Expected comma between componenets\n");
+	return (i + 1);
 }
 
 static int	skip_float(char *buffer)
@@ -67,14 +68,14 @@ static int	parse_int(char *in, int *value, int min, int max)
 
 	i = 0;
 	i += skip_spaces(in + i);
+	int_start = i;
 	if (in[i] == '-' || in[i] == '+')
 		i++;
 	if (!ft_isdigit(in[i]))
 		error_parser("Expected digit\n");
-	int_start = i;
 	while (in[i] && ft_isdigit(in[i]))
 		i++;
-	num = ft_atoi(in + int_start);  // Parse from start
+	num = ft_atoi(in + int_start);
 	if (num < min || num > max)
 		error_parser("Integer out of range\n");
 	*value = num;
@@ -91,6 +92,8 @@ static int	parse_float(char *in, float *out, float min, float max)
 	i += skip_spaces(in + i);
 	float_start = i;
 	i += skip_float(in + i);
+	if (i == float_start)
+		error_parser("Expected float.\n");
 	num = atof(in + float_start); //ft_atof??
 	if (num < min || num > max)
 		error_parser("float out of range\n");
@@ -104,19 +107,20 @@ static uint32_t	pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 }
 
 
-static int	parse_rgb(char *buffer, t_system *sys, int i)
+static int	parse_rgb(char *buffer, uint32_t *color)
 {
+	int	i;
 	int	r;
 	int	g;
 	int	b;
 
-
+	i = 0;
 	i += parse_int(buffer + i, &r, 0, 255);
 	i += skip_commas(buffer + i);
 	i += parse_int(buffer + i, &g, 0, 255);
 	i += skip_commas(buffer + i);
 	i += parse_int(buffer + i, &b, 0, 255);
-	sys->amb_light.rgb = pack_rgba((uint8_t)r,(uint8_t) g,(uint8_t) b, 255);
+	*color = pack_rgba((uint8_t)r,(uint8_t) g,(uint8_t) b, 255);
 	return (i);
 }
 
@@ -134,7 +138,7 @@ static int	parse_xyz(char *buffer, t_tuple *tuple, float w)
 	return (i);
 }	
 
-static void	check_A(char *buffer, t_system *sys)
+static void	check_AmbLight(char *buffer, t_system *sys)
 {
 	int	i;
 	int	A_found;
@@ -150,7 +154,7 @@ static void	check_A(char *buffer, t_system *sys)
 			if(A_found > 1)
 				error_parser("Only one ambient light (A) allowed.\n");
 			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0); 
-			i = parse_rgb(buffer, sys, i);
+			i += parse_rgb(buffer + i, &sys->amb_light.rgb);
 			i += skip_to_end(buffer + i);
 			continue ;
 		}
@@ -160,7 +164,7 @@ static void	check_A(char *buffer, t_system *sys)
 	error_parser(NULL);
 }
 
-static void	check_C(char *buffer, t_system *sys)
+static void	check_camera(char *buffer, t_system *sys)
 {
 	int	i;
 	int	C_found;
@@ -186,15 +190,115 @@ static void	check_C(char *buffer, t_system *sys)
 	if (C_found == 0)
 		error_parser(NULL);
 }
+static void	check_lights(char *buffer, t_system *sys)
+{
+	int				i;
+	t_spot_light	*light;
+	
+	i = 0;
+	while (buffer[i])
+	{
+		if (buffer[i] == 'L' && (i == 0 || buffer[i-1] == '\n'))
+		{
+			i++;
+			if (sys->light_count >= MAX_LIGHTS)
+				error_parser("Too many lights.\n");
+			light = &sys->light_list[sys->light_count++];
+			i += parse_xyz(buffer + i, &light->location, POINT);
+			i += parse_float(buffer + i, &light->range, 0.0, 1.0);
+			i += parse_rgb(buffer + i, &light->color);
+			i += skip_to_end(buffer + i);		
+			continue ;
+		}
+		i++;
+	}
+}
+
+static void	check_sphere(char *buffer, t_system *sys)
+{
+	int				i;
+	t_object		*obj;
+	
+	i = 0;
+	while (buffer[i])
+	{
+		if (ft_strncmp(buffer + i, "sp", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))
+		{
+			i += 2;
+			if (sys->object_count >= MAX_OBJECTS)
+				error_parser("Too many objects.\n");
+			obj = &sys->obj_list[sys->object_count++];
+			obj->type = BALL;
+			i += parse_xyz(buffer + i, &obj->ball.location, POINT);
+			i += parse_float(buffer + i, &obj->ball.diameter, -FLOAT_MAX, FLOAT_MAX);
+			i += parse_rgb(buffer + i, &obj->ball.color);
+			i += skip_to_end(buffer + i);		
+			continue ;
+		}
+		i++;
+	}
+}
+
+static void	check_cylinder(char *buffer, t_system *sys)
+{
+	int				i;
+	t_object		*obj;
+	
+	i = 0;
+	while (buffer[i])
+	{
+		if (ft_strncmp(buffer + i, "cy", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))
+		{
+			i += 2;
+			if (sys->object_count >= MAX_OBJECTS)
+			error_parser("Too many objects.\n");
+			obj = &sys->obj_list[sys->object_count++];
+			obj->type = CYLINDER;
+			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT);
+			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR); //again no normalization check. Are all our input ve3ctors normalizes?
+			i += parse_float(buffer + i, &obj->cylinder.diameter, -FLOAT_MAX, FLOAT_MAX);
+			i += parse_float(buffer + i, &obj->cylinder.length, -FLOAT_MAX, FLOAT_MAX);
+			i += parse_rgb(buffer + i, &obj->cylinder.color);
+			i += skip_to_end(buffer + i);		
+			continue ;
+		}
+		i++;
+	}
+}
+
+static void	check_plane(char *buffer, t_system *sys)
+{
+	int				i;
+	t_object		*obj;
+	
+	i = 0;
+	while (buffer[i])
+	{
+		if (ft_strncmp(buffer + i, "pl", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))
+		{
+			i += 2;
+			if (sys->object_count >= MAX_OBJECTS)
+			error_parser("Too many objects.\n");
+			obj = &sys->obj_list[sys->object_count++];
+			obj->type = PLANE;
+			i += parse_xyz(buffer + i, &obj->plane.location, POINT);
+			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR); //normalization again
+			i += parse_rgb(buffer + i, &obj->plane.color);
+			i += skip_to_end(buffer + i);		
+			continue ;
+		}
+		i++;
+	}
+}
 
 static int	check_extension(char *filename)
 {
 	int	len;
 
 	len = ft_strlen(filename);
-	if (len < 3)
+	if (len < 4)
 		return (0);
-	return (ft_strncmp(filename + len - 3, ".rt", len) == 0);
+	return (ft_strncmp(filename + len - 3, ".rt", 3) == 0);
 }
 
 void	rt_parser(char *input, t_system *sys)
@@ -211,7 +315,12 @@ void	rt_parser(char *input, t_system *sys)
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
 	buffer[bytes_read] = '\0';
 	close(fd);
-	check_A(buffer, sys);
-	check_C(buffer, sys);
+	check_AmbLight(buffer, sys);
+	check_camera(buffer, sys);
+	check_lights(buffer, sys);
+	sys->object_count = 0;
+	check_sphere(buffer, sys);
+	check_cylinder(buffer, sys);
+	check_plane(buffer, sys);
 	ft_putstr_fd("Inputfile OK!\n", 1);
 }

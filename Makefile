@@ -14,7 +14,7 @@ endif
 CC		= cc
 CFLAGS	= -Wall -Wextra -Werror -O2 -ffast-math
 HEADERS	= -I . -I $(LIBMLX)/include -I $(LIBFT)
-SRC		= main.c rt_parser.c arena.c
+SRC		= main.c rt_parser.c
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)
