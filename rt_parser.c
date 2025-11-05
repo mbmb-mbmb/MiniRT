@@ -62,42 +62,30 @@ static int skip_to_end(char *buffer)
 
 static int	parse_int(char *in, int *value, int min, int max)
 {
-	int	i;
-	int	int_start;
-	int	num;
+	int		i;
+	int		num;
 
-	i = 0;
-	i += skip_spaces(in + i);
-	int_start = i;
-	if (in[i] == '-' || in[i] == '+')
-		i++;
-	if (!ft_isdigit(in[i]))
-		error_parser("Expected digit\n");
-	while (in[i] && ft_isdigit(in[i]))
-		i++;
-	num = ft_atoi(in + int_start);
+	i = skip_spaces(in);
+	num = ft_atoi(in + i);
 	if (num < min || num > max)
 		error_parser("Integer out of range\n");
 	*value = num;
+	while (in[i] == '-' || in[i] == '+' || ft_isdigit(in[i]))
+		i++;
 	return (i);
 }
 
 static int	parse_float(char *in, float *out, float min, float max)
 {
 	int		i;
-	int		float_start;
 	float	num;
-	
-	i = 0;
-	i += skip_spaces(in + i);
-	float_start = i;
-	i += skip_float(in + i);
-	if (i == float_start)
-		error_parser("Expected float.\n");
-	num = atof(in + float_start); //ft_atof??
+
+	i = skip_spaces(in);
+	num = atof(in + i); //FT_ATOI?
 	if (num < min || num > max)
 		error_parser("float out of range\n");
 	*out = num;
+	i += skip_float(in + i);
 	return (i);
 }
 
