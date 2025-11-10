@@ -109,7 +109,7 @@ typedef struct s_camera
 
 typedef struct s_spot_light
 {
-	float			range; //this to float for now to get my parser logic sorted
+	float			range;
 	t_tuple			location;
 	t_tuple			rotation;
 	int				size;
@@ -118,7 +118,7 @@ typedef struct s_spot_light
 
 typedef struct s_amb_light
 {
-	float			range; //this to float for now to get my parser logic sorted
+	float			range;
 	uint32_t		rgb;
 }					t_amb_light;
 
@@ -145,8 +145,6 @@ typedef struct s_app
 
 void				rt_parser(char *input, t_system *sys);
 
-// void				init_arena(t_arena *arena, size_t size);
-// void				*arena_add(t_arena *arena, size_t size);
-// void				delete_arena(t_arena *arena);
+float				magnitude_tuple(t_tuple *a);
 
 #endif

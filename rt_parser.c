@@ -6,7 +6,7 @@ static void	error_parser(char *print)
 	if(print != NULL)
 		ft_putstr_fd(print, 2);
 	else
-		ft_putstr_fd("TODO: Instructions for input format here\n", 2);
+		ft_putstr_fd("TODO: General instructions for input format here\n", 2);
 	exit(1);
 }
 
@@ -56,48 +56,36 @@ static int skip_to_end(char *buffer)
 	}
 	if (buffer[i] == '\0')
 		return (i);
-	error_parser("some rubbish characters found at end of file\n");
+	error_parser("some strange characters found around end of file\n");
 	return (i);
 }
 
 static int	parse_int(char *in, int *value, int min, int max)
 {
-	int	i;
-	int	int_start;
-	int	num;
+	int		i;
+	int		num;
 
-	i = 0;
-	i += skip_spaces(in + i);
-	int_start = i;
-	if (in[i] == '-' || in[i] == '+')
-		i++;
-	if (!ft_isdigit(in[i]))
-		error_parser("Expected digit\n");
-	while (in[i] && ft_isdigit(in[i]))
-		i++;
-	num = ft_atoi(in + int_start);
+	i = skip_spaces(in);
+	num = ft_atoi(in + i);
 	if (num < min || num > max)
 		error_parser("Integer out of range\n");
 	*value = num;
+	while (in[i] == '-' || in[i] == '+' || ft_isdigit(in[i]))
+		i++;
 	return (i);
 }
 
 static int	parse_float(char *in, float *out, float min, float max)
 {
 	int		i;
-	int		float_start;
 	float	num;
-	
-	i = 0;
-	i += skip_spaces(in + i);
-	float_start = i;
-	i += skip_float(in + i);
-	if (i == float_start)
-		error_parser("Expected float.\n");
-	num = atof(in + float_start); //ft_atof??
+
+	i = skip_spaces(in);
+	num = atof(in + i); //FT_ATOI?
 	if (num < min || num > max)
 		error_parser("float out of range\n");
 	*out = num;
+	i += skip_float(in + i);
 	return (i);
 }
 
@@ -180,7 +168,9 @@ static void	check_camera(char *buffer, t_system *sys)
 			if(C_found > 1)
 				error_parser("Only one camera (C) allowed.\n");
 			i += parse_xyz(buffer + i, &sys->camera.location, POINT);
-			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR); //no check for normalization yet.
+			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR);
+			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
+				error_parser("TODO: vector not normalized error");
 			i += parse_int(buffer + i, &sys->camera.fov, 0, 180);
 			i += skip_to_end(buffer + i);		
 			continue ;
@@ -255,7 +245,9 @@ static void	check_cylinder(char *buffer, t_system *sys)
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = CYLINDER;
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT);
-			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR); //again no normalization check. Are all our input ve3ctors normalizes?
+			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR);
+			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
+				error_parser("TODO: vector not normalized error");
 			i += parse_float(buffer + i, &obj->cylinder.diameter, -FLOAT_MAX, FLOAT_MAX);
 			i += parse_float(buffer + i, &obj->cylinder.length, -FLOAT_MAX, FLOAT_MAX);
 			i += parse_rgb(buffer + i, &obj->cylinder.color);
@@ -282,7 +274,9 @@ static void	check_plane(char *buffer, t_system *sys)
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = PLANE;
 			i += parse_xyz(buffer + i, &obj->plane.location, POINT);
-			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR); //normalization again
+			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR);
+			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
+				error_parser("TODO: vector not normalized error");
 			i += parse_rgb(buffer + i, &obj->plane.color);
 			i += skip_to_end(buffer + i);		
 			continue ;
