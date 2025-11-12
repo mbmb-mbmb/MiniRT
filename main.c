@@ -4,6 +4,8 @@ static void	ft_error(int error_code)
 {
 	exit(error_code);
 }
+
+/* DEBUGGING FUNCTIONS */
 void	print_matrix(t_mat *M)
 {
 	printf("%f %f %f %f\n", M->m[0][0], M->m[0][1], M->m[0][2], M->m[0][3]);
@@ -11,6 +13,37 @@ void	print_matrix(t_mat *M)
 	printf("%f %f %f %f\n", M->m[2][0], M->m[2][1], M->m[2][2], M->m[2][3]);
 	printf("%f %f %f %f\n", M->m[3][0], M->m[3][1], M->m[3][2], M->m[3][3]);
 }
+
+t_mat	test_matrix_4(void)
+{
+	t_mat	M;
+
+	M = (t_mat){};
+	M.type = FOUR;
+		M.m[0][0] = 1;
+		M.m[0][1] = 2;
+		M.m[0][2] = 3;
+		M.m[0][3] = 4;
+		M.m[1][0] = 5;
+		M.m[1][1] = 6;
+		M.m[1][2] = 7;
+		M.m[1][3] = 8;
+		M.m[2][0] = 9;
+		M.m[2][1] = 10;
+		M.m[2][2] = 11;
+		M.m[2][3] = 12;
+		M.m[3][0] = 13;
+		M.m[3][1] = 14;
+		M.m[3][2] = 15;
+		M.m[3][3] = 16;
+	return (M);
+}
+void	print_tuple(t_tuple *T)
+{
+	printf("T: %f, %f, %f, %f\n", T->x, T->y, T->z, T->w);
+}
+
+/* END DEBUGGING FUNCTIONS */
 
 static void	init_system(t_system *sys)
 {
@@ -239,6 +272,11 @@ float	dot_product_tuple(t_tuple *a, t_tuple *b)
 	return (a->x * b->x + a->y * b->y + a->z * b->z);
 }
 
+float	dot_product_tuple_naive(t_tuple *a, t_tuple *b)
+{
+	return (a->x * b->x + a->y * b->y + a->z * b->z + a->w * b->w);
+}
+
 t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 {
 	t_tuple	result;
@@ -361,14 +399,14 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 	t_tuple	cool;
 
 	i = 0;
-	while(i < 3)
+	while(i < 4)
 	{
 		j = 0;
-		while(j < 3)
+		while(j < 4)
 		{
 			roow = row(A, i);
 			cool = col(B, j);
-			M.m[i][j] = dot_product_tuple(&roow, &cool);
+			M.m[i][j] = dot_product_tuple_naive(&roow, &cool);
 			j++;
 		}
 		i++;
@@ -387,13 +425,13 @@ t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 	{
 		roow = row(A, i);
 		if (i == 0)
-			T.x = dot_product_tuple(&roow, tup);
+			T.x = dot_product_tuple_naive(&roow, tup);
 		else if (i == 1)
-			T.y = dot_product_tuple(&roow, tup);
+			T.y = dot_product_tuple_naive(&roow, tup);
 		else if (i == 2)
-			T.z = dot_product_tuple(&roow, tup);
+			T.z = dot_product_tuple_naive(&roow, tup);
 		else if (i == 3)
-			T.w = dot_product_tuple(&roow, tup);
+			T.w = dot_product_tuple_naive(&roow, tup);
 		i++;
 	}
 	return (T);
@@ -422,25 +460,28 @@ t_mat	create_identity_matrix(int dim)
 	return (M);
 }
 
-void	transpose_matrix(t_mat *M, int dim)
+t_mat	transpose_matrix(t_mat *M, int dim)
 {
-	int	i;
-	int	j;
-	int	temp;
+	int		i;
+	int		j;
+	int		temp[dim][dim];
+	t_mat	M_trans;
 
+	M_trans.type = M->type;
 	i = 0;
-	while(i < dim - 1)
+	while(i < dim)
 	{
 		j = 0;
-		while(j < dim -1)
+		while(j < dim)
 		{
-			temp = M->m[i][j];
-			M->m[i][j] = M->m[j][i];
-			M->m[j][i] = temp;
+			temp[i][j] = M->m[i][j];
+			M_trans.m[i][j] = M->m[j][i];
+			M_trans.m[j][i] = temp[i][j];
 			j++;
 		}
 		i++;
 	}
+	return (M_trans);
 }
 
 t_mat	submatrix(t_mat *M, int row, int col, int dim)
@@ -498,7 +539,6 @@ float	determinant_of_matrix(t_mat *M, int dim)
 	return (0.0f); //TODO
 }
 
-
 int	main(int argc, char **av)
 {
 	t_app	app;
@@ -519,8 +559,26 @@ int	main(int argc, char **av)
 	mlx_loop_hook(app.mlx, frame, &app);
 	mlx_loop(app.mlx);
 
-	t_mat M = create_identity_matrix(4);
+	//matrix testing
+	
+	printf("Original test matrix\n");
+	t_mat M = test_matrix_4();
 	print_matrix(&M);
+	t_tuple T = create_point(1, 2, 3);
+	t_tuple T_out = multiply_matrix_and_tuple(&M, &T);
+	printf("Multiplied test matrix and tuple\n");
+	print_tuple(&T_out);
+	printf("submatrix testing\n");
+	t_mat M_sub = submatrix(&M, 1, 2, 4);
+	print_matrix(&M_sub);
+	t_mat M_transposed = transpose_matrix(&M, 4);
+	printf("Transposed test matrix\n");
+	print_matrix(&M_transposed);
+	t_mat M_trans_mult = multiply_matrices(&M, &M_transposed);
+	printf("Multiplied test matrix and transposed matrix\n");
+	print_matrix(&M_trans_mult);
+	//end matrix testing
+
 	code = cleanup(&app.system);
 	mlx_terminate(app.mlx);
 	return (code);
