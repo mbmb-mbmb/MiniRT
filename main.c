@@ -296,8 +296,8 @@ t_mat	create_matrix_2(float m[2][2])
 {
 	t_mat	matrix;
 
-	matrix.type = TWO;
 	matrix = (t_mat){};
+	matrix.type = TWO;
 	matrix[0][0] = m[0][0];
 	matrix[0][1] = m[0][1];
 	matrix[1][0] = m[1][0];
@@ -323,37 +323,194 @@ t_mat	create_matrix_3(float m[3][3])
 	return (matrix);
 }
 
+int	get_matrix_dim(t_mat *M, t_mat *B)
+{
+	if (B == NULL || (M->type == B->type))
+	{
+		if (M->type = THREE)
+			return (3);
+		if (M->type = TWO)
+			return (2);
+		if (M->type = FOUR)
+			return (4);
+	}
+	ft_error(13); //TODO
+	return (-1);
+}
+
 bool	matrices_are_equal(t_mat *a, t_mat *b)
 {
 	bool	result;
 	return (result);
 }
 
-t_mat	multiply_matrices(t_mat *a, t_mat *b)
+t_tuple	row(t_mat *M, int row)
 {
-	return (result);
+	t_tuple	M_row;
+
+	M_row.w = M[row][0];
+	M_row.x = M[row][1];
+	M_row.y = M[row][2];
+	M_row.z = M[row][3];
+	return (M_row);
 }
 
-t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup)
+t_tuple	col(t_mat *M, int col)
 {
+	t_tuple	M_row;
+
+	M_col.w = M[0][col];
+	M_col.x = M[1][col];
+	M_col.y = M[2][col];
+	M_col.z = M[3][col];
+	return (M_col);
 }
 
-t_mat	identity_of_matrix(t_mat *mat)
+t_mat	multiply_matrices(t_mat *A, t_mat *B)
 {
+	t_mat	M;
+	int		i;
+	int		j;
+
+	i = 0;
+	while(i < 3)
+	{
+		j = 0;
+		while(j < 3)
+		{
+			M[i][j] = dot_product_tuple(row(A, i), col(B, j));
+			j++;
+		}
+		i++;
+	}
+	return (M);
+}
+
+t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
+{
+	t_mat	M;
+	int		i;
+	int		j;
+
+	i = 0;
+	while(i < 3)
+	{
+		j = 0;
+		while(j < 3)
+		{
+			M[i][j] = dot_product_tuple(row(A, i), tup[j]);
+			j++;
+		}
+		i++;
+	}
+	return (M);
+}
+
+t_mat	identity_matrix(int dim)
+{
+	t_mat	M;
+	int		i;
+	int		j;
+
+	i = 0;
+	while(i < dim)
+	{
+		j = 0;
+		while(j < dim)
+		{
+			if (i == j)
+				M[i][j] = 1;
+			else
+				M[i][j] = 0;
+			j++;
+		}
+		i++;
+	}
+	return (M);
+}
+
+void	transpose_matrix(t_mat *M, int dim)
+{
+	int	i;
+	int	j;
+	int	temp;
+
+	i = 0;
+	while(i < dim - 1)
+	{
+		j = 0;
+		while(j < dim -1)
+		{
+			temp = M[i][j];
+			M[i][j] = M[j][i];
+			M[j][i] = temp;
+			j++;
+		}
+		i++;
+	}
+}
+
+t_mat	submatrix(t_mat *M, int row, int col, int dim)
+{
+	int		i_M;
+	int		j_M;
+	int		i_out;
+	int		j_out;
+	float	out[dim-1][dim-1];
+
+
+	i_out = 0;
+	i_M = 0;
+	while(i_M < dim)
+	{
+		if (i_M == row)
+		{
+			i_M++;
+			continue ;
+		}
+		j_out = 0;
+		j_M = 0;
+		while(j_M < dim)
+		{
+			if( j_M == col)
+			{
+				j_M++;
+				continue ;
+			}
+			out[i_out][j_out] = M[i_M][j_M];
+			j_M++;
+			j_out++;
+		}
+		i_M++;
+		i_out++;
+	}
+	if (dim == 4)
+		return (create_matrix_3(out));
+	else
+		return (create_matrix_2(out));
 }
 
 t_mat	invert_matrix(t_mat *mat)
 {
 }
 
-t_mat	determinant_of_matrix(t_mat *mat)
+t_mat	determinant_of_matrix(t_mat *M, int dim)
 {
+	if (dim == 1)
+		return (M[0][0]);
+	if (dim == 2)
+		return (M[0][0] * M[1][1] - M[0][1] * M[1][0]);
+	while()
 }
 
-t_mat	submatrix(t_mat *mat)
+
+
+minor_of_matrix()
 {
+
 }
 
-minor_of_matrix
+cofactor_of_matrix()
+{
 
-cofactor_of_matrix
+}
