@@ -284,10 +284,11 @@ t_mat create_matrix_4(float m[4][4])
 {
 	t_mat	matrix;
 
-	matrix[0] = *m[0];
-	matrix[1] = *m[1];
-	matrix[2] = *m[2];
-	matrix[3] = *m[3];
+	matrix.type = FOUR;
+	matrix.m[0] = *m[0];
+	matrix.m[1] = *m[1];
+	matrix.m[2] = *m[2];
+	matrix.m[3] = *m[3];
 	return (matrix);
 }
 
@@ -295,6 +296,7 @@ t_mat	create_matrix_2(float m[2][2])
 {
 	t_mat	matrix;
 
+	matrix.type = TWO;
 	matrix = (t_mat){};
 	matrix[0][0] = m[0][0];
 	matrix[0][1] = m[0][1];
@@ -308,6 +310,7 @@ t_mat	create_matrix_3(float m[3][3])
 	t_mat	matrix;
 
 	matrix = (t_mat){};
+	matrix.type = THREE;
 	matrix[0][0] = m[0][0];
 	matrix[0][1] = m[0][1];
 	matrix[0][2] = m[0][2];
