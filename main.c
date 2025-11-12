@@ -272,3 +272,88 @@ t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 		* b->z, .z = a->x * b->y - a->y * b->x, .w = VECTOR};
 	return (result);
 }
+
+t_tuple create_color(float red, float green, float blue, float alpha)
+{
+	t_tuple result;
+	result = (t_tuple){ .x = red, .y = green, .z = blue, .w = alpha};
+	return (result);
+}
+
+t_mat create_matrix_4(float m[4][4])
+{
+	t_mat	matrix;
+
+	matrix.type = FOUR;
+	matrix.m[0] = *m[0];
+	matrix.m[1] = *m[1];
+	matrix.m[2] = *m[2];
+	matrix.m[3] = *m[3];
+	return (matrix);
+}
+
+t_mat	create_matrix_2(float m[2][2])
+{
+	t_mat	matrix;
+
+	matrix.type = TWO;
+	matrix = (t_mat){};
+	matrix[0][0] = m[0][0];
+	matrix[0][1] = m[0][1];
+	matrix[1][0] = m[1][0];
+	matrix[1][1] = m[1][1];
+	return (matrix);
+}
+
+t_mat	create_matrix_3(float m[3][3])
+{
+	t_mat	matrix;
+
+	matrix = (t_mat){};
+	matrix.type = THREE;
+	matrix[0][0] = m[0][0];
+	matrix[0][1] = m[0][1];
+	matrix[0][2] = m[0][2];
+	matrix[1][0] = m[1][0];
+	matrix[1][1] = m[1][1];
+	matrix[1][2] = m[1][2];
+	matrix[2][0] = m[2][0];
+	matrix[2][1] = m[2][1];
+	matrix[2][2] = m[2][2];
+	return (matrix);
+}
+
+bool	matrices_are_equal(t_mat *a, t_mat *b)
+{
+	bool	result;
+	return (result);
+}
+
+t_mat	multiply_matrices(t_mat *a, t_mat *b)
+{
+	return (result);
+}
+
+t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup)
+{
+}
+
+t_mat	identity_of_matrix(t_mat *mat)
+{
+}
+
+t_mat	invert_matrix(t_mat *mat)
+{
+}
+
+t_mat	determinant_of_matrix(t_mat *mat)
+{
+}
+
+t_mat	submatrix(t_mat *mat)
+{
+}
+
+minor_of_matrix
+
+cofactor_of_matrix

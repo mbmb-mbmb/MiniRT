@@ -14,12 +14,12 @@
 # define WIDTH 256
 # define HEIGHT 256
 # define EPSILON 0.00001
-# define VECTOR 0
-# define POINT 1
-# define TUPLE_INCORRECT 2
 # define FLOAT_MAX 3.40282347e+38F
 # define MAX_LIGHTS 256
 # define MAX_OBJECTS 512
+# define VECTOR 0.0f
+# define POINT 1.0f
+# define TUPLE_INCORRECT 2.0f
 
 typedef enum e_sys_state
 {
@@ -29,6 +29,19 @@ typedef enum e_sys_state
 	PARSING = (1 << 3),
 	INIT = (1 << 4),
 }					t_sys_state;
+
+typedef enum e_matrix_type
+{
+	FOUR,
+	THREE,
+	TWO
+}	t_matrix_type;
+
+typedef	struct s_mat
+{
+	t_matrix_type	type;
+	float			m[4][4];
+}			t_mat;
 
 typedef struct s_tuple
 {
