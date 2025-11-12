@@ -379,19 +379,24 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 {
 	int		i;
-	t_tuple	tup_out;
+	t_tuple	T;
 	t_tuple	roow;
-	float	*tup_ptr;
 
-	tup_ptr = (float *)&tup_out;
 	i = 0;
 	while(i < 4)
 	{
 		roow = row(A, i);
-		tup_ptr[i] = dot_product_tuple(&roow, tup);
+		if (i == 0)
+			T.x = dot_product_tuple(&roow, tup);
+		else if (i == 1)
+			T.y = dot_product_tuple(&roow, tup);
+		else if (i == 2)
+			T.z = dot_product_tuple(&roow, tup);
+		else if (i == 3)
+			T.w = dot_product_tuple(&roow, tup);
 		i++;
 	}
-	return (tup_out);
+	return (T);
 }
 
 t_mat	create_identity_matrix(int dim)
