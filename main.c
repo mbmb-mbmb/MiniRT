@@ -6,10 +6,10 @@ static void	ft_error(int error_code)
 }
 void	print_matrix(t_mat *M)
 {
-	printf("%f %f %f %f\n", M.m[0][0], M.m[0][1], M.m[0][2], M.m[0][3]);
-	printf("%f %f %f %f\n", M.m[1][0], M.m[1][1], M.m[1][2], M.m[1][3]);
-	printf("%f %f %f %f\n", M.m[2][0], M.m[2][1], M.m[2][2], M.m[2][3]);
-	printf("%f %f %f %f\n", M.m[3][0], M.m[3][1], M.m[3][2], M.m[3][3]);
+	printf("%f %f %f %f\n", M->m[0][0], M->m[0][1], M->m[0][2], M->m[0][3]);
+	printf("%f %f %f %f\n", M->m[1][0], M->m[1][1], M->m[1][2], M->m[1][3]);
+	printf("%f %f %f %f\n", M->m[2][0], M->m[2][1], M->m[2][2], M->m[2][3]);
+	printf("%f %f %f %f\n", M->m[3][0], M->m[3][1], M->m[3][2], M->m[3][3]);
 }
 
 static void	init_system(t_system *sys)
@@ -67,33 +67,6 @@ static void	frame(void *param)
 	{
 		mlx_close_window(app->mlx);
 	}
-}
-
-int	main(int argc, char **av)
-{
-	t_app	app;
-	int		code;
-
-	app = (t_app){};
-	app.system = (t_system){};
-	if (argc != 2)
-		ft_error(1);
-	init_system(&app.system);
-	rt_parser(av[1], &app.system);
-	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
-	if (!app.mlx)
-		ft_error(1);
-	app.img = mlx_new_image(app.mlx, WIDTH, HEIGHT);
-	if (!app.img || (mlx_image_to_window(app.mlx, app.img, 0, 0) < 0))
-		ft_error(1);
-	mlx_loop_hook(app.mlx, frame, &app);
-	mlx_loop(app.mlx);
-
-	t_mat M = create_identity_matrix(4);
-	print_matrix(M);
-	code = cleanup(&app.system);
-	mlx_terminate(app.mlx);
-	return (code);
 }
 
 t_tuple	create_point(float x, float y, float z)
@@ -290,17 +263,17 @@ t_tuple create_color(float red, float green, float blue, float alpha)
 	return (result);
 }
 
-t_mat create_matrix_4(float m[4][4])
-{
-	t_mat	matrix;
+// t_mat create_matrix_4(float m[4][4])
+// {
+// 	t_mat	matrix;
 
-	matrix.type = FOUR;
-	matrix.m[0] = *m[0];
-	matrix.m[1] = *m[1];
-	matrix.m[2] = *m[2];
-	matrix.m[3] = *m[3];
-	return (matrix);
-}
+// 	matrix.type = FOUR;
+// 	matrix.m[0] = *m[0];
+// 	matrix.m[1] = *m[1];
+// 	matrix.m[2] = *m[2];
+// 	matrix.m[3] = *m[3];
+// 	return (matrix);
+// }
 
 t_mat	create_matrix_2(float m[2][2])
 {
@@ -308,12 +281,14 @@ t_mat	create_matrix_2(float m[2][2])
 
 	matrix = (t_mat){};
 	matrix.type = TWO;
-	matrix[0][0] = m[0][0];
-	matrix[0][1] = m[0][1];
-	matrix[1][0] = m[1][0];
-	matrix[1][1] = m[1][1];
+	matrix.m[0][0] = m[0][0];
+	matrix.m[0][1] = m[0][1];
+	matrix.m[1][0] = m[1][0];
+	matrix.m[1][1] = m[1][1];
 	return (matrix);
 }
+
+
 
 t_mat	create_matrix_3(float m[3][3])
 {
@@ -321,15 +296,15 @@ t_mat	create_matrix_3(float m[3][3])
 
 	matrix = (t_mat){};
 	matrix.type = THREE;
-	matrix[0][0] = m[0][0];
-	matrix[0][1] = m[0][1];
-	matrix[0][2] = m[0][2];
-	matrix[1][0] = m[1][0];
-	matrix[1][1] = m[1][1];
-	matrix[1][2] = m[1][2];
-	matrix[2][0] = m[2][0];
-	matrix[2][1] = m[2][1];
-	matrix[2][2] = m[2][2];
+	matrix.m[0][0] = m[0][0];
+	matrix.m[0][1] = m[0][1];
+	matrix.m[0][2] = m[0][2];
+	matrix.m[1][0] = m[1][0];
+	matrix.m[1][1] = m[1][1];
+	matrix.m[1][2] = m[1][2];
+	matrix.m[2][0] = m[2][0];
+	matrix.m[2][1] = m[2][1];
+	matrix.m[2][2] = m[2][2];
 	return (matrix);
 }
 
@@ -337,21 +312,22 @@ int	get_matrix_dim(t_mat *M, t_mat *B)
 {
 	if (B == NULL || (M->type == B->type))
 	{
-		if (M->type = THREE)
+		if (M->type == THREE)
 			return (3);
-		if (M->type = TWO)
+		if (M->type == TWO)
 			return (2);
-		if (M->type = FOUR)
+		if (M->type == FOUR)
 			return (4);
 	}
 	ft_error(13); //TODO
 	return (-1);
 }
 
-bool	matrices_are_equal(t_mat *a, t_mat *b)
+bool	matrices_are_equal(t_mat *A, t_mat *B)
 {
-	bool	result;
-	return (result);
+	(void)A;
+	(void)B;
+	return (true);
 }
 
 t_tuple	row(t_mat *M, int row)
@@ -403,24 +379,19 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 {
 	int		i;
-	int		j;
-	t_tuple	T;
+	t_tuple	tup_out;
 	t_tuple	roow;
-	t_tuple	cool;
+	float	*tup_ptr;
 
+	tup_ptr = (float *)&tup_out;
 	i = 0;
-	while(i < 3)
+	while(i < 4)
 	{
-		j = 0;
-		while(j < 3)
-		{
-			roow = row(A, i);
-			T[i] = dot_product_tuple(&roow, tup);
-			j++;
-		}
+		roow = row(A, i);
+		tup_ptr[i] = dot_product_tuple(&roow, tup);
 		i++;
 	}
-	return (T);
+	return (tup_out);
 }
 
 t_mat	create_identity_matrix(int dim)
@@ -458,9 +429,9 @@ void	transpose_matrix(t_mat *M, int dim)
 		j = 0;
 		while(j < dim -1)
 		{
-			temp = M[i][j];
-			M[i][j] = M[j][i];
-			M[j][i] = temp;
+			temp = M->m[i][j];
+			M->m[i][j] = M->m[j][i];
+			M->m[j][i] = temp;
 			j++;
 		}
 		i++;
@@ -494,7 +465,7 @@ t_mat	submatrix(t_mat *M, int row, int col, int dim)
 				j_M++;
 				continue ;
 			}
-			out[i_out][j_out] = M[i_M][j_M];
+			out[i_out][j_out] = M->m[i_M][j_M];
 			j_M++;
 			j_out++;
 		}
@@ -507,27 +478,45 @@ t_mat	submatrix(t_mat *M, int row, int col, int dim)
 		return (create_matrix_2(out));
 }
 
-t_mat	invert_matrix(t_mat *mat)
+t_mat	invert_matrix(t_mat *M)
 {
+	return (*M); //TODO
 }
 
-t_mat	determinant_of_matrix(t_mat *M, int dim)
+float	determinant_of_matrix(t_mat *M, int dim)
 {
 	if (dim == 1)
-		return (M[0][0]);
+		return (M->m[0][0]);	
 	if (dim == 2)
-		return (M[0][0] * M[1][1] - M[0][1] * M[1][0]);
-	while()
+		return (M->m[0][0] * M->m[1][1] - M->m[0][1] * M->m[1][0]);
+
+	return (0.0f); //TODO
 }
 
 
-
-minor_of_matrix()
+int	main(int argc, char **av)
 {
+	t_app	app;
+	int		code;
 
-}
+	app = (t_app){};
+	app.system = (t_system){};
+	if (argc != 2)
+		ft_error(1);
+	init_system(&app.system);
+	rt_parser(av[1], &app.system);
+	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
+	if (!app.mlx)
+		ft_error(1);
+	app.img = mlx_new_image(app.mlx, WIDTH, HEIGHT);
+	if (!app.img || (mlx_image_to_window(app.mlx, app.img, 0, 0) < 0))
+		ft_error(1);
+	mlx_loop_hook(app.mlx, frame, &app);
+	mlx_loop(app.mlx);
 
-cofactor_of_matrix()
-{
-
+	t_mat M = create_identity_matrix(4);
+	print_matrix(&M);
+	code = cleanup(&app.system);
+	mlx_terminate(app.mlx);
+	return (code);
 }
