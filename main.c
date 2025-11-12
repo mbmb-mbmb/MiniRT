@@ -4,6 +4,13 @@ static void	ft_error(int error_code)
 {
 	exit(error_code);
 }
+void	print_matrix(t_mat *M)
+{
+	printf("%f %f %f %f\n", M.m[0][0], M.m[0][1], M.m[0][2], M.m[0][3]);
+	printf("%f %f %f %f\n", M.m[1][0], M.m[1][1], M.m[1][2], M.m[1][3]);
+	printf("%f %f %f %f\n", M.m[2][0], M.m[2][1], M.m[2][2], M.m[2][3]);
+	printf("%f %f %f %f\n", M.m[3][0], M.m[3][1], M.m[3][2], M.m[3][3]);
+}
 
 static void	init_system(t_system *sys)
 {
@@ -81,6 +88,9 @@ int	main(int argc, char **av)
 		ft_error(1);
 	mlx_loop_hook(app.mlx, frame, &app);
 	mlx_loop(app.mlx);
+
+	t_mat M = create_identity_matrix(4);
+	print_matrix(M);
 	code = cleanup(&app.system);
 	mlx_terminate(app.mlx);
 	return (code);
@@ -348,21 +358,21 @@ t_tuple	row(t_mat *M, int row)
 {
 	t_tuple	M_row;
 
-	M_row.w = M[row][0];
-	M_row.x = M[row][1];
-	M_row.y = M[row][2];
-	M_row.z = M[row][3];
+	M_row.w = M->m[row][0];
+	M_row.x = M->m[row][1];
+	M_row.y = M->m[row][2];
+	M_row.z = M->m[row][3];
 	return (M_row);
 }
 
 t_tuple	col(t_mat *M, int col)
 {
-	t_tuple	M_row;
+	t_tuple	M_col;
 
-	M_col.w = M[0][col];
-	M_col.x = M[1][col];
-	M_col.y = M[2][col];
-	M_col.z = M[3][col];
+	M_col.w = M->m[0][col];
+	M_col.x = M->m[1][col];
+	M_col.y = M->m[2][col];
+	M_col.z = M->m[3][col];
 	return (M_col);
 }
 
@@ -371,6 +381,8 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 	t_mat	M;
 	int		i;
 	int		j;
+	t_tuple	roow;
+	t_tuple	cool;
 
 	i = 0;
 	while(i < 3)
@@ -378,7 +390,9 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 		j = 0;
 		while(j < 3)
 		{
-			M[i][j] = dot_product_tuple(row(A, i), col(B, j));
+			roow = row(A, i);
+			cool = col(B, j);
+			M.m[i][j] = dot_product_tuple(&roow, &cool);
 			j++;
 		}
 		i++;
@@ -388,9 +402,11 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 
 t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 {
-	t_mat	M;
 	int		i;
 	int		j;
+	t_tuple	T;
+	t_tuple	roow;
+	t_tuple	cool;
 
 	i = 0;
 	while(i < 3)
@@ -398,15 +414,16 @@ t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 		j = 0;
 		while(j < 3)
 		{
-			M[i][j] = dot_product_tuple(row(A, i), tup[j]);
+			roow = row(A, i);
+			T[i] = dot_product_tuple(&roow, tup);
 			j++;
 		}
 		i++;
 	}
-	return (M);
+	return (T);
 }
 
-t_mat	identity_matrix(int dim)
+t_mat	create_identity_matrix(int dim)
 {
 	t_mat	M;
 	int		i;
@@ -419,9 +436,9 @@ t_mat	identity_matrix(int dim)
 		while(j < dim)
 		{
 			if (i == j)
-				M[i][j] = 1;
+				M.m[i][j] = 1;
 			else
-				M[i][j] = 0;
+				M.m[i][j] = 0;
 			j++;
 		}
 		i++;
