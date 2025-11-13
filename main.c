@@ -357,14 +357,30 @@ int	get_matrix_dim(t_mat *M, t_mat *B)
 		if (M->type == FOUR)
 			return (4);
 	}
-	ft_error(13); //TODO
 	return (-1);
 }
 
 bool	matrices_are_equal(t_mat *A, t_mat *B)
 {
-	(void)A;
-	(void)B;
+	int	i;
+	int	j;
+	int	dim;
+
+	dim = get_matrix_dim(A, B);
+	if (dim == -1)
+		return (false);
+	i = 0;
+	while(i < dim)
+	{
+		j = 0;
+		while(j < dim)
+		{
+			if(A->m[i][j] != B->m[i][j])
+				return (false);
+			j++;
+		}
+		i++;
+	}
 	return (true);
 }
 
@@ -524,19 +540,38 @@ t_mat	submatrix(t_mat *M, int row, int col, int dim)
 		return (create_matrix_2(out));
 }
 
+float	determinant_of_matrix(t_mat *M, int dim)
+{
+	int		col;
+	int		sign;
+	t_mat	M_sub;
+	float	det;
+	float	det_temp;
+
+	col = 0;
+	det = 0.0f;
+	sign = 0;
+	if (dim == 1)
+		return (M->m[0][0]);
+	if (dim == 2)
+		return (M->m[0][0] * M->m[1][1] - M->m[0][1] * M->m[1][0]);
+	while (col < dim)
+	{
+		M_sub = submatrix(M, 0, col, dim - 1);
+		if ((0 + col) % 2 == 0)
+			sign = 1;
+		else
+		 	sign = -1;
+		det_temp = determinant_of_matrix(&M_sub, dim - 1);
+		det += sign * M->m[0][col] * det_temp;
+		col++;
+	}
+	return (det);
+}
+
 t_mat	invert_matrix(t_mat *M)
 {
 	return (*M); //TODO
-}
-
-float	determinant_of_matrix(t_mat *M, int dim)
-{
-	if (dim == 1)
-		return (M->m[0][0]);	
-	if (dim == 2)
-		return (M->m[0][0] * M->m[1][1] - M->m[0][1] * M->m[1][0]);
-
-	return (0.0f); //TODO
 }
 
 int	main(int argc, char **av)
@@ -560,7 +595,7 @@ int	main(int argc, char **av)
 	mlx_loop(app.mlx);
 
 	//matrix testing
-	
+
 	printf("Original test matrix\n");
 	t_mat M = test_matrix_4();
 	print_matrix(&M);
@@ -577,6 +612,12 @@ int	main(int argc, char **av)
 	t_mat M_trans_mult = multiply_matrices(&M, &M_transposed);
 	printf("Multiplied test matrix and transposed matrix\n");
 	print_matrix(&M_trans_mult);
+	printf("determinant of a matrix\n");
+	float det = determinant_of_matrix(&M, 4);
+	printf("%f\n", det);
+	printf("Matrixes are equal?\n");
+	bool eq = matrices_are_equal(&M, &M_transposed);
+	printf("%i\n", eq);
 	//end matrix testing
 
 	code = cleanup(&app.system);
