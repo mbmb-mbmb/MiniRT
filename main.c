@@ -24,18 +24,21 @@ t_mat	test_matrix_4(void)
 		M.m[0][1] = 2;
 		M.m[0][2] = 3;
 		M.m[0][3] = 4;
-		M.m[1][0] = 5;
-		M.m[1][1] = 6;
-		M.m[1][2] = 7;
-		M.m[1][3] = 8;
-		M.m[2][0] = 9;
-		M.m[2][1] = 10;
-		M.m[2][2] = 11;
-		M.m[2][3] = 12;
-		M.m[3][0] = 13;
-		M.m[3][1] = 14;
-		M.m[3][2] = 15;
-		M.m[3][3] = 16;
+
+		M.m[1][0] = 0;
+		M.m[1][1] = 1;
+		M.m[1][2] = 2;
+		M.m[1][3] = 3;
+
+		M.m[2][0] = 1;
+		M.m[2][1] = 0;
+		M.m[2][2] = 1;
+		M.m[2][3] = 2;
+
+		M.m[3][0] = 2;
+		M.m[3][1] = 1;
+		M.m[3][2] = 0;
+		M.m[3][3] = 1;
 	return (M);
 }
 void	print_tuple(t_tuple *T)
@@ -540,11 +543,11 @@ t_mat	submatrix(t_mat *M, int row, int col, int dim)
 		return (create_matrix_2(out));
 }
 
-float	determinant_of_matrix(t_mat *M, int dim)
+float	determinant(t_mat *M, int dim)
 {
+	t_mat	M_sub;
 	int		col;
 	int		sign;
-	t_mat	M_sub;
 	float	det;
 	float	det_temp;
 
@@ -557,21 +560,88 @@ float	determinant_of_matrix(t_mat *M, int dim)
 		return (M->m[0][0] * M->m[1][1] - M->m[0][1] * M->m[1][0]);
 	while (col < dim)
 	{
-		M_sub = submatrix(M, 0, col, dim - 1);
+		M_sub = submatrix(M, 0, col, dim);
 		if ((0 + col) % 2 == 0)
 			sign = 1;
 		else
 		 	sign = -1;
-		det_temp = determinant_of_matrix(&M_sub, dim - 1);
+		det_temp = determinant(&M_sub, dim - 1);
 		det += sign * M->m[0][col] * det_temp;
 		col++;
 	}
 	return (det);
 }
 
+float	cofactor_one_cell(t_mat *M, int i, int j, int dim)
+{
+	t_mat	M_sub;
+	int		sign;
+	float	c;
+
+	M_sub = submatrix(M, i, j, dim);
+	c = determinant(&M_sub, dim - 1);
+	if ((i + j) % 2 == 0)
+		sign = 1;
+	else
+		sign = -1;
+	return(c * sign);
+}
+
+t_mat	cofactor_matrix(t_mat *M)
+{
+	t_mat	M_out;
+	int		i;
+	int		j;
+	int		dim;
+
+	i = 0;
+	dim = get_matrix_dim(M, NULL);
+	while(i < dim)
+	{
+		j = 0;
+		while(j < dim)
+		{
+			M_out.m[i][j] = cofactor_one_cell(M, i, j, dim);
+			j++;
+		}
+		i++;
+	}
+	return (M_out);
+}
+
+bool	is_matrix_invertible(t_mat *M)
+{
+	if(determinant(M, get_matrix_dim(M, NULL)) == 0)
+		return (false);
+	return (true);
+}
+
 t_mat	invert_matrix(t_mat *M)
 {
-	return (*M); //TODO
+	t_mat	M_inv;
+	float	c;
+	float	d;
+	int		i;
+	int		j;
+	int		dim;
+
+	dim = get_matrix_dim(M, NULL);
+	d = determinant(M, dim);
+	i = 0;
+	if (!is_matrix_invertible(M))
+		return (create_identity_matrix(4));
+	while(i < dim)
+	{
+		j = 0;
+		while(j < dim)
+		{
+			c = cofactor_one_cell(M, j, i, dim);
+			M_inv.m[i][j] = c / d;
+			j++;
+		}
+		i++;
+	}
+	return (M_inv);
 }
 
 int	main(int argc, char **av)
@@ -598,6 +668,7 @@ int	main(int argc, char **av)
 
 	printf("Original test matrix\n");
 	t_mat M = test_matrix_4();
+	t_mat M_identity = create_identity_matrix(4);
 	print_matrix(&M);
 	t_tuple T = create_point(1, 2, 3);
 	t_tuple T_out = multiply_matrix_and_tuple(&M, &T);
@@ -613,11 +684,22 @@ int	main(int argc, char **av)
 	printf("Multiplied test matrix and transposed matrix\n");
 	print_matrix(&M_trans_mult);
 	printf("determinant of a matrix\n");
-	float det = determinant_of_matrix(&M, 4);
+	float det = determinant(&M_identity, 4);
+	print_matrix(&M_identity);
 	printf("%f\n", det);
 	printf("Matrixes are equal?\n");
-	bool eq = matrices_are_equal(&M, &M_transposed);
+	bool eq = matrices_are_equal(&M, &M);
 	printf("%i\n", eq);
+	printf("Is invertible?\n");
+	bool inv = is_matrix_invertible(&M_identity);
+	printf("%i\n", inv);
+	printf("Cofactor matrix\n");
+	t_mat M_cof = cofactor_matrix(&M);
+	print_matrix(&M_cof);
+	printf("Matrix inversion\n");
+	t_mat M_inv = invert_matrix(&M);
+	print_matrix(&M_inv);
+
 	//end matrix testing
 
 	code = cleanup(&app.system);
