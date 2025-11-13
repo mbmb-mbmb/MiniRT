@@ -105,6 +105,16 @@ static void	frame(void *param)
 	}
 }
 
+float	degrees_to_radians(float degrees)
+{
+	return (degrees * M_PI / 180.0);
+}
+
+float	radians_to_degrees(float radians)
+{
+	return (radians * 180.0 / M_PI);
+}
+
 t_tuple	create_point(float x, float y, float z)
 {
 	t_tuple	point;
@@ -329,8 +339,6 @@ t_mat	create_matrix_2(float m[2][2])
 	return (matrix);
 }
 
-
-
 t_mat	create_matrix_3(float m[3][3])
 {
 	t_mat	matrix;
@@ -348,7 +356,6 @@ t_mat	create_matrix_3(float m[3][3])
 	matrix.m[2][2] = m[2][2];
 	return (matrix);
 }
-
 int	get_matrix_dim(t_mat *M, t_mat *B)
 {
 	if (B == NULL || (M->type == B->type))
@@ -362,6 +369,43 @@ int	get_matrix_dim(t_mat *M, t_mat *B)
 	}
 	return (-1);
 }
+
+void	set_matrix_dim(t_mat *M, int dim)
+{
+	if (dim == 3)
+		M->type = THREE;
+	else if (dim == 2)
+		M->type = TWO;
+	else if (dim == 4)
+		M->type = FOUR;
+	else
+		M->type = -1;
+}
+
+t_mat	create_identity_matrix(int dim)
+{
+	t_mat	M;
+	int		i;
+	int		j;
+
+	i = 0;
+	while(i < dim)
+	{
+		j = 0;
+		while(j < dim)
+		{
+			if (i == j)
+				M.m[i][j] = 1;
+			else
+				M.m[i][j] = 0;
+			j++;
+		}
+		i++;
+	}
+	set_matrix_dim(&M, dim);
+	return (M);
+}
+
 
 bool	matrices_are_equal(t_mat *A, t_mat *B)
 {
@@ -454,29 +498,6 @@ t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 		i++;
 	}
 	return (T);
-}
-
-t_mat	create_identity_matrix(int dim)
-{
-	t_mat	M;
-	int		i;
-	int		j;
-
-	i = 0;
-	while(i < dim)
-	{
-		j = 0;
-		while(j < dim)
-		{
-			if (i == j)
-				M.m[i][j] = 1;
-			else
-				M.m[i][j] = 0;
-			j++;
-		}
-		i++;
-	}
-	return (M);
 }
 
 t_mat	transpose_matrix(t_mat *M, int dim)
@@ -642,6 +663,78 @@ t_mat	invert_matrix(t_mat *M)
 		i++;
 	}
 	return (M_inv);
+}
+
+t_mat	translation(float x, float y, float z)
+{
+	t_mat	M;
+
+	M = create_identity_matrix(4);
+	M.m[0][3] = x;
+	M.m[1][3] = y;
+	M.m[2][3] = z;
+	return (M);
+}
+
+t_mat	scaling(float x, float y, float z)
+{
+	t_mat	M;
+
+	M = create_identity_matrix(4);
+	M.m[0][0] = x;
+	M.m[1][1] = y;
+	M.m[2][2] = z;
+	return (M);
+}
+
+t_mat	rotate_x(float x)
+{
+	t_mat	M;
+
+	M = create_identity_matrix(4);
+	M.m[1][1] = cos(x);
+	M.m[2][1] = -sin(x);
+	M.m[1][2] = sin(x);    
+	M.m[2][2] = cos(x);
+	return (M);
+}
+
+t_mat	rotate_y(float y)
+{
+	t_mat	M;
+
+	M = create_identity_matrix(4);
+	M.m[0][0] = cos(y);
+	M.m[0][2] = sin(y);
+	M.m[2][0] = -sin(y);    
+	M.m[2][2] = cos(y);
+	return (M);
+}
+
+t_mat	rotate_z(float z)
+{
+	t_mat	M;
+
+	M = create_identity_matrix(4);
+	M.m[0][0] = cos(z);
+	M.m[0][1] = -sin(z);
+	M.m[1][0] = sin(z);    
+	M.m[1][1] = cos(z);
+	return (M);
+}
+
+t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
+{
+    t_mat	M;
+
+	M = create_identity_matrix(4);
+	M.m[0][1] = xy;
+	M.m[0][2] = xz;
+	M.m[1][0] = yx;
+	M.m[1][2] = yz;
+	M.m[2][0] = zx;
+	M.m[2][1] = zy;
+	return (M);
 }
 
 int	main(int argc, char **av)
