@@ -737,6 +737,29 @@ t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 	return (M);
 }
 
+/*Ray sphere intersection*/
+
+t_tuple	ray_position(t_ray *ray, float t)
+{
+	t_tuple	pos;
+	pos = add_tuple(&ray->origin, &ray->direction);
+	return (multiply_tuple(&pos, t));
+}
+
+float	ray_sphere_discriminant(t_ray *ray, t_sphere *sphere)
+{
+	t_tuple	oc;
+	float	a;
+	float	b;
+	float	c;
+
+	oc = subtract_tuple(&ray->origin, &sphere->location);
+	a = dot_product_tuple(&ray->direction, &ray->direction);
+	b = 2 * dot_product_tuple(&ray->direction, &oc);
+	c = dot_product_tuple(&oc, &oc) - (sphere->radius * sphere->radius);
+	return (b*b - 4 * a * c);
+}
+
 int	main(int argc, char **av)
 {
 	t_app	app;

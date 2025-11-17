@@ -89,7 +89,7 @@ static int	parse_float(char *in, float *out, float min, float max)
 	return (i);
 }
 
-static uint32_t	pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+uint32_t	pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
 	return (((uint32_t)r << 24) | ((uint32_t)g << 16) | ((uint32_t)b << 8) | (uint32_t)a);
 }
@@ -115,7 +115,7 @@ static int	parse_rgb(char *buffer, uint32_t *color)
 static int	parse_xyz(char *buffer, t_tuple *tuple, float w)
 {
 	int	i;
-	
+
 	i = 0;
 	i += parse_float(buffer + i, &tuple->x, -FLOAT_MAX, FLOAT_MAX);
 	i += skip_commas(buffer + i);
@@ -124,7 +124,7 @@ static int	parse_xyz(char *buffer, t_tuple *tuple, float w)
 	i += parse_float(buffer + i, &tuple->z, -FLOAT_MAX, FLOAT_MAX);
 	tuple->w = w;
 	return (i);
-}	
+}
 
 static void	check_AmbLight(char *buffer, t_system *sys)
 {
@@ -141,7 +141,7 @@ static void	check_AmbLight(char *buffer, t_system *sys)
 			i++;
 			if(A_found > 1)
 				error_parser("Only one ambient light (A) allowed.\n");
-			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0); 
+			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0);
 			i += parse_rgb(buffer + i, &sys->amb_light.rgb);
 			i += skip_to_end(buffer + i);
 			continue ;
@@ -156,7 +156,7 @@ static void	check_camera(char *buffer, t_system *sys)
 {
 	int	i;
 	int	C_found;
-	
+
 	i = 0;
 	C_found = 0;
 	while (buffer[i])
@@ -172,7 +172,7 @@ static void	check_camera(char *buffer, t_system *sys)
 			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
 				error_parser("TODO: vector not normalized error");
 			i += parse_int(buffer + i, &sys->camera.fov, 0, 180);
-			i += skip_to_end(buffer + i);		
+			i += skip_to_end(buffer + i);
 			continue ;
 		}
 		i++;
@@ -184,7 +184,7 @@ static void	check_lights(char *buffer, t_system *sys)
 {
 	int				i;
 	t_spot_light	*light;
-	
+
 	i = 0;
 	while (buffer[i])
 	{
@@ -197,7 +197,7 @@ static void	check_lights(char *buffer, t_system *sys)
 			i += parse_xyz(buffer + i, &light->location, POINT);
 			i += parse_float(buffer + i, &light->range, 0.0, 1.0);
 			i += parse_rgb(buffer + i, &light->color);
-			i += skip_to_end(buffer + i);		
+			i += skip_to_end(buffer + i);
 			continue ;
 		}
 		i++;
@@ -208,7 +208,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 {
 	int				i;
 	t_object		*obj;
-	
+
 	i = 0;
 	while (buffer[i])
 	{
@@ -218,11 +218,11 @@ static void	check_sphere(char *buffer, t_system *sys)
 			if (sys->object_count >= MAX_OBJECTS)
 				error_parser("Too many objects.\n");
 			obj = &sys->obj_list[sys->object_count++];
-			obj->type = BALL;
-			i += parse_xyz(buffer + i, &obj->ball.location, POINT);
-			i += parse_float(buffer + i, &obj->ball.diameter, -FLOAT_MAX, FLOAT_MAX);
-			i += parse_rgb(buffer + i, &obj->ball.color);
-			i += skip_to_end(buffer + i);		
+			obj->type = SPHERE;
+			i += parse_xyz(buffer + i, &obj->sphere.location, POINT);
+			i += parse_float(buffer + i, &obj->sphere.radius, -FLOAT_MAX, FLOAT_MAX);
+			i += parse_rgb(buffer + i, &obj->sphere.color);
+			i += skip_to_end(buffer + i);
 			continue ;
 		}
 		i++;
@@ -233,7 +233,7 @@ static void	check_cylinder(char *buffer, t_system *sys)
 {
 	int				i;
 	t_object		*obj;
-	
+
 	i = 0;
 	while (buffer[i])
 	{
@@ -251,7 +251,7 @@ static void	check_cylinder(char *buffer, t_system *sys)
 			i += parse_float(buffer + i, &obj->cylinder.diameter, -FLOAT_MAX, FLOAT_MAX);
 			i += parse_float(buffer + i, &obj->cylinder.length, -FLOAT_MAX, FLOAT_MAX);
 			i += parse_rgb(buffer + i, &obj->cylinder.color);
-			i += skip_to_end(buffer + i);		
+			i += skip_to_end(buffer + i);
 			continue ;
 		}
 		i++;
@@ -262,7 +262,7 @@ static void	check_plane(char *buffer, t_system *sys)
 {
 	int				i;
 	t_object		*obj;
-	
+
 	i = 0;
 	while (buffer[i])
 	{
@@ -278,7 +278,7 @@ static void	check_plane(char *buffer, t_system *sys)
 			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
 				error_parser("TODO: vector not normalized error");
 			i += parse_rgb(buffer + i, &obj->plane.color);
-			i += skip_to_end(buffer + i);		
+			i += skip_to_end(buffer + i);
 			continue ;
 		}
 		i++;
