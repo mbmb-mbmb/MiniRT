@@ -218,10 +218,10 @@ static void	check_sphere(char *buffer, t_system *sys)
 			if (sys->object_count >= MAX_OBJECTS)
 				error_parser("Too many objects.\n");
 			obj = &sys->obj_list[sys->object_count++];
-			obj->type = BALL;
-			i += parse_xyz(buffer + i, &obj->ball.location, POINT);
-			i += parse_float(buffer + i, &obj->ball.diameter, -FLOAT_MAX, FLOAT_MAX);
-			i += parse_rgb(buffer + i, &obj->ball.color);
+			obj->type = SPHERE;
+			i += parse_xyz(buffer + i, &obj->sphere.location, POINT);
+			i += parse_float(buffer + i, &obj->sphere.radius, -FLOAT_MAX, FLOAT_MAX);
+			i += parse_rgb(buffer + i, &obj->sphere.color);
 			i += skip_to_end(buffer + i);		
 			continue ;
 		}

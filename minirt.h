@@ -51,6 +51,12 @@ typedef struct s_tuple
 	float			w;
 }					t_tuple;
 
+typedef struct s_ray
+{
+	t_tuple	origin;
+	t_tuple	direction;
+}					t_ray;
+
 typedef enum e_obj_state
 {
 	ALONE,
@@ -65,14 +71,14 @@ typedef struct s_plane
 	uint32_t		color;
 }					t_plane;
 
-typedef struct s_ball
+typedef struct s_sphere
 {
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	float			diameter;
+	float			radius;
 	uint32_t		color;
-}					t_ball;
+}					t_sphere;
 
 typedef struct s_cylinder
 {
@@ -89,7 +95,7 @@ typedef struct s_cylinder
 typedef enum e_type_flag
 {
 	PLANE,
-	BALL,
+	SPHERE,
 	CYLINDER,
 	END
 }					t_type_flag;
@@ -98,7 +104,7 @@ typedef union u_object
 {
 	t_type_flag		type;
 	t_plane			plane;
-	t_ball			ball;
+	t_sphere		sphere;
 	t_cylinder		cylinder;
 }					t_object;
 
@@ -116,7 +122,7 @@ typedef struct s_camera
 {
 	t_tuple			location;
 	t_tuple			rotation;
-	t_ball			ball;
+	t_sphere		sphere;
 	int				fov;
 }					t_camera;
 
