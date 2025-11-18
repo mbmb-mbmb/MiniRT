@@ -435,10 +435,10 @@ t_tuple	row(t_mat *M, int row)
 {
 	t_tuple	M_row;
 
-	M_row.w = M->m[row][0];
-	M_row.x = M->m[row][1];
-	M_row.y = M->m[row][2];
-	M_row.z = M->m[row][3];
+	M_row.x = M->m[row][0];
+	M_row.y = M->m[row][1];
+	M_row.z = M->m[row][2];
+	M_row.w = M->m[row][3];
 	return (M_row);
 }
 
@@ -723,6 +723,20 @@ t_mat	rotate_z(float z)
 	return (M);
 }
 
+t_mat	rotation_from_tupple(t_tuple *angles)
+{
+	t_mat	rot_x;
+	t_mat	rot_y;
+	t_mat	rot_z;
+	t_mat	rot_temp;
+
+	rot_x = rotate_x(angles->x);
+	rot_y = rotate_y(angles->y);
+	rot_z = rotate_z(angles->z);
+	rot_temp = multiply_matrices(&rot_y, &rot_x);
+	return (multiply_matrices(&rot_z, &rot_temp));
+}
+
 t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 {
     t_mat	M;
@@ -742,8 +756,21 @@ t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 t_tuple	ray_position(t_ray *ray, float t)
 {
 	t_tuple	pos;
-	pos = add_tuple(&ray->origin, &ray->direction);
-	return (multiply_tuple(&pos, t));
+	t_tuple	dirmult;
+
+	dirmult = multiply_tuple(&ray->direction, t);
+	pos = add_tuple(&ray->origin, &dirmult);
+	return (pos);
+}
+
+t_ray	transform_ray(t_ray *ray, t_mat *M)
+{
+	t_ray	ray_out;
+	ray_out.origin = multiply_matrix_and_tuple(M, &ray->origin);
+	ray_out.direction = multiply_matrix_and_tuple(M, &ray->direction);
+	ray_out.origin.w = POINT;
+	ray_out.direction.w = VECTOR;
+	return (ray_out);
 }
 
 float	ray_sphere_discriminant(t_ray *ray, t_sphere *sphere)
@@ -759,6 +786,33 @@ float	ray_sphere_discriminant(t_ray *ray, t_sphere *sphere)
 	c = dot_product_tuple(&oc, &oc) - (sphere->radius * sphere->radius);
 	return (b*b - 4 * a * c);
 }
+
+t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
+{
+	t_intersection_list	intersections;
+	float				discriminant;
+	t_tuple				origin_to_sphere;
+	float				a;
+	float				b;
+	
+	intersections = (t_intersection_list){0};
+	intersections.count = 0;
+	discriminant = ray_sphere_discriminant(ray, sphere);
+	origin_to_sphere = subtract_tuple(&ray->origin, &sphere->location);
+	a = dot_product_tuple(&ray->direction, &ray->direction);
+	b = 2 * dot_product_tuple(&ray->direction, &origin_to_sphere);
+	if (fabsf(a) < EPSILON || discriminant < 0)
+		return (intersections);
+	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
+	intersections.intersections[0].point = ray_position(ray, intersections.intersections[0].t);
+	intersections.intersections[0].type = SPHERE;
+	intersections.intersections[1].t = (-b + sqrtf(discriminant)) / (2 * a);
+	intersections.intersections[1].point = ray_position(ray, intersections.intersections[1].t);
+	intersections.intersections[1].type = SPHERE;
+	intersections.count = 2;
+	return (intersections);
+}
+
 
 int	main(int argc, char **av)
 {
@@ -816,7 +870,24 @@ int	main(int argc, char **av)
 	t_mat M_inv = invert_matrix(&M);
 	print_matrix(&M_inv);
 
-	//end matrix testing
+	//ray sphere intersection testing
+	t_ray	ray = (t_ray){.origin = create_point(0, 0, 0), .direction = create_vector(0, 0, 1)};
+	t_sphere	sphere = (t_sphere){.location = create_point(0, 0, 0), .radius = 1, .rotation = create_vector(0, 0, 0)};
+	float	discriminant = ray_sphere_discriminant(&ray, &sphere);
+	printf("Intersection discriminant: %f\n", discriminant);
+	t_tuple	intersection = ray_position(&ray, discriminant);
+	printf("Intersection position: %f, %f, %f\n", intersection.x, intersection.y, intersection.z);
+	// Simple print of intersection points using the existing ray and sphere and intersect_sphere()
+
+	t_intersection_list intersections = intersect_sphere(&sphere, &ray);
+	for (int i = 0; i < intersections.count; i++)
+	{
+		float t = intersections.intersections[i].t;
+		t_tuple point = intersections.intersections[i].point;
+		printf("Intersection %d at t=%f: ", i + 1, t);
+		print_tuple(&point);
+	}
+	//end testing
 
 	code = cleanup(&app.system);
 	mlx_terminate(app.mlx);
