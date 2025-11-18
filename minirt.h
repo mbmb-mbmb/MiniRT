@@ -179,5 +179,6 @@ typedef struct s_app
 void				rt_parser(char *input, t_system *sys);
 
 float				magnitude_tuple(t_tuple *a);
+uint32_t			pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 #endif

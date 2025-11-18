@@ -1,5 +1,8 @@
 #include "minirt.h"
 
+t_tuple	create_point(float x, float y, float z);
+void	project_sphere(t_camera *camera, t_sphere *sphere, mlx_image_t *img);
+
 static void	ft_error(int error_code)
 {
 	exit(error_code);
@@ -60,21 +63,27 @@ static void	draft_transformations(t_system *sys)
 	(void)sys;
 }
 
+// static void	render_scene(t_system *sys, mlx_image_t *img)
+// {
+// 	uint32_t	color;
+// 	int			x;
+// 	int			y;
+
+// 	y = 0;
+// 	color = sys->amb_light.rgb;
+// 	while (y < HEIGHT)
+// 	{
+// 		x = 0;
+// 		while (x < WIDTH)
+// 			mlx_put_pixel(img, ++x, y, color);
+// 		++y;
+// 	}
+// 	sys->state |= RENDER_COMPLETE;
+// }
+
 static void	render_scene(t_system *sys, mlx_image_t *img)
 {
-	uint32_t	color;
-	int			x;
-	int			y;
-
-	y = 0;
-	color = sys->amb_light.rgb;
-	while (y < HEIGHT)
-	{
-		x = 0;
-		while (x < WIDTH)
-			mlx_put_pixel(img, ++x, y, color);
-		++y;
-	}
+	project_sphere(&sys->camera, &sys->obj_list[0].sphere, img);
 	sys->state |= RENDER_COMPLETE;
 }
 
@@ -723,7 +732,7 @@ t_mat	rotate_z(float z)
 	return (M);
 }
 
-t_mat	rotation_from_tupple(t_tuple *angles)
+t_mat	rotation_from_tuple(t_tuple *angles)
 {
 	t_mat	rot_x;
 	t_mat	rot_y;
@@ -814,6 +823,51 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 }
 
 
+
+void	project_sphere(t_camera *camera, t_sphere *sphere, mlx_image_t *img)
+{
+	t_ray				ray;
+	t_intersection_list	intersections;
+	t_tuple				canvas_point;
+	t_tuple				ray_dir;
+	uint32_t			red;
+	uint32_t			black;
+	uint32_t			x;
+	uint32_t			y;
+	float				canvas_size;
+	
+	canvas_size = 3.0f;
+	y = 0;
+	red = pack_rgba(255, 0, 0, 255);
+	black = pack_rgba(0, 0, 0, 0);
+	while (y < HEIGHT)
+	{
+		x = 0;
+		while (x < WIDTH)
+		{
+			// Map pixel to canvas
+			canvas_point = create_point(
+				((float)x - WIDTH / 2.0f) * canvas_size / WIDTH,
+				(HEIGHT / 2.0f - (float)y) * canvas_size / HEIGHT, 0);
+			// Ray from camera through canvas point
+			ray_dir = subtract_tuple(&canvas_point, &camera->location);
+			ray_dir = normalize_tuple(&ray_dir);
+			ray = (t_ray){.origin = camera->location, .direction = ray_dir};
+			
+			// Intersect with sphere
+			intersections = intersect_sphere(sphere, &ray);
+			
+			// Hit if closest intersection has positive t
+			if (intersections.count > 0 && intersections.intersections[0].t > 0)
+				mlx_put_pixel(img, x, y, red);
+			else
+				mlx_put_pixel(img, x, y, black);
+			x++;
+		}
+		y++;
+	}
+}
+
 int	main(int argc, char **av)
 {
 	t_app	app;
@@ -833,62 +887,6 @@ int	main(int argc, char **av)
 		ft_error(1);
 	mlx_loop_hook(app.mlx, frame, &app);
 	mlx_loop(app.mlx);
-
-	//matrix testing
-
-	printf("Original test matrix\n");
-	t_mat M = test_matrix_4();
-	t_mat M_identity = create_identity_matrix(4);
-	print_matrix(&M);
-	t_tuple T = create_point(1, 2, 3);
-	t_tuple T_out = multiply_matrix_and_tuple(&M, &T);
-	printf("Multiplied test matrix and tuple\n");
-	print_tuple(&T_out);
-	printf("submatrix testing\n");
-	t_mat M_sub = submatrix(&M, 1, 2, 4);
-	print_matrix(&M_sub);
-	t_mat M_transposed = transpose_matrix(&M, 4);
-	printf("Transposed test matrix\n");
-	print_matrix(&M_transposed);
-	t_mat M_trans_mult = multiply_matrices(&M, &M_transposed);
-	printf("Multiplied test matrix and transposed matrix\n");
-	print_matrix(&M_trans_mult);
-	printf("determinant of a matrix\n");
-	float det = determinant(&M_identity, 4);
-	print_matrix(&M_identity);
-	printf("%f\n", det);
-	printf("Matrixes are equal?\n");
-	bool eq = matrices_are_equal(&M, &M);
-	printf("%i\n", eq);
-	printf("Is invertible?\n");
-	bool inv = is_matrix_invertible(&M_identity);
-	printf("%i\n", inv);
-	printf("Cofactor matrix\n");
-	t_mat M_cof = cofactor_matrix(&M);
-	print_matrix(&M_cof);
-	printf("Matrix inversion\n");
-	t_mat M_inv = invert_matrix(&M);
-	print_matrix(&M_inv);
-
-	//ray sphere intersection testing
-	t_ray	ray = (t_ray){.origin = create_point(0, 0, 0), .direction = create_vector(0, 0, 1)};
-	t_sphere	sphere = (t_sphere){.location = create_point(0, 0, 0), .radius = 1, .rotation = create_vector(0, 0, 0)};
-	float	discriminant = ray_sphere_discriminant(&ray, &sphere);
-	printf("Intersection discriminant: %f\n", discriminant);
-	t_tuple	intersection = ray_position(&ray, discriminant);
-	printf("Intersection position: %f, %f, %f\n", intersection.x, intersection.y, intersection.z);
-	// Simple print of intersection points using the existing ray and sphere and intersect_sphere()
-
-	t_intersection_list intersections = intersect_sphere(&sphere, &ray);
-	for (int i = 0; i < intersections.count; i++)
-	{
-		float t = intersections.intersections[i].t;
-		t_tuple point = intersections.intersections[i].point;
-		printf("Intersection %d at t=%f: ", i + 1, t);
-		print_tuple(&point);
-	}
-	//end testing
-
 	code = cleanup(&app.system);
 	mlx_terminate(app.mlx);
 	return (code);
