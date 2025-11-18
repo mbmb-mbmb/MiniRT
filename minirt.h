@@ -20,6 +20,7 @@
 # define VECTOR 0.0f
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
+# define MAX_INTERSECTIONS 2
 
 typedef enum e_sys_state
 {
@@ -53,8 +54,8 @@ typedef struct s_tuple
 
 typedef struct s_ray
 {
-	t_tuple	origin;
-	t_tuple	direction;
+	t_tuple			origin;
+	t_tuple			direction;
 }					t_ray;
 
 typedef enum e_obj_state
@@ -99,6 +100,19 @@ typedef enum e_type_flag
 	CYLINDER,
 	END
 }					t_type_flag;
+
+typedef struct s_intersection
+{
+	float			t;
+	t_tuple			point;
+	t_type_flag		type;
+}					t_intersection;
+
+typedef struct s_intersection_list
+{
+	t_intersection	intersections[MAX_INTERSECTIONS];
+	int				count;
+}					t_intersection_list;
 
 typedef union u_object
 {
