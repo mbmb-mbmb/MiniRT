@@ -21,6 +21,7 @@
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
 # define MAX_INTERSECTIONS 2
+# define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
 {

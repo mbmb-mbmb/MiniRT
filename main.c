@@ -1,7 +1,7 @@
 #include "minirt.h"
 
 t_tuple	create_point(float x, float y, float z);
-void	project_sphere(t_camera *camera, t_sphere *sphere, mlx_image_t *img);
+void	project_sphere(t_system *sys, mlx_image_t *img);
 
 static void	ft_error(int error_code)
 {
@@ -49,7 +49,7 @@ void	print_tuple(t_tuple *T)
 	printf("T: %f, %f, %f, %f\n", T->x, T->y, T->z, T->w);
 }
 
-/* END DEBUGGING FUNCTIONS */
+/* SYSTEM FUNCTIONS */
 
 static void	init_system(t_system *sys)
 {
@@ -63,27 +63,9 @@ static void	draft_transformations(t_system *sys)
 	(void)sys;
 }
 
-// static void	render_scene(t_system *sys, mlx_image_t *img)
-// {
-// 	uint32_t	color;
-// 	int			x;
-// 	int			y;
-
-// 	y = 0;
-// 	color = sys->amb_light.rgb;
-// 	while (y < HEIGHT)
-// 	{
-// 		x = 0;
-// 		while (x < WIDTH)
-// 			mlx_put_pixel(img, ++x, y, color);
-// 		++y;
-// 	}
-// 	sys->state |= RENDER_COMPLETE;
-// }
-
 static void	render_scene(t_system *sys, mlx_image_t *img)
 {
-	project_sphere(&sys->camera, &sys->obj_list[0].sphere, img);
+	project_sphere(sys, img);
 	sys->state |= RENDER_COMPLETE;
 }
 
@@ -113,6 +95,8 @@ static void	frame(void *param)
 		mlx_close_window(app->mlx);
 	}
 }
+
+/*MATHS*/
 
 float	degrees_to_radians(float degrees)
 {
@@ -455,10 +439,10 @@ t_tuple	col(t_mat *M, int col)
 {
 	t_tuple	M_col;
 
-	M_col.w = M->m[0][col];
-	M_col.x = M->m[1][col];
-	M_col.y = M->m[2][col];
-	M_col.z = M->m[3][col];
+	M_col.x = M->m[0][col];
+	M_col.y = M->m[1][col];
+	M_col.z = M->m[2][col];
+	M_col.w = M->m[3][col];
 	return (M_col);
 }
 
@@ -674,6 +658,8 @@ t_mat	invert_matrix(t_mat *M)
 	return (M_inv);
 }
 
+/*TRANSFORMATIONS*/
+
 t_mat	translation(float x, float y, float z)
 {
 	t_mat	M;
@@ -703,7 +689,7 @@ t_mat	rotate_x(float x)
 	M = create_identity_matrix(4);
 	M.m[1][1] = cos(x);
 	M.m[2][1] = -sin(x);
-	M.m[1][2] = sin(x);    
+	M.m[1][2] = sin(x);
 	M.m[2][2] = cos(x);
 	return (M);
 }
@@ -715,7 +701,7 @@ t_mat	rotate_y(float y)
 	M = create_identity_matrix(4);
 	M.m[0][0] = cos(y);
 	M.m[0][2] = sin(y);
-	M.m[2][0] = -sin(y);    
+	M.m[2][0] = -sin(y);
 	M.m[2][2] = cos(y);
 	return (M);
 }
@@ -727,7 +713,7 @@ t_mat	rotate_z(float z)
 	M = create_identity_matrix(4);
 	M.m[0][0] = cos(z);
 	M.m[0][1] = -sin(z);
-	M.m[1][0] = sin(z);    
+	M.m[1][0] = sin(z);
 	M.m[1][1] = cos(z);
 	return (M);
 }
@@ -748,7 +734,7 @@ t_mat	rotation_from_tuple(t_tuple *angles)
 
 t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 {
-    t_mat	M;
+	t_mat	M;
 
 	M = create_identity_matrix(4);
 	M.m[0][1] = xy;
@@ -760,7 +746,7 @@ t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 	return (M);
 }
 
-/*Ray sphere intersection*/
+/*RAY-SPHERE INTERSECTION*/
 
 t_tuple	ray_position(t_ray *ray, float t)
 {
@@ -803,7 +789,7 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 	t_tuple				origin_to_sphere;
 	float				a;
 	float				b;
-	
+
 	intersections = (t_intersection_list){0};
 	intersections.count = 0;
 	discriminant = ray_sphere_discriminant(ray, sphere);
@@ -821,25 +807,19 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 	intersections.count = 2;
 	return (intersections);
 }
-
-
-
-void	project_sphere(t_camera *camera, t_sphere *sphere, mlx_image_t *img)
+/*OBJ PROJECTON*/
+void	project_sphere(t_system *sys, mlx_image_t *img)
 {
 	t_ray				ray;
 	t_intersection_list	intersections;
 	t_tuple				canvas_point;
 	t_tuple				ray_dir;
-	uint32_t			red;
-	uint32_t			black;
 	uint32_t			x;
 	uint32_t			y;
 	float				canvas_size;
-	
+
 	canvas_size = 3.0f;
 	y = 0;
-	red = pack_rgba(255, 0, 0, 255);
-	black = pack_rgba(0, 0, 0, 0);
 	while (y < HEIGHT)
 	{
 		x = 0;
@@ -850,18 +830,15 @@ void	project_sphere(t_camera *camera, t_sphere *sphere, mlx_image_t *img)
 				((float)x - WIDTH / 2.0f) * canvas_size / WIDTH,
 				(HEIGHT / 2.0f - (float)y) * canvas_size / HEIGHT, 0);
 			// Ray from camera through canvas point
-			ray_dir = subtract_tuple(&canvas_point, &camera->location);
+			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
 			ray_dir = normalize_tuple(&ray_dir);
-			ray = (t_ray){.origin = camera->location, .direction = ray_dir};
-			
-			// Intersect with sphere
-			intersections = intersect_sphere(sphere, &ray);
-			
-			// Hit if closest intersection has positive t
+			ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
+			intersections = intersect_sphere(&sys->obj_list[0].sphere, &ray);
+			// is hit if closest intersection has positive t
 			if (intersections.count > 0 && intersections.intersections[0].t > 0)
-				mlx_put_pixel(img, x, y, red);
+				mlx_put_pixel(img, x, y, sys->obj_list[0].sphere.color);
 			else
-				mlx_put_pixel(img, x, y, black);
+				mlx_put_pixel(img, x, y, sys->amb_light.rgb);
 			x++;
 		}
 		y++;
