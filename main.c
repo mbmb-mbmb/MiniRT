@@ -349,6 +349,7 @@ t_mat	create_matrix_3(float m[3][3])
 	matrix.m[2][2] = m[2][2];
 	return (matrix);
 }
+
 int	get_matrix_dim(t_mat *M, t_mat *B)
 {
 	if (B == NULL || (M->type == B->type))
