@@ -9,44 +9,45 @@ static void	ft_error(int error_code)
 }
 
 /* DEBUGGING FUNCTIONS */
-void	print_matrix(t_mat *M)
+void	print_matrix(t_mat *mat)
 {
-	printf("%f %f %f %f\n", M->m[0][0], M->m[0][1], M->m[0][2], M->m[0][3]);
-	printf("%f %f %f %f\n", M->m[1][0], M->m[1][1], M->m[1][2], M->m[1][3]);
-	printf("%f %f %f %f\n", M->m[2][0], M->m[2][1], M->m[2][2], M->m[2][3]);
-	printf("%f %f %f %f\n", M->m[3][0], M->m[3][1], M->m[3][2], M->m[3][3]);
+	printf("%f %f %f %f\n", mat->m[0][0], mat->m[0][1], mat->m[0][2], mat->m[0][3]);
+	printf("%f %f %f %f\n", mat->m[1][0], mat->m[1][1], mat->m[1][2], mat->m[1][3]);
+	printf("%f %f %f %f\n", mat->m[2][0], mat->m[2][1], mat->m[2][2], mat->m[2][3]);
+	printf("%f %f %f %f\n", mat->m[3][0], mat->m[3][1], mat->m[3][2], mat->m[3][3]);
 }
 
 t_mat	test_matrix_4(void)
 {
-	t_mat	M;
+	t_mat	mat;
 
-	M = (t_mat){};
-	M.type = FOUR;
-		M.m[0][0] = 1;
-		M.m[0][1] = 2;
-		M.m[0][2] = 3;
-		M.m[0][3] = 4;
+	mat = (t_mat){};
+	mat.type = FOUR;
+	mat.m[0][0] = 1;
+	mat.m[0][1] = 2;
+	mat.m[0][2] = 3;
+	mat.m[0][3] = 4;
 
-		M.m[1][0] = 0;
-		M.m[1][1] = 1;
-		M.m[1][2] = 2;
-		M.m[1][3] = 3;
+	mat.m[1][0] = 0;
+	mat.m[1][1] = 1;
+	mat.m[1][2] = 2;
+	mat.m[1][3] = 3;
 
-		M.m[2][0] = 1;
-		M.m[2][1] = 0;
-		M.m[2][2] = 1;
-		M.m[2][3] = 2;
+	mat.m[2][0] = 1;
+	mat.m[2][1] = 0;
+	mat.m[2][2] = 1;
+	mat.m[2][3] = 2;
 
-		M.m[3][0] = 2;
-		M.m[3][1] = 1;
-		M.m[3][2] = 0;
-		M.m[3][3] = 1;
-	return (M);
+	mat.m[3][0] = 2;
+	mat.m[3][1] = 1;
+	mat.m[3][2] = 0;
+	mat.m[3][3] = 1;
+	return (mat);
 }
-void	print_tuple(t_tuple *T)
+
+void	print_tuple(t_tuple *tup)
 {
-	printf("T: %f, %f, %f, %f\n", T->x, T->y, T->z, T->w);
+	printf("tup: %f, %f, %f, %f\n", tup->x, tup->y, tup->z, tup->w);
 }
 
 /* SYSTEM FUNCTIONS */
@@ -349,35 +350,36 @@ t_mat	create_matrix_3(float m[3][3])
 	matrix.m[2][2] = m[2][2];
 	return (matrix);
 }
-int	get_matrix_dim(t_mat *M, t_mat *B)
+
+int	get_matrix_dim(t_mat *mat, t_mat *B)
 {
-	if (B == NULL || (M->type == B->type))
+	if (B == NULL || (mat->type == B->type))
 	{
-		if (M->type == THREE)
+		if (mat->type == THREE)
 			return (3);
-		if (M->type == TWO)
+		if (mat->type == TWO)
 			return (2);
-		if (M->type == FOUR)
+		if (mat->type == FOUR)
 			return (4);
 	}
 	return (-1);
 }
 
-void	set_matrix_dim(t_mat *M, int dim)
+void	set_matrix_dim(t_mat *mat, int dim)
 {
 	if (dim == 3)
-		M->type = THREE;
+		mat->type = THREE;
 	else if (dim == 2)
-		M->type = TWO;
+		mat->type = TWO;
 	else if (dim == 4)
-		M->type = FOUR;
+		mat->type = FOUR;
 	else
-		M->type = -1;
+		mat->type = -1;
 }
 
 t_mat	create_identity_matrix(int dim)
 {
-	t_mat	M;
+	t_mat	mat;
 	int		i;
 	int		j;
 
@@ -388,17 +390,16 @@ t_mat	create_identity_matrix(int dim)
 		while(j < dim)
 		{
 			if (i == j)
-				M.m[i][j] = 1;
+				mat.m[i][j] = 1;
 			else
-				M.m[i][j] = 0;
+				mat.m[i][j] = 0;
 			j++;
 		}
 		i++;
 	}
-	set_matrix_dim(&M, dim);
-	return (M);
+	set_matrix_dim(&mat, dim);
+	return (mat);
 }
-
 
 bool	matrices_are_equal(t_mat *A, t_mat *B)
 {
@@ -424,18 +425,18 @@ bool	matrices_are_equal(t_mat *A, t_mat *B)
 	return (true);
 }
 
-t_tuple	row(t_mat *M, int row)
+t_tuple	row(t_mat *mat, int row)
 {
-	t_tuple	M_row;
+	t_tuple	mat_row;
 
-	M_row.x = M->m[row][0];
-	M_row.y = M->m[row][1];
-	M_row.z = M->m[row][2];
-	M_row.w = M->m[row][3];
-	return (M_row);
+	mat_row.x = mat->m[row][0];
+	mat_row.y = mat->m[row][1];
+	mat_row.z = mat->m[row][2];
+	mat_row.w = mat->m[row][3];
+	return (mat_row);
 }
 
-t_tuple	col(t_mat *M, int col)
+t_tuple	col(t_mat *mat, int col)
 {
 	t_tuple	M_col;
 
@@ -493,62 +494,62 @@ t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 	return (T);
 }
 
-t_mat	transpose_matrix(t_mat *M, int dim)
+t_mat	transpose_matrix(t_mat *mat, int dim)
 {
 	int		i;
 	int		j;
 	int		temp[dim][dim];
-	t_mat	M_trans;
+	t_mat	mat_trans;
 
-	M_trans.type = M->type;
+	mat_trans.type = mat->type;
 	i = 0;
 	while(i < dim)
 	{
 		j = 0;
 		while(j < dim)
 		{
-			temp[i][j] = M->m[i][j];
-			M_trans.m[i][j] = M->m[j][i];
-			M_trans.m[j][i] = temp[i][j];
+			temp[i][j] = mat->m[i][j];
+			mat_trans.m[i][j] = mat->m[j][i];
+			mat_trans.m[j][i] = temp[i][j];
 			j++;
 		}
 		i++;
 	}
-	return (M_trans);
+	return (mat_trans);
 }
 
-t_mat	submatrix(t_mat *M, int row, int col, int dim)
+t_mat	submatrix(t_mat *mat, int row, int col, int dim)
 {
-	int		i_M;
-	int		j_M;
+	int		i_mat;
+	int		j_mat;
 	int		i_out;
 	int		j_out;
 	float	out[dim-1][dim-1];
 
 
 	i_out = 0;
-	i_M = 0;
-	while(i_M < dim)
+	i_mat = 0;
+	while (dim(i_mat < dim))
 	{
-		if (i_M == row)
+		if (i_mat == row)
 		{
-			i_M++;
+			i_mat++;
 			continue ;
 		}
 		j_out = 0;
-		j_M = 0;
-		while(j_M < dim)
+		j_mat = 0;
+		while (j_mat < dim)
 		{
-			if( j_M == col)
+			if (j_mat == col)
 			{
-				j_M++;
+				j_mat++;
 				continue ;
 			}
-			out[i_out][j_out] = M->m[i_M][j_M];
-			j_M++;
+			out[i_out][j_out] = mat->m[i_mat][j_mat];
+			j_mat++;
 			j_out++;
 		}
-		i_M++;
+		i_mat++;
 		i_out++;
 	}
 	if (dim == 4)
@@ -557,9 +558,9 @@ t_mat	submatrix(t_mat *M, int row, int col, int dim)
 		return (create_matrix_2(out));
 }
 
-float	determinant(t_mat *M, int dim)
+float	determinant(t_mat *mat, int dim)
 {
-	t_mat	M_sub;
+	t_mat	mat_sub;
 	int		col;
 	int		sign;
 	float	det;
@@ -569,31 +570,31 @@ float	determinant(t_mat *M, int dim)
 	det = 0.0f;
 	sign = 0;
 	if (dim == 1)
-		return (M->m[0][0]);
+		return (mat->m[0][0]);
 	if (dim == 2)
-		return (M->m[0][0] * M->m[1][1] - M->m[0][1] * M->m[1][0]);
+		return (mat->m[0][0] * mat->m[1][1] - mat->m[0][1] * mat->m[1][0]);
 	while (col < dim)
 	{
-		M_sub = submatrix(M, 0, col, dim);
+		mat_sub = submatrix(mat, 0, col, dim);
 		if ((0 + col) % 2 == 0)
 			sign = 1;
 		else
-		 	sign = -1;
-		det_temp = determinant(&M_sub, dim - 1);
-		det += sign * M->m[0][col] * det_temp;
+			sign = -1;
+		det_temp = determinant(&mat_sub, dim - 1);
+		det += sign * mat->m[0][col] * det_temp;
 		col++;
 	}
 	return (det);
 }
 
-float	cofactor_one_cell(t_mat *M, int i, int j, int dim)
+float	cofactor_one_cell(t_mat *mat, int i, int j, int dim)
 {
-	t_mat	M_sub;
+	t_mat	mat_sub;
 	int		sign;
 	float	c;
 
-	M_sub = submatrix(M, i, j, dim);
-	c = determinant(&M_sub, dim - 1);
+	mat_sub = submatrix(mat, i, j, dim);
+	c = determinant(&mat_sub, dim - 1);
 	if ((i + j) % 2 == 0)
 		sign = 1;
 	else
@@ -601,121 +602,121 @@ float	cofactor_one_cell(t_mat *M, int i, int j, int dim)
 	return(c * sign);
 }
 
-t_mat	cofactor_matrix(t_mat *M)
+t_mat	cofactor_matrix(t_mat *mat)
 {
-	t_mat	M_out;
+	t_mat	mat_out;
 	int		i;
 	int		j;
 	int		dim;
 
 	i = 0;
-	dim = get_matrix_dim(M, NULL);
-	while(i < dim)
+	dim = get_matrix_dim(mat, NULL);
+	while (i < dim)
 	{
 		j = 0;
 		while(j < dim)
 		{
-			M_out.m[i][j] = cofactor_one_cell(M, i, j, dim);
+			mat_out.m[i][j] = cofactor_one_cell(mat, i, j, dim);
 			j++;
 		}
 		i++;
 	}
-	return (M_out);
+	return (mat_out);
 }
 
-bool	is_matrix_invertible(t_mat *M)
+bool	is_matrix_invertible(t_mat *mat)
 {
-	if(determinant(M, get_matrix_dim(M, NULL)) == 0)
+	if (determinant(mat, get_matrix_dim(mat, NULL)) == 0)
 		return (false);
 	return (true);
 }
 
-t_mat	invert_matrix(t_mat *M)
+t_mat	invert_matrix(t_mat *mat)
 {
-	t_mat	M_inv;
+	t_mat	mat_inv;
 	float	c;
 	float	d;
 	int		i;
 	int		j;
 	int		dim;
 
-	dim = get_matrix_dim(M, NULL);
-	d = determinant(M, dim);
+	dim = get_matrix_dim(mat, NULL);
+	d = determinant(mat, dim);
 	i = 0;
-	if (!is_matrix_invertible(M))
+	if (!is_matrix_invertible(mat))
 		return (create_identity_matrix(4));
 	while(i < dim)
 	{
 		j = 0;
 		while(j < dim)
 		{
-			c = cofactor_one_cell(M, j, i, dim);
-			M_inv.m[i][j] = c / d;
+			c = cofactor_one_cell(mat, j, i, dim);
+			mat_inv.m[i][j] = c / d;
 			j++;
 		}
 		i++;
 	}
-	return (M_inv);
+	return (mat_inv);
 }
 
 /*TRANSFORMATIONS*/
 
 t_mat	translation(float x, float y, float z)
 {
-	t_mat	M;
+	t_mat	mat;
 
-	M = create_identity_matrix(4);
-	M.m[0][3] = x;
-	M.m[1][3] = y;
-	M.m[2][3] = z;
-	return (M);
+	mat = create_identity_matrix(4);
+	mat.m[0][3] = x;
+	mat.m[1][3] = y;
+	mat.m[2][3] = z;
+	return (mat);
 }
 
 t_mat	scaling(float x, float y, float z)
 {
-	t_mat	M;
+	t_mat	mat;
 
-	M = create_identity_matrix(4);
-	M.m[0][0] = x;
-	M.m[1][1] = y;
-	M.m[2][2] = z;
-	return (M);
+	mat = create_identity_matrix(4);
+	mat.m[0][0] = x;
+	mat.m[1][1] = y;
+	mat.m[2][2] = z;
+	return (mat);
 }
 
 t_mat	rotate_x(float x)
 {
-	t_mat	M;
+	t_mat	mat;
 
-	M = create_identity_matrix(4);
-	M.m[1][1] = cos(x);
-	M.m[2][1] = -sin(x);
-	M.m[1][2] = sin(x);
-	M.m[2][2] = cos(x);
-	return (M);
+	mat = create_identity_matrix(4);
+	mat.m[1][1] = cos(x);
+	mat.m[2][1] = -sin(x);
+	mat.m[1][2] = sin(x);
+	mat.m[2][2] = cos(x);
+	return (mat);
 }
 
 t_mat	rotate_y(float y)
 {
-	t_mat	M;
+	t_mat	mat;
 
-	M = create_identity_matrix(4);
-	M.m[0][0] = cos(y);
-	M.m[0][2] = sin(y);
-	M.m[2][0] = -sin(y);
-	M.m[2][2] = cos(y);
-	return (M);
+	mat = create_identity_matrix(4);
+	mat.m[0][0] = cos(y);
+	mat.m[0][2] = sin(y);
+	mat.m[2][0] = -sin(y);
+	mat.m[2][2] = cos(y);
+	return (mat);
 }
 
 t_mat	rotate_z(float z)
 {
-	t_mat	M;
+	t_mat	mat;
 
-	M = create_identity_matrix(4);
-	M.m[0][0] = cos(z);
-	M.m[0][1] = -sin(z);
-	M.m[1][0] = sin(z);
-	M.m[1][1] = cos(z);
-	return (M);
+	mat = create_identity_matrix(4);
+	mat.m[0][0] = cos(z);
+	mat.m[0][1] = -sin(z);
+	mat.m[1][0] = sin(z);
+	mat.m[1][1] = cos(z);
+	return (mat);
 }
 
 t_mat	rotation_from_tuple(t_tuple *angles)
@@ -734,16 +735,16 @@ t_mat	rotation_from_tuple(t_tuple *angles)
 
 t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 {
-	t_mat	M;
+	t_mat	mat;
 
-	M = create_identity_matrix(4);
-	M.m[0][1] = xy;
-	M.m[0][2] = xz;
-	M.m[1][0] = yx;
-	M.m[1][2] = yz;
-	M.m[2][0] = zx;
-	M.m[2][1] = zy;
-	return (M);
+	mat = create_identity_matrix(4);
+	mat.m[0][1] = xy;
+	mat.m[0][2] = xz;
+	mat.m[1][0] = yx;
+	mat.m[1][2] = yz;
+	mat.m[2][0] = zx;
+	mat.m[2][1] = zy;
+	return (mat);
 }
 
 /*RAY-SPHERE INTERSECTION*/
@@ -758,11 +759,12 @@ t_tuple	ray_position(t_ray *ray, float t)
 	return (pos);
 }
 
-t_ray	transform_ray(t_ray *ray, t_mat *M)
+t_ray	transform_ray(t_ray *ray, t_mat *mat)
 {
 	t_ray	ray_out;
-	ray_out.origin = multiply_matrix_and_tuple(M, &ray->origin);
-	ray_out.direction = multiply_matrix_and_tuple(M, &ray->direction);
+
+	ray_out.origin = multiply_matrix_and_tuple(mat, &ray->origin);
+	ray_out.direction = multiply_matrix_and_tuple(mat, &ray->direction);
 	ray_out.origin.w = POINT;
 	ray_out.direction.w = VECTOR;
 	return (ray_out);
@@ -779,7 +781,7 @@ float	ray_sphere_discriminant(t_ray *ray, t_sphere *sphere)
 	a = dot_product_tuple(&ray->direction, &ray->direction);
 	b = 2 * dot_product_tuple(&ray->direction, &oc);
 	c = dot_product_tuple(&oc, &oc) - (sphere->radius * sphere->radius);
-	return (b*b - 4 * a * c);
+	return (b * b - 4 * a * c);
 }
 
 t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
@@ -807,6 +809,7 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 	intersections.count = 2;
 	return (intersections);
 }
+
 /*OBJ PROJECTON*/
 void	project_sphere(t_system *sys, mlx_image_t *img)
 {
