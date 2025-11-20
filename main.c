@@ -57,6 +57,7 @@ static void	init_system(t_system *sys)
 	*sys = (t_system){0};
 	sys->state = DRAFT_MODE;
 	sys->exit_code = 0;
+	sys->camera.aspect_ratio = (float)WIDTH / (float)HEIGHT;
 }
 
 static void	draft_transformations(t_system *sys)
@@ -819,12 +820,14 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 
 /*OBJ PROJECTON*/
 
-t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y)
+t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 {
 	t_tuple	canvas_coord;
+	float	canvas_width;
 	
 	canvas_coord = (t_tuple){0};
-	canvas_coord.x = ((float)x - WIDTH / 2.0f) * CANVAS_WIDTH / WIDTH;
+	canvas_width = CANVAS_HEIGHT * sys->camera.aspect_ratio;
+	canvas_coord.x = ((float)x - WIDTH / 2.0f) * canvas_width / WIDTH;
 	canvas_coord.y = ((HEIGHT / 2.0f - (float)y) * CANVAS_HEIGHT / HEIGHT);
 	canvas_coord.z = 1.0f;
 	canvas_coord.w = POINT;
@@ -846,7 +849,7 @@ void	project_sphere(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < WIDTH)
 		{
-			canvas_point = window_pixel_to_canvas_point(x, y);
+			canvas_point = window_pixel_to_canvas_point(x, y, sys);
 			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
 			ray_dir = normalize_tuple(&ray_dir);
 			ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};

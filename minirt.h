@@ -11,10 +11,9 @@
 # include <stdlib.h>
 # include <unistd.h>
 
-# define WIDTH 256
-# define CANVAS_WIDTH 3.0f
-# define HEIGHT 256
+# define HEIGHT 512
 # define CANVAS_HEIGHT 3.0f
+# define WIDTH 1024
 # define EPSILON 0.00001
 # define FLOAT_MAX 3.40282347e+38F
 # define MAX_LIGHTS 256
