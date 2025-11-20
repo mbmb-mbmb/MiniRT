@@ -75,6 +75,13 @@ static int	cleanup(t_system *sys)
 	return (sys->exit_code);
 }
 
+void    resize_callback(int32_t width, int32_t height, void *param)
+{
+    (void)width;
+    (void)height;
+    (void)param;
+}
+
 static void	frame(void *param)
 {
 	t_app		*app;
@@ -472,10 +479,10 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 	return (mat);
 }
 
-t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
+t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup_in)
 {
 	int		i;
-	t_tuple	tup;
+	t_tuple	tup_out;
 	t_tuple	roow;
 
 	i = 0;
@@ -483,16 +490,16 @@ t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 	{
 		roow = row(A, i);
 		if (i == 0)
-			tup.x = dot_product_tuple_naive(&roow, tup);
+			tup_out.x = dot_product_tuple_naive(&roow, tup_in);
 		else if (i == 1)
-			tup.y = dot_product_tuple_naive(&roow, tup);
+			tup_out.y = dot_product_tuple_naive(&roow, tup_in);
 		else if (i == 2)
-			tup.z = dot_product_tuple_naive(&roow, tup);
+			tup_out.z = dot_product_tuple_naive(&roow, tup_in);
 		else if (i == 3)
-			tup.w = dot_product_tuple_naive(&roow, tup);
+			tup_out.w = dot_product_tuple_naive(&roow, tup_in);
 		i++;
 	}
-	return (tup);
+	return (tup_out);
 }
 
 t_mat	transpose_matrix(t_mat *mat, int dim)
@@ -529,7 +536,7 @@ t_mat	submatrix(t_mat *mat, int row, int col, int dim)
 
 	i_out = 0;
 	i_mat = 0;
-	while (dim(i_mat < dim))
+	while (i_mat < dim)
 	{
 		if (i_mat == row)
 		{
@@ -811,6 +818,17 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 }
 
 /*OBJ PROJECTON*/
+
+float	pixel_to_canvas_x(uint32_t x)
+{
+	return (((float)x - WIDTH / 2.0f) * CANVAS_WIDTH / WIDTH);
+}
+
+float	pixel_to_canvas_y(uint32_t y)
+{
+	return (((HEIGHT / 2.0f - (float)y) * CANVAS_HEIGHT / HEIGHT));
+}
+
 void	project_sphere(t_system *sys, mlx_image_t *img)
 {
 	t_ray				ray;
@@ -819,25 +837,20 @@ void	project_sphere(t_system *sys, mlx_image_t *img)
 	t_tuple				ray_dir;
 	uint32_t			x;
 	uint32_t			y;
-	float				canvas_size;
 
-	canvas_size = 3.0f;
 	y = 0;
 	while (y < HEIGHT)
 	{
 		x = 0;
 		while (x < WIDTH)
 		{
-			// Map pixel to canvas
 			canvas_point = create_point(
-				((float)x - WIDTH / 2.0f) * canvas_size / WIDTH,
-				(HEIGHT / 2.0f - (float)y) * canvas_size / HEIGHT, 0);
-			// Ray from camera through canvas point
+				pixel_to_canvas_x(x),
+				pixel_to_canvas_y(y), 0);
 			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
 			ray_dir = normalize_tuple(&ray_dir);
 			ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
 			intersections = intersect_sphere(&sys->obj_list[0].sphere, &ray);
-			// is hit if closest intersection has positive t
 			if (intersections.count > 0 && intersections.intersections[0].t > 0)
 				mlx_put_pixel(img, x, y, sys->obj_list[0].sphere.color);
 			else
@@ -866,6 +879,7 @@ int	main(int argc, char **av)
 	if (!app.img || (mlx_image_to_window(app.mlx, app.img, 0, 0) < 0))
 		ft_error(1);
 	mlx_loop_hook(app.mlx, frame, &app);
+	mlx_resize_hook(app.mlx, resize_callback, &app);
 	mlx_loop(app.mlx);
 	code = cleanup(&app.system);
 	mlx_terminate(app.mlx);

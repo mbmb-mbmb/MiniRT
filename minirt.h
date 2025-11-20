@@ -12,7 +12,9 @@
 # include <unistd.h>
 
 # define WIDTH 256
+# define CANVAS_WIDTH 3.0f
 # define HEIGHT 256
+# define CANVAS_HEIGHT 3.0f
 # define EPSILON 0.00001
 # define FLOAT_MAX 3.40282347e+38F
 # define MAX_LIGHTS 256
@@ -21,7 +23,7 @@
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
 # define MAX_INTERSECTIONS 2
-# define M_PI 3.14159265358979323846
+// # define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
 {
