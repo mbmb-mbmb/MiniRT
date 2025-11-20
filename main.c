@@ -301,10 +301,11 @@ t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 	return (result);
 }
 
-t_tuple create_color(float red, float green, float blue, float alpha)
+t_tuple	create_color(float red, float green, float blue, float alpha)
 {
-	t_tuple result;
-	result = (t_tuple){ .x = red, .y = green, .z = blue, .w = alpha};
+	t_tuple	result;
+
+	result = (t_tuple){.x = red, .y = green, .z = blue, .w = alpha};
 	return (result);
 }
 
@@ -384,10 +385,10 @@ t_mat	create_identity_matrix(int dim)
 	int		j;
 
 	i = 0;
-	while(i < dim)
+	while (i < dim)
 	{
 		j = 0;
-		while(j < dim)
+		while (j < dim)
 		{
 			if (i == j)
 				mat.m[i][j] = 1;
@@ -411,12 +412,12 @@ bool	matrices_are_equal(t_mat *A, t_mat *B)
 	if (dim == -1)
 		return (false);
 	i = 0;
-	while(i < dim)
+	while (i < dim)
 	{
 		j = 0;
-		while(j < dim)
+		while (j < dim)
 		{
-			if(A->m[i][j] != B->m[i][j])
+			if (A->m[i][j] != B->m[i][j])
 				return (false);
 			j++;
 		}
@@ -438,60 +439,60 @@ t_tuple	row(t_mat *mat, int row)
 
 t_tuple	col(t_mat *mat, int col)
 {
-	t_tuple	M_col;
+	t_tuple	mat_col;
 
-	M_col.x = M->m[0][col];
-	M_col.y = M->m[1][col];
-	M_col.z = M->m[2][col];
-	M_col.w = M->m[3][col];
-	return (M_col);
+	mat_col.x = mat->m[0][col];
+	mat_col.y = mat->m[1][col];
+	mat_col.z = mat->m[2][col];
+	mat_col.w = mat->m[3][col];
+	return (mat_col);
 }
 
 t_mat	multiply_matrices(t_mat *A, t_mat *B)
 {
-	t_mat	M;
+	t_mat	mat;
 	int		i;
 	int		j;
 	t_tuple	roow;
 	t_tuple	cool;
 
 	i = 0;
-	while(i < 4)
+	while (i < 4)
 	{
 		j = 0;
-		while(j < 4)
+		while (j < 4)
 		{
 			roow = row(A, i);
 			cool = col(B, j);
-			M.m[i][j] = dot_product_tuple_naive(&roow, &cool);
+			mat.m[i][j] = dot_product_tuple_naive(&roow, &cool);
 			j++;
 		}
 		i++;
 	}
-	return (M);
+	return (mat);
 }
 
 t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup)
 {
 	int		i;
-	t_tuple	T;
+	t_tuple	tup;
 	t_tuple	roow;
 
 	i = 0;
-	while(i < 4)
+	while (i < 4)
 	{
 		roow = row(A, i);
 		if (i == 0)
-			T.x = dot_product_tuple_naive(&roow, tup);
+			tup.x = dot_product_tuple_naive(&roow, tup);
 		else if (i == 1)
-			T.y = dot_product_tuple_naive(&roow, tup);
+			tup.y = dot_product_tuple_naive(&roow, tup);
 		else if (i == 2)
-			T.z = dot_product_tuple_naive(&roow, tup);
+			tup.z = dot_product_tuple_naive(&roow, tup);
 		else if (i == 3)
-			T.w = dot_product_tuple_naive(&roow, tup);
+			tup.w = dot_product_tuple_naive(&roow, tup);
 		i++;
 	}
-	return (T);
+	return (tup);
 }
 
 t_mat	transpose_matrix(t_mat *mat, int dim)
@@ -503,10 +504,10 @@ t_mat	transpose_matrix(t_mat *mat, int dim)
 
 	mat_trans.type = mat->type;
 	i = 0;
-	while(i < dim)
+	while (i < dim)
 	{
 		j = 0;
-		while(j < dim)
+		while (j < dim)
 		{
 			temp[i][j] = mat->m[i][j];
 			mat_trans.m[i][j] = mat->m[j][i];
@@ -524,8 +525,7 @@ t_mat	submatrix(t_mat *mat, int row, int col, int dim)
 	int		j_mat;
 	int		i_out;
 	int		j_out;
-	float	out[dim-1][dim-1];
-
+	float	out[dim - 1][dim - 1];
 
 	i_out = 0;
 	i_mat = 0;
@@ -599,7 +599,7 @@ float	cofactor_one_cell(t_mat *mat, int i, int j, int dim)
 		sign = 1;
 	else
 		sign = -1;
-	return(c * sign);
+	return (c * sign);
 }
 
 t_mat	cofactor_matrix(t_mat *mat)
@@ -614,7 +614,7 @@ t_mat	cofactor_matrix(t_mat *mat)
 	while (i < dim)
 	{
 		j = 0;
-		while(j < dim)
+		while (j < dim)
 		{
 			mat_out.m[i][j] = cofactor_one_cell(mat, i, j, dim);
 			j++;
@@ -645,10 +645,10 @@ t_mat	invert_matrix(t_mat *mat)
 	i = 0;
 	if (!is_matrix_invertible(mat))
 		return (create_identity_matrix(4));
-	while(i < dim)
+	while (i < dim)
 	{
 		j = 0;
-		while(j < dim)
+		while (j < dim)
 		{
 			c = cofactor_one_cell(mat, j, i, dim);
 			mat_inv.m[i][j] = c / d;
