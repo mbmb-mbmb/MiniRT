@@ -141,6 +141,7 @@ typedef struct s_camera
 	t_tuple			rotation;
 	t_sphere		sphere;
 	int				fov;
+	float			aspect_ratio;
 }					t_camera;
 
 typedef struct s_spot_light

@@ -819,14 +819,16 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 
 /*OBJ PROJECTON*/
 
-float	pixel_to_canvas_x(uint32_t x)
+t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y)
 {
-	return (((float)x - WIDTH / 2.0f) * CANVAS_WIDTH / WIDTH);
-}
-
-float	pixel_to_canvas_y(uint32_t y)
-{
-	return (((HEIGHT / 2.0f - (float)y) * CANVAS_HEIGHT / HEIGHT));
+	t_tuple	canvas_coord;
+	
+	canvas_coord = (t_tuple){0};
+	canvas_coord.x = ((float)x - WIDTH / 2.0f) * CANVAS_WIDTH / WIDTH;
+	canvas_coord.y = ((HEIGHT / 2.0f - (float)y) * CANVAS_HEIGHT / HEIGHT);
+	canvas_coord.z = 1.0f;
+	canvas_coord.w = POINT;
+	return (canvas_coord);
 }
 
 void	project_sphere(t_system *sys, mlx_image_t *img)
@@ -844,9 +846,7 @@ void	project_sphere(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < WIDTH)
 		{
-			canvas_point = create_point(
-				pixel_to_canvas_x(x),
-				pixel_to_canvas_y(y), 0);
+			canvas_point = window_pixel_to_canvas_point(x, y);
 			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
 			ray_dir = normalize_tuple(&ray_dir);
 			ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
