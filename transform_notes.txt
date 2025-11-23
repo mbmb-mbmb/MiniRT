@@ -1,0 +1,38 @@
+t_sphere
+	t_mat transform;
+	t_mat intv_trasform;
+	(bool has_transform;) // fast-track
+
+rt_parser
+check_sphere() or init?
+	obj->sphere.transform = create_identity_matrix(4)
+	obj->sphere.inv_transform = create_identity_matrix(4)
+	pbj->sphere.has_trasform = false
+
+intersection function (main.c):
+	intersect_sphere() check if transform is set (not identity)
+	If (has_transform): transform ray, intersect unit sphere, transform points back
+	If no transform -> fast path
+
+When setting transforms, also update inverse: sphere->inv_transform = invert_matrix(&sphere->transform)
+
+void	set_sphere_transform(t_sphere *sphere, t_mat *transform)
+{
+	sphere->transform = *transform;
+	sphere->inv_transform = invert_matrix(transform);
+	sphere->has_transform = true;
+}
+
+if (sphere->has_transform)
+{
+	// Use transform path
+}
+else
+{
+	(has_transform == false):
+	// Fast path: original code->	
+	//Uses sphere->location and sphere->radius directly
+	// = b² - 4ac
+	// No matrix operations
+}
+
