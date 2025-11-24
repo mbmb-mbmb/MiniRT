@@ -4,3 +4,4 @@ main.o
 libft
 rt_parser.o
 chengelog_for_arena.txt
+.vscode/settings.json
