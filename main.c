@@ -872,6 +872,12 @@ int	main(int argc, char **av)
 		ft_error(1);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
+	//skew test
+	t_mat	skew_mat = skew(1.0f, 0, 0, 0, 0, 0);
+	app.system.obj_list[0].sphere.transform_to_world = skew_mat;
+	app.system.obj_list[0].sphere.inv_transform_to_obj = invert_matrix(&skew_mat);
+	app.system.obj_list[0].sphere.is_transformed = true;
+	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
 		ft_error(1);
