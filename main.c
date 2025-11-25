@@ -651,7 +651,7 @@ t_mat	invert_matrix(t_mat *mat)
 	dim = get_matrix_dim(mat, NULL);
 	d = determinant(mat, dim);
 	i = 0;
-	if (!is_matrix_invertible(mat))
+	if (d == 0)
 		return (create_identity_matrix(4));
 	while (i < dim)
 	{
@@ -778,34 +778,22 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 	return (ray_out);
 }
 
-float	ray_sphere_discriminant(t_ray *ray, t_sphere *sphere)
-{
-	t_tuple	oc;
-	float	a;
-	float	b;
-	float	c;
-
-	oc = subtract_tuple(&ray->origin, &sphere->location);
-	a = dot_product_tuple(&ray->direction, &ray->direction);
-	b = 2 * dot_product_tuple(&ray->direction, &oc);
-	c = dot_product_tuple(&oc, &oc) - (sphere->radius * sphere->radius);
-	return (b * b - 4 * a * c);
-}
-
 t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 {
 	t_intersection_list	intersections;
 	float				discriminant;
-	t_tuple				origin_to_sphere;
+	t_tuple				oc;
 	float				a;
 	float				b;
+	float				c;
 
 	intersections = (t_intersection_list){0};
 	intersections.count = 0;
-	discriminant = ray_sphere_discriminant(ray, sphere);
-	origin_to_sphere = subtract_tuple(&ray->origin, &sphere->location);
+	oc = subtract_tuple(&ray->origin, &sphere->location);
 	a = dot_product_tuple(&ray->direction, &ray->direction);
-	b = 2 * dot_product_tuple(&ray->direction, &origin_to_sphere);
+	b = 2 * dot_product_tuple(&ray->direction, &oc);
+	c = dot_product_tuple(&oc, &oc) - (sphere->radius * sphere->radius);
+	discriminant = b * b - 4 * a * c;
 	if (fabsf(a) < EPSILON || discriminant < 0)
 		return (intersections);
 	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
