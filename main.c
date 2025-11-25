@@ -1,7 +1,7 @@
 #include "minirt.h"
 
 t_tuple	create_point(float x, float y, float z);
-void	project_sphere(t_system *sys, mlx_image_t *img);
+void	ray_trace_scene(t_system *sys, mlx_image_t *img);
 
 static void	ft_error(int error_code)
 {
@@ -67,7 +67,7 @@ static void	draft_transformations(t_system *sys)
 
 static void	render_scene(t_system *sys, mlx_image_t *img)
 {
-	project_sphere(sys, img);
+	ray_trace_scene(sys, img);
 	sys->state |= RENDER_COMPLETE;
 }
 
@@ -814,7 +814,7 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 {
 	t_tuple	canvas_coord;
 	float	canvas_width;
-		
+
 	canvas_coord = (t_tuple){0};
 	canvas_width = CANVAS_HEIGHT * sys->camera.aspect_ratio;
 	canvas_coord.x = ((float)x - WIDTH / 2.0f) * canvas_width / WIDTH;
@@ -824,7 +824,7 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 	return (canvas_coord);
 }
 
-void	project_sphere(t_system *sys, mlx_image_t *img)
+void	ray_trace_scene(t_system *sys, mlx_image_t *img)
 {
 	t_ray				world_ray;
 	t_ray				obj_ray;
