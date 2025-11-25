@@ -219,8 +219,8 @@ static void	check_sphere(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n");
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = SPHERE;
-			obj->sphere.transform = create_identity_matrix(4);
-			obj->sphere.inv_transform = create_identity_matrix(4);
+			obj->sphere.transform_to_world = create_identity_matrix(4);
+			obj->sphere.inv_transform_to_obj = create_identity_matrix(4);
 			obj->sphere.is_transformed = false;
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT);
 			i += parse_float(buffer + i, &obj->sphere.radius, -FLOAT_MAX, FLOAT_MAX);

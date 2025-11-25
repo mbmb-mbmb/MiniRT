@@ -778,7 +778,7 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 	return (ray_out);
 }
 
-t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
+t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 {
 	t_intersection_list	intersections;
 	float				discriminant;
@@ -786,13 +786,15 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 	float				a;
 	float				b;
 	float				c;
+	(void)sphere;
 
 	intersections = (t_intersection_list){0};
 	intersections.count = 0;
-	oc = subtract_tuple(&ray->origin, &sphere->location);
+	oc = ray->origin;
+	oc.w = VECTOR;
 	a = dot_product_tuple(&ray->direction, &ray->direction);
 	b = 2 * dot_product_tuple(&ray->direction, &oc);
-	c = dot_product_tuple(&oc, &oc) - (sphere->radius * sphere->radius);
+	c = dot_product_tuple(&oc, &oc) - 1.0;
 	discriminant = b * b - 4 * a * c;
 	if (fabsf(a) < EPSILON || discriminant < 0)
 		return (intersections);
@@ -824,7 +826,8 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 
 void	project_sphere(t_system *sys, mlx_image_t *img)
 {
-	t_ray				ray;
+	t_ray				world_ray;
+	t_ray				obj_ray;
 	t_intersection_list	intersections;
 	t_tuple				canvas_point;
 	t_tuple				ray_dir;
@@ -837,11 +840,17 @@ void	project_sphere(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < WIDTH)
 		{
+			//construct camera-ray in world space
 			canvas_point = window_pixel_to_canvas_point(x, y, sys);
 			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
 			ray_dir = normalize_tuple(&ray_dir);
-			ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
-			intersections = intersect_sphere(&sys->obj_list[0].sphere, &ray);
+			world_ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
+			// Transform to object space
+			obj_ray = world_ray;
+			if (sys->obj_list[0].sphere.is_transformed)  // Remove &
+				obj_ray = transform_ray(&world_ray, &sys->obj_list[0].sphere.inv_transform_to_obj);
+			//check intersections in obj space
+			intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray);  // Use obj_ray!
 			if (intersections.count > 0 && intersections.intersections[0].t > 0)
 				mlx_put_pixel(img, x, y, sys->obj_list[0].sphere.color);
 			else

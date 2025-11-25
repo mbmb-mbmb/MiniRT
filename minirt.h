@@ -12,7 +12,7 @@
 # include <unistd.h>
 
 # define HEIGHT 512
-# define CANVAS_HEIGHT 3.0f
+# define CANVAS_HEIGHT 10.0f
 # define WIDTH 1024
 # define EPSILON 0.00001
 # define FLOAT_MAX 3.40282347e+38F
@@ -81,8 +81,8 @@ typedef struct s_sphere
 	t_tuple			rotation;
 	float			radius;
 	uint32_t		color;
-	t_mat			transform;
-	t_mat			inv_transform;
+	t_mat			transform_to_world;
+	t_mat			inv_transform_to_obj;
 	bool			is_transformed;
 }					t_sphere;
 
