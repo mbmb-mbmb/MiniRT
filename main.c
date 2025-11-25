@@ -814,7 +814,7 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 {
 	t_tuple	canvas_coord;
 	float	canvas_width;
-	
+		
 	canvas_coord = (t_tuple){0};
 	canvas_width = CANVAS_HEIGHT * sys->camera.aspect_ratio;
 	canvas_coord.x = ((float)x - WIDTH / 2.0f) * canvas_width / WIDTH;
@@ -847,10 +847,10 @@ void	project_sphere(t_system *sys, mlx_image_t *img)
 			world_ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
 			// Transform to object space
 			obj_ray = world_ray;
-			if (sys->obj_list[0].sphere.is_transformed)  // Remove &
+			if (sys->obj_list[0].sphere.is_transformed)
 				obj_ray = transform_ray(&world_ray, &sys->obj_list[0].sphere.inv_transform_to_obj);
-			//check intersections in obj space
-			intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray);  // Use obj_ray!
+			//check intersections in object space
+			intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray);
 			if (intersections.count > 0 && intersections.intersections[0].t > 0)
 				mlx_put_pixel(img, x, y, sys->obj_list[0].sphere.color);
 			else
