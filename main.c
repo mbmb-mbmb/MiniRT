@@ -1,7 +1,7 @@
 #include "minirt.h"
 
 t_tuple	create_point(float x, float y, float z);
-void	project_sphere(t_system *sys, mlx_image_t *img);
+void	ray_trace_scene(t_system *sys, mlx_image_t *img);
 
 static void	ft_error(int error_code)
 {
@@ -67,7 +67,7 @@ static void	draft_transformations(t_system *sys)
 
 static void	render_scene(t_system *sys, mlx_image_t *img)
 {
-	project_sphere(sys, img);
+	ray_trace_scene(sys, img);
 	sys->state |= RENDER_COMPLETE;
 }
 
@@ -651,7 +651,7 @@ t_mat	invert_matrix(t_mat *mat)
 	dim = get_matrix_dim(mat, NULL);
 	d = determinant(mat, dim);
 	i = 0;
-	if (!is_matrix_invertible(mat))
+	if (d == 0)
 		return (create_identity_matrix(4));
 	while (i < dim)
 	{
@@ -778,34 +778,24 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 	return (ray_out);
 }
 
-float	ray_sphere_discriminant(t_ray *ray, t_sphere *sphere)
-{
-	t_tuple	oc;
-	float	a;
-	float	b;
-	float	c;
-
-	oc = subtract_tuple(&ray->origin, &sphere->location);
-	a = dot_product_tuple(&ray->direction, &ray->direction);
-	b = 2 * dot_product_tuple(&ray->direction, &oc);
-	c = dot_product_tuple(&oc, &oc) - (sphere->radius * sphere->radius);
-	return (b * b - 4 * a * c);
-}
-
-t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
+t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 {
 	t_intersection_list	intersections;
 	float				discriminant;
-	t_tuple				origin_to_sphere;
+	t_tuple				oc;
 	float				a;
 	float				b;
+	float				c;
+	(void)sphere;
 
 	intersections = (t_intersection_list){0};
 	intersections.count = 0;
-	discriminant = ray_sphere_discriminant(ray, sphere);
-	origin_to_sphere = subtract_tuple(&ray->origin, &sphere->location);
+	oc = ray->origin;
+	oc.w = VECTOR;
 	a = dot_product_tuple(&ray->direction, &ray->direction);
-	b = 2 * dot_product_tuple(&ray->direction, &origin_to_sphere);
+	b = 2 * dot_product_tuple(&ray->direction, &oc);
+	c = dot_product_tuple(&oc, &oc) - 1.0;
+	discriminant = b * b - 4 * a * c;
 	if (fabsf(a) < EPSILON || discriminant < 0)
 		return (intersections);
 	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
@@ -824,7 +814,7 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 {
 	t_tuple	canvas_coord;
 	float	canvas_width;
-	
+
 	canvas_coord = (t_tuple){0};
 	canvas_width = CANVAS_HEIGHT * sys->camera.aspect_ratio;
 	canvas_coord.x = ((float)x - WIDTH / 2.0f) * canvas_width / WIDTH;
@@ -834,9 +824,10 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 	return (canvas_coord);
 }
 
-void	project_sphere(t_system *sys, mlx_image_t *img)
+void	ray_trace_scene(t_system *sys, mlx_image_t *img)
 {
-	t_ray				ray;
+	t_ray				world_ray;
+	t_ray				obj_ray;
 	t_intersection_list	intersections;
 	t_tuple				canvas_point;
 	t_tuple				ray_dir;
@@ -849,11 +840,17 @@ void	project_sphere(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < WIDTH)
 		{
+			//construct camera-ray in world space
 			canvas_point = window_pixel_to_canvas_point(x, y, sys);
 			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
 			ray_dir = normalize_tuple(&ray_dir);
-			ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
-			intersections = intersect_sphere(&sys->obj_list[0].sphere, &ray);
+			world_ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
+			// Transform to object space
+			obj_ray = world_ray;
+			if (sys->obj_list[0].sphere.is_transformed)
+				obj_ray = transform_ray(&world_ray, &sys->obj_list[0].sphere.inv_transform_to_obj);
+			//check intersections in object space
+			intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray);
 			if (intersections.count > 0 && intersections.intersections[0].t > 0)
 				mlx_put_pixel(img, x, y, sys->obj_list[0].sphere.color);
 			else
@@ -875,6 +872,12 @@ int	main(int argc, char **av)
 		ft_error(1);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
+	//skew test
+	t_mat	skew_mat = skew(1.0f, 0, 0, 0, 0, 0);
+	app.system.obj_list[0].sphere.transform_to_world = skew_mat;
+	app.system.obj_list[0].sphere.inv_transform_to_obj = invert_matrix(&skew_mat);
+	app.system.obj_list[0].sphere.is_transformed = true;
+	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
 		ft_error(1);

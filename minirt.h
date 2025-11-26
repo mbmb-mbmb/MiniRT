@@ -22,7 +22,7 @@
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
 # define MAX_INTERSECTIONS 2
-// # define M_PI 3.14159265358979323846
+//# define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
 {
@@ -81,6 +81,9 @@ typedef struct s_sphere
 	t_tuple			rotation;
 	float			radius;
 	uint32_t		color;
+	t_mat			transform_to_world;
+	t_mat			inv_transform_to_obj;
+	bool			is_transformed;
 }					t_sphere;
 
 typedef struct s_cylinder
@@ -183,5 +186,5 @@ void				rt_parser(char *input, t_system *sys);
 
 float				magnitude_tuple(t_tuple *a);
 uint32_t			pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-
+t_mat				create_identity_matrix(int dim);
 #endif
