@@ -169,7 +169,7 @@ static void	check_camera(char *buffer, t_system *sys)
 				error_parser("Only one camera (C) allowed.\n");
 			i += parse_xyz(buffer + i, &sys->camera.location, POINT);
 			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR);
-			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
+			if (magnitude_vector(&sys->camera.rotation) > 1.0)
 				error_parser("TODO: vector not normalized error");
 			i += parse_int(buffer + i, &sys->camera.fov, 0, 180);
 			i += skip_to_end(buffer + i);
@@ -249,7 +249,7 @@ static void	check_cylinder(char *buffer, t_system *sys)
 			obj->type = CYLINDER;
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT);
 			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR);
-			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
+			if (magnitude_vector(&sys->camera.rotation) > 1.0)
 				error_parser("TODO: vector not normalized error");
 			i += parse_float(buffer + i, &obj->cylinder.diameter, -FLOAT_MAX, FLOAT_MAX);
 			i += parse_float(buffer + i, &obj->cylinder.length, -FLOAT_MAX, FLOAT_MAX);
@@ -278,7 +278,7 @@ static void	check_plane(char *buffer, t_system *sys)
 			obj->type = PLANE;
 			i += parse_xyz(buffer + i, &obj->plane.location, POINT);
 			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR);
-			if (magnitude_tuple(&sys->camera.rotation) > 1.0)
+			if (magnitude_vector(&sys->camera.rotation) > 1.0)
 				error_parser("TODO: vector not normalized error");
 			i += parse_rgb(buffer + i, &obj->plane.color);
 			i += skip_to_end(buffer + i);

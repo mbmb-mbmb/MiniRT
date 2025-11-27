@@ -251,28 +251,28 @@ t_tuple	divide_tuple(t_tuple *a, float div)
 	return (result);
 }
 
-float	magnitude_tuple(t_tuple *a)
+float	magnitude_vector(t_tuple *a)
 {
 	return (sqrtf(a->x * a->x + a->y * a->y + a->z * a->z));
 }
 
-t_tuple	normalize_tuple(t_tuple *a)
+t_tuple	normalize_vector(t_tuple *a)
 {
 	float	mag;
-	t_tuple	result;
+	t_tuple	v_result;
 	int		ak;
 
-	result = (t_tuple){};
-	result.w = TUPLE_INCORRECT;
+	v_result = (t_tuple){};
+	v_result.w = TUPLE_INCORRECT;
 	ak = classify_w(a);
 	if (ak != VECTOR)
-		return (result);
-	mag = magnitude_tuple(a);
+		return (v_result);
+	mag = magnitude_vector(a);
 	if (mag < EPSILON)
-		return (result);
-	result = (t_tuple){.x = a->x / mag, .y = a->y / mag, .z = a->z / mag,
+		return (v_result);
+	v_result = (t_tuple){.x = a->x / mag, .y = a->y / mag, .z = a->z / mag,
 		.w = VECTOR};
-	return (result);
+	return (v_result);
 }
 
 float	dot_product_tuple(t_tuple *a, t_tuple *b)
@@ -294,19 +294,19 @@ float	dot_product_tuple_naive(t_tuple *a, t_tuple *b)
 
 t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 {
-	t_tuple	result;
+	t_tuple	v_result;
 	int		ak;
 	int		bk;
 
-	result = (t_tuple){};
-	result.w = TUPLE_INCORRECT;
+	v_result = (t_tuple){};
+	v_result.w = TUPLE_INCORRECT;
 	ak = classify_w(a);
 	bk = classify_w(b);
 	if (ak != VECTOR || bk != VECTOR)
-		return (result);
-	result = (t_tuple){.x = a->y * b->z - a->z * b->y, .y = a->z * b->x - a->x
+		return (v_result);
+	v_result = (t_tuple){.x = a->y * b->z - a->z * b->y, .y = a->z * b->x - a->x
 		* b->z, .z = a->x * b->y - a->y * b->x, .w = VECTOR};
-	return (result);
+	return (v_result);
 }
 
 t_tuple	create_color(float red, float green, float blue, float alpha)
@@ -461,8 +461,8 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 	t_mat	mat;
 	int		i;
 	int		j;
-	t_tuple	roow;
-	t_tuple	cool;
+	t_tuple	row_result;
+	t_tuple	col_result;
 
 	i = 0;
 	while (i < 4)
@@ -470,9 +470,9 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 		j = 0;
 		while (j < 4)
 		{
-			roow = row(A, i);
-			cool = col(B, j);
-			mat.m[i][j] = dot_product_tuple_naive(&roow, &cool);
+			row_result = row(A, i);
+			col_result = col(B, j);
+			mat.m[i][j] = dot_product_tuple_naive(&row_result, &col_result);
 			j++;
 		}
 		i++;
@@ -484,20 +484,20 @@ t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup_in)
 {
 	int		i;
 	t_tuple	tup_out;
-	t_tuple	roow;
+	t_tuple	row_result;
 
 	i = 0;
 	while (i < 4)
 	{
-		roow = row(A, i);
+		row_result = row(A, i);
 		if (i == 0)
-			tup_out.x = dot_product_tuple_naive(&roow, tup_in);
+			tup_out.x = dot_product_tuple_naive(&row_result, tup_in);
 		else if (i == 1)
-			tup_out.y = dot_product_tuple_naive(&roow, tup_in);
+			tup_out.y = dot_product_tuple_naive(&row_result, tup_in);
 		else if (i == 2)
-			tup_out.z = dot_product_tuple_naive(&roow, tup_in);
+			tup_out.z = dot_product_tuple_naive(&row_result, tup_in);
 		else if (i == 3)
-			tup_out.w = dot_product_tuple_naive(&roow, tup_in);
+			tup_out.w = dot_product_tuple_naive(&row_result, tup_in);
 		i++;
 	}
 	return (tup_out);
@@ -518,8 +518,8 @@ t_mat	transpose_matrix(t_mat *mat, int dim)
 		while (j < dim)
 		{
 			temp[i][j] = mat->m[i][j];
-			mat_trans.m[i][j] = mat->m[j][i];
-			mat_trans.m[j][i] = temp[i][j];
+			mat_trans.m[j][i] = mat->m[i][j];
+			mat_trans.m[i][j] = temp[i][j];
 			j++;
 		}
 		i++;
@@ -755,16 +755,47 @@ t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 	return (mat);
 }
 
+//Shading 
+
+t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
+{
+	t_tuple	object_point;
+	t_tuple	object_normal;
+	t_tuple	world_normal;
+	t_tuple	origin;
+	t_mat	transposed_inverse;
+
+	object_point = multiply_matrix_and_tuple(&sphere->inv_transform_to_obj, world_point);
+	origin = create_point(0, 0, 0);
+	object_normal = subtract_tuple(&object_point, &origin);
+	transposed_inverse = transpose_matrix(&sphere->inv_transform_to_obj, 4);
+	world_normal = multiply_matrix_and_tuple(&transposed_inverse, &object_normal);
+	world_normal.w = VECTOR;
+	return (normalize_vector(&world_normal));
+}
+
+t_tuple	reflect(t_tuple *vec, t_tuple *normal)
+{
+	t_tuple	v_reflected;
+	t_tuple	v_temp;
+	float	dot;
+
+	dot = dot_product_tuple(vec, normal);
+	v_temp = multiply_tuple(normal, 2.0f * dot);
+	v_reflected = subtract_tuple(vec, &v_temp);
+	return (v_reflected);
+}
+
 /*RAY-SPHERE INTERSECTION*/
 
 t_tuple	ray_position(t_ray *ray, float t)
 {
-	t_tuple	pos;
-	t_tuple	dirmult;
+	t_tuple	v_pos;
+	t_tuple	v_dirmult;
 
-	dirmult = multiply_tuple(&ray->direction, t);
-	pos = add_tuple(&ray->origin, &dirmult);
-	return (pos);
+	v_dirmult = multiply_tuple(&ray->direction, t);
+	v_pos = add_tuple(&ray->origin, &v_dirmult);
+	return (v_pos);
 }
 
 t_ray	transform_ray(t_ray *ray, t_mat *mat)
@@ -782,7 +813,7 @@ t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 {
 	t_intersection_list	intersections;
 	float				discriminant;
-	t_tuple				oc;
+	t_tuple				origin_to_center;
 	float				a;
 	float				b;
 	float				c;
@@ -790,11 +821,11 @@ t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 
 	intersections = (t_intersection_list){0};
 	intersections.count = 0;
-	oc = ray->origin;
-	oc.w = VECTOR;
+	origin_to_center = ray->origin;
+	origin_to_center.w = VECTOR;
 	a = dot_product_tuple(&ray->direction, &ray->direction);
-	b = 2 * dot_product_tuple(&ray->direction, &oc);
-	c = dot_product_tuple(&oc, &oc) - 1.0;
+	b = 2 * dot_product_tuple(&ray->direction, &origin_to_center);
+	c = dot_product_tuple(&origin_to_center, &origin_to_center) - 1.0;
 	discriminant = b * b - 4 * a * c;
 	if (fabsf(a) < EPSILON || discriminant < 0)
 		return (intersections);
@@ -843,7 +874,7 @@ void	ray_trace_scene(t_system *sys, mlx_image_t *img)
 			//construct camera-ray in world space
 			canvas_point = window_pixel_to_canvas_point(x, y, sys);
 			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
-			ray_dir = normalize_tuple(&ray_dir);
+			ray_dir = normalize_vector(&ray_dir);
 			world_ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
 			// Transform to object space
 			obj_ray = world_ray;
