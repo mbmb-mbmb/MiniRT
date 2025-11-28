@@ -95,12 +95,12 @@ uint32_t	pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 }
 
 
-static int	parse_rgb(char *buffer, uint32_t *color)
+static int	parse_rgb(char *buffer, t_tuple *color)
 {
-	int	i;
 	int	r;
 	int	g;
 	int	b;
+	int	i;
 
 	i = 0;
 	i += parse_int(buffer + i, &r, 0, 255);
@@ -108,7 +108,10 @@ static int	parse_rgb(char *buffer, uint32_t *color)
 	i += parse_int(buffer + i, &g, 0, 255);
 	i += skip_commas(buffer + i);
 	i += parse_int(buffer + i, &b, 0, 255);
-	*color = pack_rgba((uint8_t)r,(uint8_t) g,(uint8_t) b, 255);
+	color->x = (float)r / 255.0f;
+	color->y = (float)g / 255.0f;
+	color->z = (float)b / 255.0f;
+	color->w = 1.0f;
 	return (i);
 }
 
@@ -142,7 +145,7 @@ static void	check_AmbLight(char *buffer, t_system *sys)
 			if(A_found > 1)
 				error_parser("Only one ambient light (A) allowed.\n");
 			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0);
-			i += parse_rgb(buffer + i, &sys->amb_light.rgb);
+			i += parse_rgb(buffer + i, &sys->amb_light.color);
 			i += skip_to_end(buffer + i);
 			continue ;
 		}
@@ -209,7 +212,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 	int				i;
 	t_object		*obj;
 
-	i = 0;
+i = 0;
 	while (buffer[i])
 	{
 		if (ft_strncmp(buffer + i, "sp", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))
@@ -224,7 +227,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 			obj->sphere.is_transformed = false;
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT);
 			i += parse_float(buffer + i, &obj->sphere.radius, -FLOAT_MAX, FLOAT_MAX);
-			i += parse_rgb(buffer + i, &obj->sphere.color);
+			i += parse_rgb(buffer + i, &obj->sphere.material.color);
 			i += skip_to_end(buffer + i);
 			continue ;
 		}

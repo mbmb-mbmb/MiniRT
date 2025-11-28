@@ -22,6 +22,10 @@
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
 # define MAX_INTERSECTIONS 2
+
+# define MATERIAL_DIFFUSE 1.0f
+# define MATERIAL_SPECULAR 0.0f
+# define MATERIAL_SHININESS 0.0f
 //# define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
@@ -66,21 +70,29 @@ typedef enum e_obj_state
 	IN_GROUP,
 }					t_obj_state;
 
+typedef struct s_material
+{
+	float			diffuse;
+	float			specular;
+	float			shininess;
+	t_tuple			color;
+}					t_material;
+
 typedef struct s_plane
 {
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	uint32_t		color;
+	t_tuple			color;
 }					t_plane;
 
 typedef struct s_sphere
 {
+	t_material		material;
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
 	float			radius;
-	uint32_t		color;
 	t_mat			transform_to_world;
 	t_mat			inv_transform_to_obj;
 	bool			is_transformed;
@@ -95,7 +107,7 @@ typedef struct s_cylinder
 	float			diameter;
 	t_plane			n_cap;
 	t_plane			s_cap;
-	uint32_t		color;
+	t_tuple			color;
 }					t_cylinder;
 
 typedef enum e_type_flag
@@ -152,13 +164,13 @@ typedef struct s_spot_light
 	t_tuple			location;
 	t_tuple			rotation;
 	int				size;
-	uint32_t		color;
+	t_tuple			color;
 }					t_spot_light;
 
 typedef struct s_amb_light
 {
 	float			range;
-	uint32_t		rgb;
+	t_tuple			color;
 }					t_amb_light;
 
 typedef struct s_system

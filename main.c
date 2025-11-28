@@ -519,7 +519,7 @@ t_mat	transpose_matrix(t_mat *mat, int dim)
 		{
 			temp[i][j] = mat->m[i][j];
 			mat_trans.m[j][i] = mat->m[i][j];
-			mat_trans.m[i][j] = temp[i][j];
+			//mat_trans.m[i][j] = temp[i][j];
 			j++;
 		}
 		i++;
@@ -883,9 +883,9 @@ void	ray_trace_scene(t_system *sys, mlx_image_t *img)
 			//check intersections in object space
 			intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray);
 			if (intersections.count > 0 && intersections.intersections[0].t > 0)
-				mlx_put_pixel(img, x, y, sys->obj_list[0].sphere.color);
+				mlx_put_pixel(img, x, y, pack_rgba((uint8_t)(sys->obj_list[0].sphere.material.color.x * 255), (uint8_t)(sys->obj_list[0].sphere.material.color.y * 255), (uint8_t)(sys->obj_list[0].sphere.material.color.z * 255), 255));
 			else
-				mlx_put_pixel(img, x, y, sys->amb_light.rgb);
+				mlx_put_pixel(img, x, y, pack_rgba((uint8_t)(sys->amb_light.color.x * 255), (uint8_t)(sys->amb_light.color.y * 255), (uint8_t)(sys->amb_light.color.z * 255), 255));
 			x++;
 		}
 		y++;
@@ -903,11 +903,12 @@ int	main(int argc, char **av)
 		ft_error(1);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
-	//skew test
-	t_mat	skew_mat = skew(1.0f, 0, 0, 0, 0, 0);
-	app.system.obj_list[0].sphere.transform_to_world = skew_mat;
-	app.system.obj_list[0].sphere.inv_transform_to_obj = invert_matrix(&skew_mat);
-	app.system.obj_list[0].sphere.is_transformed = true;
+	//light test
+	t_sphere	sphere = app.system.obj_list[0].sphere;
+	sphere.material.diffuse = MATERIAL_DIFFUSE;
+	sphere.material.specular = MATERIAL_SPECULAR;
+	sphere.material.shininess = MATERIAL_SHININESS;
+
 	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
