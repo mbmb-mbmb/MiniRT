@@ -1,7 +1,10 @@
 #include "minirt.h"
 
 t_tuple	create_point(float x, float y, float z);
-void	ray_trace_scene(t_system *sys, mlx_image_t *img);
+void	render(t_system *sys, mlx_image_t *img);
+t_tuple	ray_position(t_ray *ray, float t);
+t_tuple	lighting(t_material *material, t_amb_light *amb_light, 
+	t_spot_light *light, t_shader_computations *comps);
 
 static void	ft_error(int error_code)
 {
@@ -67,7 +70,7 @@ static void	draft_transformations(t_system *sys)
 
 static void	render_scene(t_system *sys, mlx_image_t *img)
 {
-	ray_trace_scene(sys, img);
+	render(sys, img);
 	sys->state |= RENDER_COMPLETE;
 }
 
@@ -786,7 +789,91 @@ t_tuple	reflect(t_tuple *vec, t_tuple *normal)
 	return (v_reflected);
 }
 
-/*RAY-SPHERE INTERSECTION*/
+t_shader_computations	prepare_computitions(t_intersection *hit, t_ray *world_ray, t_object *obj)
+{
+	t_shader_computations	comps;
+
+	comps.point = ray_position(world_ray, hit->t);
+	comps.eyev = negate_tuple(&world_ray->direction);
+	comps.normalv = normal_at(&obj->sphere, &comps.point);
+	comps.inside = false;  //Actual check for this WIP.
+	return (comps);
+}
+
+t_tuple	lighting(t_material *material, t_amb_light *amb_light, 
+	t_spot_light *light, t_shader_computations *comps)
+{
+t_tuple	ambient;
+t_tuple	diffuse;
+t_tuple	specular;
+t_tuple	lightv;
+t_tuple	reflectv;
+float	light_dot_normal;
+float	reflect_dot_eye;
+float	factor;
+
+// Combine surface color with light color (Hadamard/Schur product)
+t_tuple effective_color = multiply_tuple(&material->color, 1.0f);
+effective_color.x *= amb_light->color.x;
+effective_color.y *= amb_light->color.y;
+effective_color.z *= amb_light->color.z;
+
+// Ambient contribution
+ambient = multiply_tuple(&effective_color, amb_light->range);
+
+// Calculate light direction vector
+lightv = subtract_tuple(&light->location, &comps->point);
+lightv = normalize_vector(&lightv);
+
+// Light·normal tells us if light is on this side of surface
+light_dot_normal = dot_product_tuple(&lightv, &comps->normalv);
+
+// If light_dot_normal < 0, light is behind the surface → no diffuse/specular
+if (light_dot_normal < 0)
+{
+diffuse = create_color(0, 0, 0, 1);
+specular = create_color(0, 0, 0, 1);
+}
+else
+{
+// Diffuse contribution
+effective_color.x *= light->color.x;
+effective_color.y *= light->color.y;
+effective_color.z *= light->color.z;
+
+diffuse = multiply_tuple(&effective_color, 
+					material->diffuse * light->range * light_dot_normal);
+
+// Specular contribution
+t_tuple neg_lightv = negate_tuple(&lightv);
+reflectv = reflect(&neg_lightv, &comps->normalv);
+reflect_dot_eye = dot_product_tuple(&reflectv, &comps->eyev);
+
+if (reflect_dot_eye <= 0)
+{
+specular = create_color(0, 0, 0, 1);
+}
+else
+{
+factor = powf(reflect_dot_eye, material->shininess);
+specular = multiply_tuple(&light->color, 
+						 material->specular * light->range * factor);
+}
+}
+
+// Combine all three components
+t_tuple result = add_tuple(&ambient, &diffuse);
+result = add_tuple(&result, &specular);
+
+// Clamp to [0,1]
+result.x = fminf(1.0f, fmaxf(0.0f, result.x));
+result.y = fminf(1.0f, fmaxf(0.0f, result.y));
+result.z = fminf(1.0f, fmaxf(0.0f, result.z));
+result.w = 1.0f;
+
+return (result);
+}
+/*RAY-SPHERE CTION*/
 
 t_tuple	ray_position(t_ray *ray, float t)
 {
@@ -855,15 +942,43 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 	return (canvas_coord);
 }
 
-void	ray_trace_scene(t_system *sys, mlx_image_t *img)
+t_ray	ray_for_pixel(t_system *sys, uint32_t x, uint32_t y)
 {
-	t_ray				world_ray;
-	t_ray				obj_ray;
+	t_ray	ray;
+	t_tuple	point;
+
+	point = window_pixel_to_canvas_point(x, y, sys);
+	ray.origin = sys->camera.location;
+	ray.direction = subtract_tuple(&point, &sys->camera.location);
+	ray.direction = normalize_vector(&ray.direction);
+	return (ray);
+}
+
+t_tuple	color_at(t_system *sys, t_ray *ray)
+{
 	t_intersection_list	intersections;
-	t_tuple				canvas_point;
-	t_tuple				ray_dir;
-	uint32_t			x;
-	uint32_t			y;
+	t_shader_computations	comps;
+	intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, ray);
+
+	//object color
+	if (intersections.count > 0 && intersections.intersections[0].t > 0)
+	{
+		comps = prepare_computitions(&intersections.intersections[0], ray, &sys->obj_list[0]);
+		return (lighting(&sys->obj_list[0].sphere.material,
+						&sys->amb_light,
+						&sys->light_list[0],
+						&comps));
+	}
+	//background color
+	return (create_color(0, 0, 0, 1));
+}
+
+void	render(t_system *sys, mlx_image_t *img)
+{
+	int	x;
+	int	y;
+	t_ray	ray;
+	t_tuple	color;
 
 	y = 0;
 	while (y < HEIGHT)
@@ -871,21 +986,12 @@ void	ray_trace_scene(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < WIDTH)
 		{
-			//construct camera-ray in world space
-			canvas_point = window_pixel_to_canvas_point(x, y, sys);
-			ray_dir = subtract_tuple(&canvas_point, &sys->camera.location);
-			ray_dir = normalize_vector(&ray_dir);
-			world_ray = (t_ray){.origin = sys->camera.location, .direction = ray_dir};
-			// Transform to object space
-			obj_ray = world_ray;
-			if (sys->obj_list[0].sphere.is_transformed)
-				obj_ray = transform_ray(&world_ray, &sys->obj_list[0].sphere.inv_transform_to_obj);
-			//check intersections in object space
-			intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray);
-			if (intersections.count > 0 && intersections.intersections[0].t > 0)
-				mlx_put_pixel(img, x, y, pack_rgba((uint8_t)(sys->obj_list[0].sphere.material.color.x * 255), (uint8_t)(sys->obj_list[0].sphere.material.color.y * 255), (uint8_t)(sys->obj_list[0].sphere.material.color.z * 255), 255));
-			else
-				mlx_put_pixel(img, x, y, pack_rgba((uint8_t)(sys->amb_light.color.x * 255), (uint8_t)(sys->amb_light.color.y * 255), (uint8_t)(sys->amb_light.color.z * 255), 255));
+			ray = ray_for_pixel(sys, x, y);
+			color = color_at(sys, &ray);
+			mlx_put_pixel(img, x, y, pack_rgba((uint8_t)(color.x * 255),
+							 (uint8_t)(color.y * 255),
+							 (uint8_t)(color.z * 255),
+							 255));
 			x++;
 		}
 		y++;
@@ -904,10 +1010,10 @@ int	main(int argc, char **av)
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
 	//light test
-	t_sphere	sphere = app.system.obj_list[0].sphere;
-	sphere.material.diffuse = MATERIAL_DIFFUSE;
-	sphere.material.specular = MATERIAL_SPECULAR;
-	sphere.material.shininess = MATERIAL_SHININESS;
+	app.system.obj_list[0].sphere.material.ambient = 0.1f;
+	app.system.obj_list[0].sphere.material.diffuse = MATERIAL_DIFFUSE;
+	app.system.obj_list[0].sphere.material.specular = MATERIAL_SPECULAR;
+	app.system.obj_list[0].sphere.material.shininess = MATERIAL_SHININESS;
 
 	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);

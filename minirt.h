@@ -24,8 +24,8 @@
 # define MAX_INTERSECTIONS 2
 
 # define MATERIAL_DIFFUSE 1.0f
-# define MATERIAL_SPECULAR 0.0f
-# define MATERIAL_SHININESS 0.0f
+# define MATERIAL_SPECULAR 0.5f
+# define MATERIAL_SHININESS 50.0f
 //# define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
@@ -72,6 +72,7 @@ typedef enum e_obj_state
 
 typedef struct s_material
 {
+	float			ambient;
 	float			diffuse;
 	float			specular;
 	float			shininess;
@@ -128,6 +129,7 @@ typedef struct s_intersection
 typedef struct s_intersection_list
 {
 	t_intersection	intersections[MAX_INTERSECTIONS];
+	t_intersection	*hit;
 	int				count;
 }					t_intersection_list;
 
@@ -172,6 +174,20 @@ typedef struct s_amb_light
 	float			range;
 	t_tuple			color;
 }					t_amb_light;
+
+typedef struct s_shader_computations
+{
+	t_tuple			point;
+	t_tuple			eyev;
+	t_tuple			normalv;
+	t_tuple			reflectv;
+	float			over_point;
+	t_tuple			color;
+	float			ambient;
+	float			diffuse;
+	float			specular;
+	bool			inside;
+}					t_shader_computations;
 
 typedef struct s_system
 {
