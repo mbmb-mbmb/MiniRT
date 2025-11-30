@@ -23,9 +23,9 @@
 # define TUPLE_INCORRECT 2.0f
 # define MAX_INTERSECTIONS 2
 
-# define MATERIAL_DIFFUSE 1.0f
-# define MATERIAL_SPECULAR 0.5f
-# define MATERIAL_SHININESS 50.0f
+# define MATERIAL_DIFFUSE 0.5f
+# define MATERIAL_SPECULAR 1.0f
+# define MATERIAL_SHININESS 100.0f
 //# define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
@@ -133,13 +133,15 @@ typedef struct s_intersection_list
 	int				count;
 }					t_intersection_list;
 
-typedef union u_object
+typedef struct s_object
 {
-	t_type_flag		type;
-	t_plane			plane;
-	t_sphere		sphere;
-	t_cylinder		cylinder;
-}					t_object;
+    t_type_flag     type;
+    union {
+        t_plane     plane;
+        t_sphere    sphere;
+        t_cylinder  cylinder;
+    };
+}                   t_object;
 
 typedef struct s_world
 {

@@ -241,6 +241,17 @@ t_tuple	multiply_tuple(t_tuple *a, float mult)
 	return (result);
 }
 
+t_tuple	multiply_tuple_w_tuple(t_tuple *a, t_tuple *b)
+{
+	t_tuple	result;
+
+	result.x = a->x * b->x;
+	result.y = a->y * b->y;
+	result.z = a->z * b->z;
+	result.w = 1.0f;
+	return (result);
+}
+
 t_tuple	divide_tuple(t_tuple *a, float div)
 {
 	t_tuple	result;
@@ -252,6 +263,17 @@ t_tuple	divide_tuple(t_tuple *a, float div)
 	result = (t_tuple){.x = a->x / div, .y = a->y / div, .z = a->z / div,
 		.w = a->w};
 	return (result);
+}
+
+t_tuple	clamp_tuple(t_tuple *in, float min, float max)
+{
+	t_tuple	clamped;
+	
+	clamped.x = fminf(max, fmaxf(min, in->x));
+	clamped.y = fminf(max, fmaxf(min, in->y));
+	clamped.z = fminf(max, fmaxf(min, in->z));
+	clamped.w = 1.0f;
+	return (clamped);
 }
 
 float	magnitude_vector(t_tuple *a)
@@ -758,6 +780,20 @@ t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 	return (mat);
 }
 
+void	set_transform(t_object *obj, t_mat *transform)
+{
+	t_mat	inverse;
+
+	if (obj->type == SPHERE)
+	{
+		obj->sphere.transform_to_world = *transform;
+		inverse = invert_matrix(transform);
+		obj->sphere.inv_transform_to_obj = inverse;
+		obj->sphere.is_transformed = true;
+	}
+	// TODO: PLANE, CYLINDER
+}
+
 //Shading 
 
 t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
@@ -789,91 +825,101 @@ t_tuple	reflect(t_tuple *vec, t_tuple *normal)
 	return (v_reflected);
 }
 
-t_shader_computations	prepare_computitions(t_intersection *hit, t_ray *world_ray, t_object *obj)
+t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray, t_object *obj)
 {
 	t_shader_computations	comps;
 
 	comps.point = ray_position(world_ray, hit->t);
 	comps.eyev = negate_tuple(&world_ray->direction);
 	comps.normalv = normal_at(&obj->sphere, &comps.point);
-	comps.inside = false;  //Actual check for this WIP.
+	comps.inside = false;  //TODO: Implement actual check for this.
 	return (comps);
 }
 
+t_tuple	calculate_ambient(t_material *material, t_amb_light *amb_light)
+{
+	t_tuple	ambient;
+	t_tuple	color;
+	t_tuple	with_range;
+
+	color = multiply_tuple_w_tuple(&material->color, &amb_light->color);
+	ambient = multiply_tuple(&color, material->ambient);
+	with_range = multiply_tuple(&ambient, amb_light->range);
+	return (with_range);
+}
+
+bool	is_light_behind_surface(t_tuple *light_dir, t_tuple *normal)
+{
+	return (dot_product_tuple(light_dir, normal) < 0);
+}
+
+t_tuple	calculate_diffuse(t_material *material, t_spot_light *light, t_tuple *light_dir, t_tuple *normalv)
+{
+	t_tuple	diffuse;
+	t_tuple	color;
+	float	scalar;
+	
+	if (is_light_behind_surface(light_dir, normalv))
+		return (create_color(0, 0, 0, 1));
+	color = multiply_tuple_w_tuple(&material->color, &light->color);
+	scalar = material->diffuse * light->range * dot_product_tuple(light_dir, normalv);
+	diffuse = multiply_tuple(&color, scalar);
+	return (diffuse);
+}
+
+bool	is_reflection_away_from_eye(t_tuple *refl, t_tuple *eye)
+{
+	return (dot_product_tuple(refl, eye) < 0);
+}
+
+t_tuple	calculate_specular(t_material *material, t_spot_light *light,
+			t_tuple *light_dir, t_tuple *normalv, t_tuple *eyev)
+{
+	t_tuple	specular;
+	t_tuple neg_lightv;
+	t_tuple	reflectv;
+	float 	factor;
+
+	if (is_light_behind_surface(light_dir, normalv))
+		return (create_color(0, 0, 0, 1));
+	neg_lightv = negate_tuple(light_dir);
+	reflectv = reflect(&neg_lightv, normalv);
+	if (is_reflection_away_from_eye(&reflectv, eyev))
+		return (create_color(0, 0, 0, 1));
+	factor = powf(dot_product_tuple(&reflectv, eyev), material->shininess);
+	specular = multiply_tuple(&light->color, 
+							material->specular * light->range * factor);
+	return (specular);
+}
+
+t_tuple calc_light_direction(t_tuple *light_pos, t_tuple *point)
+{
+	t_tuple	direction;
+
+	direction = subtract_tuple(light_pos, point);
+	return (normalize_vector(&direction));
+}
+
 t_tuple	lighting(t_material *material, t_amb_light *amb_light, 
-	t_spot_light *light, t_shader_computations *comps)
+					t_spot_light *light, t_shader_computations *comps)
 {
-t_tuple	ambient;
-t_tuple	diffuse;
-t_tuple	specular;
-t_tuple	lightv;
-t_tuple	reflectv;
-float	light_dot_normal;
-float	reflect_dot_eye;
-float	factor;
+	t_tuple	ambient;
+	t_tuple	diffuse;
+	t_tuple	specular;
+	t_tuple	light_dirv;
+	t_tuple	result;
 
-// Combine surface color with light color (Hadamard/Schur product)
-t_tuple effective_color = multiply_tuple(&material->color, 1.0f);
-effective_color.x *= amb_light->color.x;
-effective_color.y *= amb_light->color.y;
-effective_color.z *= amb_light->color.z;
-
-// Ambient contribution
-ambient = multiply_tuple(&effective_color, amb_light->range);
-
-// Calculate light direction vector
-lightv = subtract_tuple(&light->location, &comps->point);
-lightv = normalize_vector(&lightv);
-
-// Light·normal tells us if light is on this side of surface
-light_dot_normal = dot_product_tuple(&lightv, &comps->normalv);
-
-// If light_dot_normal < 0, light is behind the surface → no diffuse/specular
-if (light_dot_normal < 0)
-{
-diffuse = create_color(0, 0, 0, 1);
-specular = create_color(0, 0, 0, 1);
+	light_dirv = calc_light_direction(&light->location, &comps->point);
+	ambient = calculate_ambient(material, amb_light);
+	diffuse = calculate_diffuse(material, light, &light_dirv, &comps->normalv);
+	specular = calculate_specular(material, light, &light_dirv, &comps->normalv, &comps->eyev);
+	result = add_tuple(&ambient, &diffuse);
+	result = add_tuple(&result, &specular);
+	result = clamp_tuple(&result, 0.0f, 1.0f);
+	
+	return (result);
 }
-else
-{
-// Diffuse contribution
-effective_color.x *= light->color.x;
-effective_color.y *= light->color.y;
-effective_color.z *= light->color.z;
-
-diffuse = multiply_tuple(&effective_color, 
-					material->diffuse * light->range * light_dot_normal);
-
-// Specular contribution
-t_tuple neg_lightv = negate_tuple(&lightv);
-reflectv = reflect(&neg_lightv, &comps->normalv);
-reflect_dot_eye = dot_product_tuple(&reflectv, &comps->eyev);
-
-if (reflect_dot_eye <= 0)
-{
-specular = create_color(0, 0, 0, 1);
-}
-else
-{
-factor = powf(reflect_dot_eye, material->shininess);
-specular = multiply_tuple(&light->color, 
-						 material->specular * light->range * factor);
-}
-}
-
-// Combine all three components
-t_tuple result = add_tuple(&ambient, &diffuse);
-result = add_tuple(&result, &specular);
-
-// Clamp to [0,1]
-result.x = fminf(1.0f, fmaxf(0.0f, result.x));
-result.y = fminf(1.0f, fmaxf(0.0f, result.y));
-result.z = fminf(1.0f, fmaxf(0.0f, result.z));
-result.w = 1.0f;
-
-return (result);
-}
-/*RAY-SPHERE CTION*/
+/*RAY-SPHERE */
 
 t_tuple	ray_position(t_ray *ray, float t)
 {
@@ -896,6 +942,11 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 	return (ray_out);
 }
 
+bool	ray_misses_sphere(float a, float discriminant)
+{
+	return (fabsf(a) < EPSILON || discriminant < 0);
+}
+
 t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 {
 	t_intersection_list	intersections;
@@ -914,7 +965,7 @@ t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 	b = 2 * dot_product_tuple(&ray->direction, &origin_to_center);
 	c = dot_product_tuple(&origin_to_center, &origin_to_center) - 1.0;
 	discriminant = b * b - 4 * a * c;
-	if (fabsf(a) < EPSILON || discriminant < 0)
+	if (ray_misses_sphere(a, discriminant))
 		return (intersections);
 	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
 	intersections.intersections[0].point = ray_position(ray, intersections.intersections[0].t);
@@ -942,7 +993,7 @@ t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
 	return (canvas_coord);
 }
 
-t_ray	ray_for_pixel(t_system *sys, uint32_t x, uint32_t y)
+t_ray	camera_ray_for_pixel(t_system *sys, uint32_t x, uint32_t y)
 {
 	t_ray	ray;
 	t_tuple	point;
@@ -954,30 +1005,54 @@ t_ray	ray_for_pixel(t_system *sys, uint32_t x, uint32_t y)
 	return (ray);
 }
 
+t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
+{
+	t_ray	obj_ray;
+
+	if (obj->sphere.is_transformed)  // Or check obj type and generic transform flag
+		obj_ray = transform_ray(ray, &obj->sphere.inv_transform_to_obj);
+	else
+		obj_ray = *ray;
+	return (obj_ray);
+}
+
 t_tuple	color_at(t_system *sys, t_ray *ray)
 {
-	t_intersection_list	intersections;
+	t_intersection_list		intersections;
 	t_shader_computations	comps;
-	intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, ray);
+	t_tuple					color_at;
+	t_ray					obj_ray;
 
+	obj_ray = ray_to_object_space(ray, &sys->obj_list[0]);
+	intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray); //TODO: CYLINDER, PLANE
 	//object color
 	if (intersections.count > 0 && intersections.intersections[0].t > 0)
 	{
-		comps = prepare_computitions(&intersections.intersections[0], ray, &sys->obj_list[0]);
-		return (lighting(&sys->obj_list[0].sphere.material,
+		comps = prepare_shading_computitions(&intersections.intersections[0], ray,
+					&sys->obj_list[0]);
+		color_at = lighting(&sys->obj_list[0].sphere.material,
 						&sys->amb_light,
 						&sys->light_list[0],
-						&comps));
+						&comps);
+		return (color_at);
 	}
 	//background color
 	return (create_color(0, 0, 0, 1));
+}
+
+uint32_t	tuple_to_rgba(t_tuple *color)
+{
+	return (pack_rgba((uint8_t)(color->x * 255),
+	                  (uint8_t)(color->y * 255),
+	                  (uint8_t)(color->z * 255),
+	                  255));
 }
 
 void	render(t_system *sys, mlx_image_t *img)
 {
 	int	x;
 	int	y;
-	t_ray	ray;
+	t_ray	camera_ray;
 	t_tuple	color;
 
 	y = 0;
@@ -986,12 +1061,9 @@ void	render(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < WIDTH)
 		{
-			ray = ray_for_pixel(sys, x, y);
-			color = color_at(sys, &ray);
-			mlx_put_pixel(img, x, y, pack_rgba((uint8_t)(color.x * 255),
-							 (uint8_t)(color.y * 255),
-							 (uint8_t)(color.z * 255),
-							 255));
+			camera_ray = camera_ray_for_pixel(sys, x, y);
+			color = color_at(sys, &camera_ray);
+			mlx_put_pixel(img, x, y, tuple_to_rgba(&color));
 			x++;
 		}
 		y++;
@@ -1009,12 +1081,17 @@ int	main(int argc, char **av)
 		ft_error(1);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
+	
 	//light test
 	app.system.obj_list[0].sphere.material.ambient = 0.1f;
 	app.system.obj_list[0].sphere.material.diffuse = MATERIAL_DIFFUSE;
 	app.system.obj_list[0].sphere.material.specular = MATERIAL_SPECULAR;
 	app.system.obj_list[0].sphere.material.shininess = MATERIAL_SHININESS;
 
+	t_mat skew_mat = skew(2.0f, 2.0f, 0, 0, 0, 0);
+	set_transform(&app.system.obj_list[0], &skew_mat);
+	print_matrix(&skew_mat);
+	print_matrix(&app.system.obj_list[0].sphere.inv_transform_to_obj);
 	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
