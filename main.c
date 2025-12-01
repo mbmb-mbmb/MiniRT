@@ -142,6 +142,11 @@ t_tuple	create_vector(float x, float y, float z)
 	return (vector);
 }
 
+bool	is_float_zero(float f)
+{
+	return (fabsf(f) < EPSILON);
+}
+
 bool	is_float_equal(float a, float b)
 {
 	return (fabsf(a - b) < EPSILON);
@@ -258,7 +263,7 @@ t_tuple	divide_tuple(t_tuple *a, float div)
 
 	result = (t_tuple){};
 	result.w = TUPLE_INCORRECT;
-	if (fabsf(div) < EPSILON)
+	if (is_float_zero(div))
 		return (result);
 	result = (t_tuple){.x = a->x / div, .y = a->y / div, .z = a->z / div,
 		.w = a->w};
@@ -676,7 +681,7 @@ t_mat	invert_matrix(t_mat *mat)
 	dim = get_matrix_dim(mat, NULL);
 	det = determinant(mat, dim);
 	i = 0;
-	if (determinant == 0)
+	if (is_float_zero(det))
 		return (create_identity_matrix(4));
 	while (i < dim)
 	{
