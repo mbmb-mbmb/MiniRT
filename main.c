@@ -667,24 +667,24 @@ bool	is_matrix_invertible(t_mat *mat)
 t_mat	invert_matrix(t_mat *mat)
 {
 	t_mat	mat_inv;
-	float	c;
-	float	d;
+	float	cof;
+	float	det;
 	int		i;
 	int		j;
 	int		dim;
 
 	dim = get_matrix_dim(mat, NULL);
-	d = determinant(mat, dim);
+	det = determinant(mat, dim);
 	i = 0;
-	if (d == 0)
+	if (determinant == 0)
 		return (create_identity_matrix(4));
 	while (i < dim)
 	{
 		j = 0;
 		while (j < dim)
 		{
-			c = cofactor_one_cell(mat, j, i, dim);
-			mat_inv.m[i][j] = c / d;
+			cof = cofactor_one_cell(mat, j, i, dim);
+			mat_inv.m[i][j] = cof / det;
 			j++;
 		}
 		i++;
@@ -1088,10 +1088,8 @@ int	main(int argc, char **av)
 	app.system.obj_list[0].sphere.material.specular = MATERIAL_SPECULAR;
 	app.system.obj_list[0].sphere.material.shininess = MATERIAL_SHININESS;
 
-	t_mat skew_mat = skew(2.0f, 2.0f, 0, 0, 0, 0);
+	t_mat skew_mat = skew(1.0f, 0.0f, 0, 0, 0, 0);
 	set_transform(&app.system.obj_list[0], &skew_mat);
-	print_matrix(&skew_mat);
-	print_matrix(&app.system.obj_list[0].sphere.inv_transform_to_obj);
 	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
