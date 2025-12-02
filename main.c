@@ -3,7 +3,7 @@
 t_tuple	create_point(float x, float y, float z);
 void	render(t_system *sys, mlx_image_t *img);
 t_tuple	ray_position(t_ray *ray, float t);
-t_tuple	lighting(t_material *material, t_amb_light *amb_light, 
+t_tuple	lighting(t_material *material, t_amb_light *amb_light,
 	t_spot_light *light, t_shader_computations *comps);
 
 static void	ft_error(int error_code)
@@ -81,9 +81,9 @@ static int	cleanup(t_system *sys)
 
 void    resize_callback(int32_t width, int32_t height, void *param)
 {
-    (void)width;
-    (void)height;
-    (void)param;
+	(void)width;
+	(void)height;
+	(void)param;
 }
 
 static void	frame(void *param)
@@ -273,7 +273,7 @@ t_tuple	divide_tuple(t_tuple *a, float div)
 t_tuple	clamp_tuple(t_tuple *in, float min, float max)
 {
 	t_tuple	clamped;
-	
+
 	clamped.x = fminf(max, fmaxf(min, in->x));
 	clamped.y = fminf(max, fmaxf(min, in->y));
 	clamped.z = fminf(max, fmaxf(min, in->z));
@@ -799,7 +799,7 @@ void	set_transform(t_object *obj, t_mat *transform)
 	// TODO: PLANE, CYLINDER
 }
 
-//Shading 
+//Shading
 
 t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
 {
@@ -863,7 +863,7 @@ t_tuple	calculate_diffuse(t_material *material, t_spot_light *light, t_tuple *li
 	t_tuple	diffuse;
 	t_tuple	color;
 	float	scalar;
-	
+
 	if (is_light_behind_surface(light_dir, normalv))
 		return (create_color(0, 0, 0, 1));
 	color = multiply_tuple_w_tuple(&material->color, &light->color);
@@ -892,7 +892,7 @@ t_tuple	calculate_specular(t_material *material, t_spot_light *light,
 	if (is_reflection_away_from_eye(&reflectv, eyev))
 		return (create_color(0, 0, 0, 1));
 	factor = powf(dot_product_tuple(&reflectv, eyev), material->shininess);
-	specular = multiply_tuple(&light->color, 
+	specular = multiply_tuple(&light->color,
 							material->specular * light->range * factor);
 	return (specular);
 }
@@ -905,7 +905,7 @@ t_tuple calc_light_direction(t_tuple *light_pos, t_tuple *point)
 	return (normalize_vector(&direction));
 }
 
-t_tuple	lighting(t_material *material, t_amb_light *amb_light, 
+t_tuple	lighting(t_material *material, t_amb_light *amb_light,
 					t_spot_light *light, t_shader_computations *comps)
 {
 	t_tuple	ambient;
@@ -921,7 +921,7 @@ t_tuple	lighting(t_material *material, t_amb_light *amb_light,
 	result = add_tuple(&ambient, &diffuse);
 	result = add_tuple(&result, &specular);
 	result = clamp_tuple(&result, 0.0f, 1.0f);
-	
+
 	return (result);
 }
 /*RAY-SPHERE */
@@ -946,6 +946,25 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 	ray_out.direction.w = VECTOR;
 	return (ray_out);
 }
+
+/* INTERSECT WORLD
+
+t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
+		loop(->obj_count) // loop trough all objects
+			t_intersection_list	*obj = obj_list[i];
+	t_intersection_list		obj_intersections;
+
+//intersect each object
+ray to objectspace()
+call by type -> SHERE -> interssect_sphere()
+append_intesections(&all_intersections, &obj_intersections)
+
+//sort intersections by t ascending
+
+chore: generalize intersect_unit_sphere to intersect_sphere
+	ray+to+objectspace()
+	can use t values directly
+*/
 
 bool	ray_misses_sphere(float a, float discriminant)
 {
@@ -1048,9 +1067,9 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 uint32_t	tuple_to_rgba(t_tuple *color)
 {
 	return (pack_rgba((uint8_t)(color->x * 255),
-	                  (uint8_t)(color->y * 255),
-	                  (uint8_t)(color->z * 255),
-	                  255));
+						(uint8_t)(color->y * 255),
+						(uint8_t)(color->z * 255),
+						255));
 }
 
 void	render(t_system *sys, mlx_image_t *img)
@@ -1086,7 +1105,8 @@ int	main(int argc, char **av)
 		ft_error(1);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
-	
+	// t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
+
 	//light test
 	app.system.obj_list[0].sphere.material.ambient = 0.1f;
 	app.system.obj_list[0].sphere.material.diffuse = MATERIAL_DIFFUSE;
