@@ -119,11 +119,21 @@ typedef enum e_type_flag
 	END
 }					t_type_flag;
 
+typedef struct s_object
+{
+	t_type_flag	type;
+	union {
+		t_plane		plane;
+		t_sphere	sphere;
+		t_cylinder	cylinder;
+    };
+}					t_object;
+
 typedef struct s_intersection
 {
 	float			t;
 	t_tuple			point;
-	t_type_flag		type;
+	t_object		*object;
 }					t_intersection;
 
 typedef struct s_intersection_list
@@ -132,16 +142,6 @@ typedef struct s_intersection_list
 	t_intersection	*hit;
 	int				count;
 }					t_intersection_list;
-
-typedef struct s_object
-{
-    t_type_flag     type;
-    union {
-        t_plane     plane;
-        t_sphere    sphere;
-        t_cylinder  cylinder;
-    };
-}                   t_object;
 
 typedef struct s_world
 {

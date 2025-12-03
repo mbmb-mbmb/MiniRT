@@ -997,13 +997,21 @@ t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 	if (ray_misses_sphere(a, discriminant))
 		return (intersections);
 	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
-	intersections.intersections[0].point = ray_position(ray, intersections.intersections[0].t);
-	intersections.intersections[0].type = SPHERE;
 	intersections.intersections[1].t = (-b + sqrtf(discriminant)) / (2 * a);
-	intersections.intersections[1].point = ray_position(ray, intersections.intersections[1].t);
-	intersections.intersections[1].type = SPHERE;
 	intersections.count = 2;
 	return (intersections);
+}
+
+void	tag_intersections(t_intersection_list *intersections, t_object *object)
+{
+	int	i;
+
+	i = 0;
+	while (i < intersections->count)
+	{
+		intersections->intersections[i].object = object;
+		i++;
+	}
 }
 
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
@@ -1021,12 +1029,13 @@ t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
 		obj_intrs.count = 0;
 		obj_ray = ray_to_object_space(ray, &sys->obj_list[i]);
 		if (sys->obj_list[i].type == SPHERE)
-			obj_intrs =intersect_unit_sphere(&sys->obj_list[i].sphere, &obj_ray);
-		//TODO: PLANE, CYLINDER
+		{
+			obj_intrs = intersect_unit_sphere(&sys->obj_list[i].sphere, &obj_ray);
+		}
+		tag_intersections(&obj_intrs, &sys->obj_list[i]);
 		append_intersections(&all_intrs, &obj_intrs);
 		i++;
 	}
-	// TODO: sort_intersections(&all_intrs); for transparency etc.
 	return (all_intrs);
 }
 
@@ -1036,7 +1045,7 @@ t_intersection	*hit(t_intersection_list *intersections)
 	float			closest_t;
 	int				i;
 
-	hit = NULL;	
+	hit = NULL;
 	closest_t = FLOAT_MAX;
 	i = 0;
 	while (i < intersections->count)
@@ -1093,7 +1102,7 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 		return (create_color(0, 0, 0, 1));
 	comps = prepare_shading_computitions(&intersections.intersections[0], ray,
 				&sys->obj_list[0]);
-	color_at = lighting(&sys->obj_list[0].sphere.material,
+	color_at = lighting(&closest_hit->object->sphere.material,
 					&sys->amb_light,
 					&sys->light_list[0],
 					&comps);
