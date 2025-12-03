@@ -947,28 +947,33 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 	return (ray_out);
 }
 
-/* INTERSECT WORLD
+t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
+{
+	t_ray	obj_ray;
 
-t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
-		loop(->obj_count) // loop trough all objects
-			t_intersection_list	*obj = obj_list[i];
-	t_intersection_list		obj_intersections;
+	if (obj->sphere.is_transformed)
+		obj_ray = transform_ray(ray, &obj->sphere.inv_transform_to_obj);
+	else
+		obj_ray = *ray;
+	return (obj_ray);
+}
 
-//intersect each object
-ray to objectspace()
-call by type -> SHERE -> interssect_sphere()
-append_intesections(&all_intersections, &obj_intersections)
+void	append_intersections(t_intersection_list *dst, t_intersection_list *src)
+{
+	int	i;
 
-//sort intersections by t ascending
-
-chore: generalize intersect_unit_sphere to intersect_sphere
-	ray+to+objectspace()
-	can use t values directly
-*/
+	i = 0;
+	while (i < src->count && dst->count < MAX_INTERSECTIONS)
+	{
+		dst->intersections[dst->count] = src->intersections[i];
+		dst->count++;
+		i++;
+	}
+}
 
 bool	ray_misses_sphere(float a, float discriminant)
 {
-	return (fabsf(a) < EPSILON || discriminant < 0);
+	return (fabsf(a) < EPSILON || discriminant < 0.0f);
 }
 
 t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
@@ -1001,6 +1006,52 @@ t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 	return (intersections);
 }
 
+t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
+{
+	t_intersection_list	obj_intrs;
+	t_intersection_list	all_intrs;
+	t_ray				obj_ray;
+	int					i;
+
+	all_intrs = (t_intersection_list){0};
+	all_intrs.count = 0;
+	i = 0;
+	while (i < sys->object_count)
+	{
+		obj_intrs.count = 0;
+		obj_ray = ray_to_object_space(ray, &sys->obj_list[i]);
+		if (sys->obj_list[i].type == SPHERE)
+			obj_intrs =intersect_unit_sphere(&sys->obj_list[i].sphere, &obj_ray);
+		//TODO: PLANE, CYLINDER
+		append_intersections(&all_intrs, &obj_intrs);
+		i++;
+	}
+	// TODO: sort_intersections(&all_intrs); for transparency etc.
+	return (all_intrs);
+}
+
+t_intersection	*hit(t_intersection_list *intersections)
+{
+	t_intersection	*hit;
+	float			closest_t;
+	int				i;
+
+	hit = NULL;	
+	closest_t = FLOAT_MAX;
+	i = 0;
+	while (i < intersections->count)
+	{
+		if (intersections->intersections[i].t > 0.0f 
+			&& intersections->intersections[i].t < closest_t)
+		{
+			closest_t = intersections->intersections[i].t;
+			hit = &intersections->intersections[i];
+		}
+		i++;
+	}
+	return (hit);
+}
+
 /*OBJ PROJECTON*/
 
 t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
@@ -1029,39 +1080,24 @@ t_ray	camera_ray_for_pixel(t_system *sys, uint32_t x, uint32_t y)
 	return (ray);
 }
 
-t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
-{
-	t_ray	obj_ray;
-
-	if (obj->sphere.is_transformed)  // Or check obj type and generic transform flag
-		obj_ray = transform_ray(ray, &obj->sphere.inv_transform_to_obj);
-	else
-		obj_ray = *ray;
-	return (obj_ray);
-}
-
 t_tuple	color_at(t_system *sys, t_ray *ray)
 {
 	t_intersection_list		intersections;
 	t_shader_computations	comps;
+	t_intersection			*closest_hit;
 	t_tuple					color_at;
-	t_ray					obj_ray;
 
-	obj_ray = ray_to_object_space(ray, &sys->obj_list[0]);
-	intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray); //TODO: CYLINDER, PLANE
-	//object color
-	if (intersections.count > 0 && intersections.intersections[0].t > 0)
-	{
-		comps = prepare_shading_computitions(&intersections.intersections[0], ray,
-					&sys->obj_list[0]);
-		color_at = lighting(&sys->obj_list[0].sphere.material,
-						&sys->amb_light,
-						&sys->light_list[0],
-						&comps);
-		return (color_at);
-	}
-	//background color
-	return (create_color(0, 0, 0, 1));
+	intersections = intersect_world(sys, ray);
+	closest_hit = hit(&intersections);
+	if (closest_hit == NULL)
+		return (create_color(0, 0, 0, 1));
+	comps = prepare_shading_computitions(&intersections.intersections[0], ray,
+				&sys->obj_list[0]);
+	color_at = lighting(&sys->obj_list[0].sphere.material,
+					&sys->amb_light,
+					&sys->light_list[0],
+					&comps);
+	return (color_at);
 }
 
 uint32_t	tuple_to_rgba(t_tuple *color)

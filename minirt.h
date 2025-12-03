@@ -21,12 +21,12 @@
 # define VECTOR 0.0f
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
-# define MAX_INTERSECTIONS 2
+# define MAX_INTERSECTIONS 1024
 
 # define MATERIAL_DIFFUSE 0.5f
 # define MATERIAL_SPECULAR 1.0f
 # define MATERIAL_SHININESS 100.0f
-# define M_PI 3.14159265358979323846
+// # define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
 {
