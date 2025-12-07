@@ -160,6 +160,8 @@ typedef struct s_camera
 	t_sphere		sphere;
 	int				fov;
 	float			aspect_ratio;
+	t_mat			transform;
+	t_mat			inverse;
 }					t_camera;
 
 typedef struct s_spot_light
@@ -183,8 +185,9 @@ typedef struct s_shader_computations
 	t_tuple			eyev;
 	t_tuple			normalv;
 	t_tuple			reflectv;
-	float			over_point;
 	t_tuple			color;
+	t_tuple			light_dir;
+	float			over_point;
 	float			ambient;
 	float			diffuse;
 	float			specular;
