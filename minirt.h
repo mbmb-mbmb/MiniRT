@@ -21,12 +21,12 @@
 # define VECTOR 0.0f
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
-# define MAX_INTERSECTIONS 2
+# define MAX_INTERSECTIONS 1024
 
 # define MATERIAL_DIFFUSE 0.5f
 # define MATERIAL_SPECULAR 1.0f
 # define MATERIAL_SHININESS 100.0f
-//# define M_PI 3.14159265358979323846
+// # define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
 {
@@ -119,11 +119,21 @@ typedef enum e_type_flag
 	END
 }					t_type_flag;
 
+typedef struct s_object
+{
+	t_type_flag	type;
+	union {
+		t_plane		plane;
+		t_sphere	sphere;
+		t_cylinder	cylinder;
+    };
+}					t_object;
+
 typedef struct s_intersection
 {
 	float			t;
 	t_tuple			point;
-	t_type_flag		type;
+	t_object		*object;
 }					t_intersection;
 
 typedef struct s_intersection_list
@@ -132,16 +142,6 @@ typedef struct s_intersection_list
 	t_intersection	*hit;
 	int				count;
 }					t_intersection_list;
-
-typedef struct s_object
-{
-    t_type_flag     type;
-    union {
-        t_plane     plane;
-        t_sphere    sphere;
-        t_cylinder  cylinder;
-    };
-}                   t_object;
 
 typedef struct s_world
 {
@@ -160,6 +160,8 @@ typedef struct s_camera
 	t_sphere		sphere;
 	int				fov;
 	float			aspect_ratio;
+	t_mat			transform;
+	t_mat			inverse;
 }					t_camera;
 
 typedef struct s_spot_light
@@ -183,8 +185,9 @@ typedef struct s_shader_computations
 	t_tuple			eyev;
 	t_tuple			normalv;
 	t_tuple			reflectv;
-	float			over_point;
 	t_tuple			color;
+	t_tuple			light_dir;
+	float			over_point;
 	float			ambient;
 	float			diffuse;
 	float			specular;

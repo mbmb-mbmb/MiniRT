@@ -3,7 +3,7 @@
 static void	error_parser(char *print)
 {
 	ft_putstr_fd("Error\n", 2);
-	if(print != NULL)
+	if (print != NULL)
 		ft_putstr_fd(print, 2);
 	else
 		ft_putstr_fd("TODO: General instructions for input format here\n", 2);
@@ -142,7 +142,7 @@ static void	check_AmbLight(char *buffer, t_system *sys)
 		{
 			A_found++;
 			i++;
-			if(A_found > 1)
+			if (A_found > 1)
 				error_parser("Only one ambient light (A) allowed.\n");
 			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0);
 			i += parse_rgb(buffer + i, &sys->amb_light.color);
@@ -168,7 +168,7 @@ static void	check_camera(char *buffer, t_system *sys)
 		{
 			C_found++;
 			i++;
-			if(C_found > 1)
+			if (C_found > 1)
 				error_parser("Only one camera (C) allowed.\n");
 			i += parse_xyz(buffer + i, &sys->camera.location, POINT);
 			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR);
@@ -212,7 +212,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 	int				i;
 	t_object		*obj;
 
-i = 0;
+	i = 0;
 	while (buffer[i])
 	{
 		if (ft_strncmp(buffer + i, "sp", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))

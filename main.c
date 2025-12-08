@@ -3,7 +3,7 @@
 t_tuple	create_point(float x, float y, float z);
 void	render(t_system *sys, mlx_image_t *img);
 t_tuple	ray_position(t_ray *ray, float t);
-t_tuple	lighting(t_material *material, t_amb_light *amb_light, 
+t_tuple	lighting(t_material *material, t_amb_light *amb_light,
 	t_spot_light *light, t_shader_computations *comps);
 
 static void	ft_error(int error_code)
@@ -12,6 +12,7 @@ static void	ft_error(int error_code)
 }
 
 /* DEBUGGING FUNCTIONS */
+
 void	print_matrix(t_mat *mat)
 {
 	printf("%f %f %f %f\n", mat->m[0][0], mat->m[0][1], mat->m[0][2], mat->m[0][3]);
@@ -60,6 +61,12 @@ static void	init_system(t_system *sys)
 	*sys = (t_system){0};
 	sys->state = DRAFT_MODE;
 	sys->exit_code = 0;
+	// light	
+	sys->obj_list[0].sphere.material.ambient = 0.1f;
+	sys->obj_list[0].sphere.material.diffuse = MATERIAL_DIFFUSE;
+	sys->obj_list[0].sphere.material.specular = MATERIAL_SPECULAR;
+	sys->obj_list[0].sphere.material.shininess = MATERIAL_SHININESS;
+	// camera
 	sys->camera.aspect_ratio = (float)WIDTH / (float)HEIGHT;
 }
 
@@ -81,9 +88,9 @@ static int	cleanup(t_system *sys)
 
 void    resize_callback(int32_t width, int32_t height, void *param)
 {
-    (void)width;
-    (void)height;
-    (void)param;
+	(void)width;
+	(void)height;
+	(void)param;
 }
 
 static void	frame(void *param)
@@ -140,6 +147,11 @@ t_tuple	create_vector(float x, float y, float z)
 	vector.y = y;
 	vector.z = z;
 	return (vector);
+}
+
+bool	is_float_zero(float f)
+{
+	return (fabsf(f) < EPSILON);
 }
 
 bool	is_float_equal(float a, float b)
@@ -258,7 +270,7 @@ t_tuple	divide_tuple(t_tuple *a, float div)
 
 	result = (t_tuple){};
 	result.w = TUPLE_INCORRECT;
-	if (fabsf(div) < EPSILON)
+	if (is_float_zero(div))
 		return (result);
 	result = (t_tuple){.x = a->x / div, .y = a->y / div, .z = a->z / div,
 		.w = a->w};
@@ -268,7 +280,7 @@ t_tuple	divide_tuple(t_tuple *a, float div)
 t_tuple	clamp_tuple(t_tuple *in, float min, float max)
 {
 	t_tuple	clamped;
-	
+
 	clamped.x = fminf(max, fmaxf(min, in->x));
 	clamped.y = fminf(max, fmaxf(min, in->y));
 	clamped.z = fminf(max, fmaxf(min, in->z));
@@ -332,6 +344,14 @@ t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 	v_result = (t_tuple){.x = a->y * b->z - a->z * b->y, .y = a->z * b->x - a->x
 		* b->z, .z = a->x * b->y - a->y * b->x, .w = VECTOR};
 	return (v_result);
+}
+
+uint32_t	tuple_to_rgba(t_tuple *color)
+{
+	return (pack_rgba((uint8_t)(color->x * 255),
+						(uint8_t)(color->y * 255),
+						(uint8_t)(color->z * 255),
+						255));
 }
 
 t_tuple	create_color(float red, float green, float blue, float alpha)
@@ -481,9 +501,9 @@ t_tuple	col(t_mat *mat, int col)
 	return (mat_col);
 }
 
-t_mat	multiply_matrices(t_mat *A, t_mat *B)
+t_mat	multiply_matrices(t_mat *ina, t_mat *inb)
 {
-	t_mat	mat;
+	t_mat	out;
 	int		i;
 	int		j;
 	t_tuple	row_result;
@@ -495,17 +515,17 @@ t_mat	multiply_matrices(t_mat *A, t_mat *B)
 		j = 0;
 		while (j < 4)
 		{
-			row_result = row(A, i);
-			col_result = col(B, j);
-			mat.m[i][j] = dot_product_tuple_naive(&row_result, &col_result);
+			row_result = row(ina, i);
+			col_result = col(inb, j);
+			out.m[i][j] = dot_product_tuple_naive(&row_result, &col_result);
 			j++;
 		}
 		i++;
 	}
-	return (mat);
+	return (out);
 }
 
-t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup_in)
+t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in)
 {
 	int		i;
 	t_tuple	tup_out;
@@ -514,7 +534,7 @@ t_tuple	multiply_matrix_and_tuple(t_mat *A, t_tuple *tup_in)
 	i = 0;
 	while (i < 4)
 	{
-		row_result = row(A, i);
+		row_result = row(mat, i);
 		if (i == 0)
 			tup_out.x = dot_product_tuple_naive(&row_result, tup_in);
 		else if (i == 1)
@@ -635,35 +655,6 @@ float	cofactor_one_cell(t_mat *mat, int i, int j, int dim)
 	return (c * sign);
 }
 
-t_mat	cofactor_matrix(t_mat *mat)
-{
-	t_mat	mat_out;
-	int		i;
-	int		j;
-	int		dim;
-
-	i = 0;
-	dim = get_matrix_dim(mat, NULL);
-	while (i < dim)
-	{
-		j = 0;
-		while (j < dim)
-		{
-			mat_out.m[i][j] = cofactor_one_cell(mat, i, j, dim);
-			j++;
-		}
-		i++;
-	}
-	return (mat_out);
-}
-
-bool	is_matrix_invertible(t_mat *mat)
-{
-	if (determinant(mat, get_matrix_dim(mat, NULL)) == 0)
-		return (false);
-	return (true);
-}
-
 t_mat	invert_matrix(t_mat *mat)
 {
 	t_mat	mat_inv;
@@ -676,7 +667,7 @@ t_mat	invert_matrix(t_mat *mat)
 	dim = get_matrix_dim(mat, NULL);
 	det = determinant(mat, dim);
 	i = 0;
-	if (determinant == 0)
+	if (is_float_zero(det))
 		return (create_identity_matrix(4));
 	while (i < dim)
 	{
@@ -780,6 +771,11 @@ t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 	return (mat);
 }
 
+/*
+ * Applies a transformation matrix to an object.
+ * Caches the inverse matrix to transform rays into object space for intersection tests.
+ */
+
 void	set_transform(t_object *obj, t_mat *transform)
 {
 	t_mat	inverse;
@@ -794,7 +790,13 @@ void	set_transform(t_object *obj, t_mat *transform)
 	// TODO: PLANE, CYLINDER
 }
 
-//Shading 
+//SHADING
+
+/*
+ * Computes the surface normal at a given world-space point.
+ * Converts the point to object space to find the normal on the generic shape,
+ * then transforms the normal back to world space using the inverse transpose.
+ */
 
 t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
 {
@@ -825,13 +827,18 @@ t_tuple	reflect(t_tuple *vec, t_tuple *normal)
 	return (v_reflected);
 }
 
-t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray, t_object *obj)
+/*
+ * Pre-calculates geometric data needed for shading at an intersection point.
+ * Computes the world position, eye vector (view direction), and surface normal.
+ */
+
+t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray)
 {
 	t_shader_computations	comps;
 
 	comps.point = ray_position(world_ray, hit->t);
 	comps.eyev = negate_tuple(&world_ray->direction);
-	comps.normalv = normal_at(&obj->sphere, &comps.point);
+	comps.normalv = normal_at(&hit->object->sphere, &comps.point);
 	comps.inside = false;  //TODO: Implement actual check for this.
 	return (comps);
 }
@@ -853,16 +860,16 @@ bool	is_light_behind_surface(t_tuple *light_dir, t_tuple *normal)
 	return (dot_product_tuple(light_dir, normal) < 0);
 }
 
-t_tuple	calculate_diffuse(t_material *material, t_spot_light *light, t_tuple *light_dir, t_tuple *normalv)
+t_tuple	calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computations *comps)
 {
 	t_tuple	diffuse;
 	t_tuple	color;
 	float	scalar;
-	
-	if (is_light_behind_surface(light_dir, normalv))
+
+	if (is_light_behind_surface(&comps->light_dir, &comps->normalv))
 		return (create_color(0, 0, 0, 1));
 	color = multiply_tuple_w_tuple(&material->color, &light->color);
-	scalar = material->diffuse * light->range * dot_product_tuple(light_dir, normalv);
+	scalar = material->diffuse * light->range * dot_product_tuple(&comps->light_dir, &comps->normalv);
 	diffuse = multiply_tuple(&color, scalar);
 	return (diffuse);
 }
@@ -872,22 +879,21 @@ bool	is_reflection_away_from_eye(t_tuple *refl, t_tuple *eye)
 	return (dot_product_tuple(refl, eye) < 0);
 }
 
-t_tuple	calculate_specular(t_material *material, t_spot_light *light,
-			t_tuple *light_dir, t_tuple *normalv, t_tuple *eyev)
+t_tuple	calculate_specular(t_material *material, t_spot_light *light, t_shader_computations *comps)
 {
 	t_tuple	specular;
 	t_tuple neg_lightv;
 	t_tuple	reflectv;
 	float 	factor;
 
-	if (is_light_behind_surface(light_dir, normalv))
+	if (is_light_behind_surface(&comps->light_dir, &comps->normalv))
 		return (create_color(0, 0, 0, 1));
-	neg_lightv = negate_tuple(light_dir);
-	reflectv = reflect(&neg_lightv, normalv);
-	if (is_reflection_away_from_eye(&reflectv, eyev))
+	neg_lightv = negate_tuple(&comps->light_dir);
+	reflectv = reflect(&neg_lightv, &comps->normalv);
+	if (is_reflection_away_from_eye(&reflectv, &comps->eyev))
 		return (create_color(0, 0, 0, 1));
-	factor = powf(dot_product_tuple(&reflectv, eyev), material->shininess);
-	specular = multiply_tuple(&light->color, 
+	factor = powf(dot_product_tuple(&reflectv, &comps->eyev), material->shininess);
+	specular = multiply_tuple(&light->color,
 							material->specular * light->range * factor);
 	return (specular);
 }
@@ -895,31 +901,35 @@ t_tuple	calculate_specular(t_material *material, t_spot_light *light,
 t_tuple calc_light_direction(t_tuple *light_pos, t_tuple *point)
 {
 	t_tuple	direction;
-
+	
 	direction = subtract_tuple(light_pos, point);
 	return (normalize_vector(&direction));
 }
 
-t_tuple	lighting(t_material *material, t_amb_light *amb_light, 
+/*
+ * Calculates the final color using the Phong reflection model.
+ * Sums the Ambient, Diffuse (Lambert), and Specular (Blinn-Phong) components.
+ */
+
+t_tuple	lighting(t_material *material, t_amb_light *amb_light,
 					t_spot_light *light, t_shader_computations *comps)
 {
 	t_tuple	ambient;
 	t_tuple	diffuse;
 	t_tuple	specular;
-	t_tuple	light_dirv;
 	t_tuple	result;
 
-	light_dirv = calc_light_direction(&light->location, &comps->point);
+	comps->light_dir = calc_light_direction(&light->location, &comps->point);
 	ambient = calculate_ambient(material, amb_light);
-	diffuse = calculate_diffuse(material, light, &light_dirv, &comps->normalv);
-	specular = calculate_specular(material, light, &light_dirv, &comps->normalv, &comps->eyev);
+	diffuse = calculate_diffuse(material, light, comps);
+	specular = calculate_specular(material, light, comps);
 	result = add_tuple(&ambient, &diffuse);
 	result = add_tuple(&result, &specular);
 	result = clamp_tuple(&result, 0.0f, 1.0f);
-	
+
 	return (result);
 }
-/*RAY-SPHERE */
+// RAY-SPHERE INTERSECTIONS
 
 t_tuple	ray_position(t_ray *ray, float t)
 {
@@ -942,10 +952,45 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 	return (ray_out);
 }
 
+/*
+ * Transforms a ray from world space into the object's local space.
+ * Allows intersection logic to work on simple unit shapes (e.g., unit sphere)
+ * instead of handling complex transformed objects directly.
+ */
+
+t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
+{
+	t_ray	obj_ray;
+
+	if (obj->sphere.is_transformed)
+		obj_ray = transform_ray(ray, &obj->sphere.inv_transform_to_obj);
+	else
+		obj_ray = *ray;
+	return (obj_ray);
+}
+
+void	append_intersections(t_intersection_list *dest, t_intersection_list *src)
+{
+	int	i;
+
+	i = 0;
+	while (i < src->count && dest->count < MAX_INTERSECTIONS)
+	{
+		dest->intersections[dest->count] = src->intersections[i];
+		dest->count++;
+		i++;
+	}
+}
+
 bool	ray_misses_sphere(float a, float discriminant)
 {
-	return (fabsf(a) < EPSILON || discriminant < 0);
+	return (fabsf(a) < EPSILON || discriminant < 0.0f);
 }
+
+/*
+ * Computes the intersection points of a ray with a unit sphere centered at the origin.
+ * Uses the quadratic formula to solve for t values (intersection distances).
+ */
 
 t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 {
@@ -968,85 +1013,210 @@ t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
 	if (ray_misses_sphere(a, discriminant))
 		return (intersections);
 	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
-	intersections.intersections[0].point = ray_position(ray, intersections.intersections[0].t);
-	intersections.intersections[0].type = SPHERE;
 	intersections.intersections[1].t = (-b + sqrtf(discriminant)) / (2 * a);
-	intersections.intersections[1].point = ray_position(ray, intersections.intersections[1].t);
-	intersections.intersections[1].type = SPHERE;
 	intersections.count = 2;
 	return (intersections);
 }
 
-/*OBJ PROJECTON*/
-
-t_tuple	window_pixel_to_canvas_point(uint32_t x, uint32_t y, t_system *sys)
+void	tag_intersections(t_intersection_list *intersections, t_object *object)
 {
-	t_tuple	canvas_coord;
-	float	canvas_width;
+	int	i;
 
-	canvas_coord = (t_tuple){0};
-	canvas_width = CANVAS_HEIGHT * sys->camera.aspect_ratio;
-	canvas_coord.x = ((float)x - WIDTH / 2.0f) * canvas_width / WIDTH;
-	canvas_coord.y = ((HEIGHT / 2.0f - (float)y) * CANVAS_HEIGHT / HEIGHT);
-	canvas_coord.z = 1.0f;
-	canvas_coord.w = POINT;
-	return (canvas_coord);
+	i = 0;
+	while (i < intersections->count)
+	{
+		intersections->intersections[i].object = object;
+		i++;
+	}
 }
 
-t_ray	camera_ray_for_pixel(t_system *sys, uint32_t x, uint32_t y)
+/*
+ * Casts a ray into the scene and tests it against all objects.
+ * Aggregates all intersection points into a single list.
+ */
+
+t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
+{
+	t_intersection_list	obj_intrs;
+	t_intersection_list	all_intrs;
+	t_ray				obj_ray;
+	int					i;
+
+	all_intrs = (t_intersection_list){0};
+	all_intrs.count = 0;
+	i = 0;
+	while (i < sys->object_count)
+	{
+		obj_intrs.count = 0;
+		obj_ray = ray_to_object_space(ray, &sys->obj_list[i]);
+		if (sys->obj_list[i].type == SPHERE)
+		{
+			obj_intrs = intersect_unit_sphere(&sys->obj_list[i].sphere, &obj_ray);
+		}
+		tag_intersections(&obj_intrs, &sys->obj_list[i]);
+		append_intersections(&all_intrs, &obj_intrs);
+		i++;
+	}
+	return (all_intrs);
+}
+
+/*
+ * Identifies the visible intersection from a list of hits.
+ * Returns the closest intersection with a non-negative t value (in front of camera).
+ */
+
+t_intersection	*hit(t_intersection_list *intersections)
+{
+	t_intersection	*hit;
+	float			closest_t;
+	int				i;
+
+	hit = NULL;
+	closest_t = FLOAT_MAX;
+	i = 0;
+	while (i < intersections->count)
+	{
+		if (intersections->intersections[i].t > 0.0f 
+			&& intersections->intersections[i].t < closest_t)
+		{
+			closest_t = intersections->intersections[i].t;
+			hit = &intersections->intersections[i];
+		}
+		i++;
+	}
+	return (hit);
+}
+
+/*
+ * Constructs the camera's orientation matrix.
+ * Calculates Forward, Left, and True Up vectors based on where the camera is looking.
+ */
+
+t_mat	build_orientation_from_view(t_tuple *eye, t_tuple *target, t_tuple *up)
+{
+	t_tuple	camera_forward;
+	t_tuple	upn;
+	t_tuple	left;
+	t_tuple	true_up;
+	t_mat	orientation;
+
+	camera_forward = subtract_tuple(target, eye);
+	camera_forward = normalize_vector(&camera_forward);
+	upn = normalize_vector(up);
+	left = cross_product_tuple(&camera_forward, &upn);
+	true_up = cross_product_tuple(&left, &camera_forward);
+	orientation = create_identity_matrix(4);
+	orientation.m[0][0] = left.x;
+	orientation.m[0][1] = left.y;
+	orientation.m[0][2] = left.z;
+	orientation.m[1][0] = true_up.x;
+	orientation.m[1][1] = true_up.y;
+	orientation.m[1][2] = true_up.z;
+	orientation.m[2][0] = -camera_forward.x;
+	orientation.m[2][1] = -camera_forward.y;
+	orientation.m[2][2] = -camera_forward.z;
+	return (orientation);
+}
+
+/*
+ * Creates a view matrix that transforms the world into camera space.
+ * Combines translation (moving world so camera is at origin) and orientation.
+ */
+
+t_mat	view_transform(t_tuple *eye, t_tuple *target, t_tuple *up)
+{
+	t_mat	orientation;
+	t_mat	translation_mat;
+
+	orientation = build_orientation_from_view(eye, target, up);
+	translation_mat = translation(-eye->x, -eye->y, -eye->z);
+	return (multiply_matrices(&orientation, &translation_mat));
+}
+
+/*
+ * Maps a 2D screen pixel (x, y) to a 3D point on the camera's sensor plane.
+ * Accounts for Field of View (FOV) and aspect ratio to determine world-space size.
+ */
+
+t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y)
+{
+	float	half_view;
+	float	half_width;
+	float	half_height;
+	float	pixel_size;
+	float	world_x;
+	float	world_y;
+
+	half_view = tanf(degrees_to_radians((float)camera->fov) / 2.0f);
+	if (camera->aspect_ratio >= 1.0f)
+	{
+		half_width = half_view;
+		half_height = half_view / camera->aspect_ratio;
+	}
+	else
+	{
+		half_width = half_view * camera->aspect_ratio;
+		half_height = half_view;
+	}
+	pixel_size = (half_width * 2.0f) / (float)WIDTH;
+	world_x = half_width - ((float)x + 0.5f) * pixel_size;
+	world_y = half_height - ((float)y + 0.5f) * pixel_size;
+	return (create_point(world_x, world_y, -1.0f));
+}
+
+/*
+ * Generates a ray originating from the camera and passing through a specific pixel on canvas.
+ * Transforms the pixel from canvas space to world space to find the ray direction.
+ */
+
+t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y)
 {
 	t_ray	ray;
-	t_tuple	point;
+	t_tuple	pixel_on_canvas;
+	t_tuple	pixel_in_world;
+	t_tuple	camera_obj_origin;
+	t_tuple	origin_in_world;
+	t_tuple	direction;
 
-	point = window_pixel_to_canvas_point(x, y, sys);
-	ray.origin = sys->camera.location;
-	ray.direction = subtract_tuple(&point, &sys->camera.location);
-	ray.direction = normalize_vector(&ray.direction);
+	pixel_on_canvas = compute_pixel_on_canvas(camera, x, y);
+	pixel_in_world = multiply_matrix_and_tuple(&camera->inverse, &pixel_on_canvas);
+	camera_obj_origin = (t_tuple){0.0f, 0.0f, 0.0f, POINT};
+	origin_in_world = multiply_matrix_and_tuple(&camera->inverse, &camera_obj_origin);
+	direction = subtract_tuple(&pixel_in_world, &origin_in_world);
+	ray.origin = origin_in_world;
+	ray.direction = normalize_vector(&direction);
 	return (ray);
 }
 
-t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
-{
-	t_ray	obj_ray;
-
-	if (obj->sphere.is_transformed)  // Or check obj type and generic transform flag
-		obj_ray = transform_ray(ray, &obj->sphere.inv_transform_to_obj);
-	else
-		obj_ray = *ray;
-	return (obj_ray);
-}
+/*
+ * Determines the color seen by a ray.
+ * Finds the closest object intersection, prepares shading data, and applies lighting.
+ */
 
 t_tuple	color_at(t_system *sys, t_ray *ray)
 {
 	t_intersection_list		intersections;
 	t_shader_computations	comps;
+	t_intersection			*closest_hit;
 	t_tuple					color_at;
-	t_ray					obj_ray;
 
-	obj_ray = ray_to_object_space(ray, &sys->obj_list[0]);
-	intersections = intersect_unit_sphere(&sys->obj_list[0].sphere, &obj_ray); //TODO: CYLINDER, PLANE
-	//object color
-	if (intersections.count > 0 && intersections.intersections[0].t > 0)
-	{
-		comps = prepare_shading_computitions(&intersections.intersections[0], ray,
-					&sys->obj_list[0]);
-		color_at = lighting(&sys->obj_list[0].sphere.material,
-						&sys->amb_light,
-						&sys->light_list[0],
-						&comps);
-		return (color_at);
-	}
-	//background color
-	return (create_color(0, 0, 0, 1));
+	intersections = intersect_world(sys, ray);
+	closest_hit = hit(&intersections);
+	if (closest_hit == NULL)
+		return (create_color(0, 0, 0, 1));
+	comps = prepare_shading_computitions(closest_hit, ray);
+	color_at = lighting(&closest_hit->object->sphere.material,
+					&sys->amb_light,
+					&sys->light_list[0],
+					&comps);
+	return (color_at);
 }
 
-uint32_t	tuple_to_rgba(t_tuple *color)
-{
-	return (pack_rgba((uint8_t)(color->x * 255),
-	                  (uint8_t)(color->y * 255),
-	                  (uint8_t)(color->z * 255),
-	                  255));
-}
+/*
+ * Main rendering loop.
+ * Iterates through every pixel of the canvas, generates a ray for it,
+ * computes the color, and writes it to the MLX image buffer.
+ */
 
 void	render(t_system *sys, mlx_image_t *img)
 {
@@ -1061,7 +1231,7 @@ void	render(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < WIDTH)
 		{
-			camera_ray = camera_ray_for_pixel(sys, x, y);
+			camera_ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y);
 			color = color_at(sys, &camera_ray);
 			mlx_put_pixel(img, x, y, tuple_to_rgba(&color));
 			x++;
@@ -1082,13 +1252,16 @@ int	main(int argc, char **av)
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
 	
-	//light test
-	app.system.obj_list[0].sphere.material.ambient = 0.1f;
-	app.system.obj_list[0].sphere.material.diffuse = MATERIAL_DIFFUSE;
-	app.system.obj_list[0].sphere.material.specular = MATERIAL_SPECULAR;
-	app.system.obj_list[0].sphere.material.shininess = MATERIAL_SHININESS;
+	//camera test
+	t_tuple	from = app.system.camera.location;
+	t_tuple	to = add_tuple(&from, &app.system.camera.rotation);
+	t_tuple	up = create_vector(0, 1, 0);
 
-	t_mat skew_mat = skew(1.0f, 0.0f, 0, 0, 0, 0);
+	app.system.camera.transform = view_transform(&from, &to, &up);
+	app.system.camera.inverse = invert_matrix(&app.system.camera.transform);
+
+	//skew
+	t_mat skew_mat = skew(0.2f, 0.0f, 0, 0, 0, 0);
 	set_transform(&app.system.obj_list[0], &skew_mat);
 	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
@@ -1104,3 +1277,16 @@ int	main(int argc, char **av)
 	mlx_terminate(app.mlx);
 	return (code);
 }
+
+
+/*
+TODO: 
+* moving the sphere in the world
+	steps:
+	map the rt. data to Translation (location) and scaling (radius)
+	just one matrix, transform_to_world = translation(location) * scaling(radius)
+	set_transform(obj, transform_to_world)
+	call ray_to_object_space for the object before intersect_unit_sphere
+* floor
+	implement the floor plane
+*/
