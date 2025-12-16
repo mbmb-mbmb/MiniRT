@@ -6,6 +6,8 @@ t_tuple	ray_position(t_ray *ray, float t);
 t_tuple	lighting(t_material *material, t_amb_light *amb_light,
 	t_spot_light *light, t_shader_computations *comps);
 
+
+
 static void	ft_error(int error_code)
 {
 	exit(error_code);
@@ -61,11 +63,6 @@ static void	init_system(t_system *sys)
 	*sys = (t_system){0};
 	sys->state = DRAFT_MODE;
 	sys->exit_code = 0;
-	// light	
-	sys->obj_list[0].sphere.material.ambient = 0.1f;
-	sys->obj_list[0].sphere.material.diffuse = MATERIAL_DIFFUSE;
-	sys->obj_list[0].sphere.material.specular = MATERIAL_SPECULAR;
-	sys->obj_list[0].sphere.material.shininess = MATERIAL_SHININESS;
 	// camera
 	sys->camera.aspect_ratio = (float)WIDTH / (float)HEIGHT;
 }
@@ -509,6 +506,8 @@ t_mat	multiply_matrices(t_mat *ina, t_mat *inb)
 	t_tuple	row_result;
 	t_tuple	col_result;
 
+	out = (t_mat){0};
+	out.type = ina->type;
 	i = 0;
 	while (i < 4)
 	{
@@ -564,7 +563,6 @@ t_mat	transpose_matrix(t_mat *mat, int dim)
 		{
 			temp[i][j] = mat->m[i][j];
 			mat_trans.m[j][i] = mat->m[i][j];
-			//mat_trans.m[i][j] = temp[i][j];
 			j++;
 		}
 		i++;
@@ -666,6 +664,7 @@ t_mat	invert_matrix(t_mat *mat)
 
 	dim = get_matrix_dim(mat, NULL);
 	det = determinant(mat, dim);
+	mat_inv.type = mat->type;
 	i = 0;
 	if (is_float_zero(det))
 		return (create_identity_matrix(4));
@@ -992,7 +991,7 @@ bool	ray_misses_sphere(float a, float discriminant)
  * Uses the quadratic formula to solve for t values (intersection distances).
  */
 
-t_intersection_list	intersect_unit_sphere(t_sphere *sphere, t_ray *ray)
+t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 {
 	t_intersection_list	intersections;
 	float				discriminant;
@@ -1051,7 +1050,7 @@ t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
 		obj_ray = ray_to_object_space(ray, &sys->obj_list[i]);
 		if (sys->obj_list[i].type == SPHERE)
 		{
-			obj_intrs = intersect_unit_sphere(&sys->obj_list[i].sphere, &obj_ray);
+			obj_intrs = intersect_sphere(&sys->obj_list[i].sphere, &obj_ray);
 		}
 		tag_intersections(&obj_intrs, &sys->obj_list[i]);
 		append_intersections(&all_intrs, &obj_intrs);
@@ -1131,6 +1130,54 @@ t_mat	view_transform(t_tuple *eye, t_tuple *target, t_tuple *up)
 	orientation = build_orientation_from_view(eye, target, up);
 	translation_mat = translation(-eye->x, -eye->y, -eye->z);
 	return (multiply_matrices(&orientation, &translation_mat));
+}
+
+/*
+* 
+*/
+void	camera_transform(t_camera *camera)
+{
+	t_tuple	from;
+	t_tuple	to;
+	t_tuple	up;
+
+	from = camera->location;
+	to = add_tuple(&from, &camera->rotation);
+	up = create_vector(0, 1, 0);
+	camera->transform = view_transform(&from, &to, &up);
+	camera->inverse = invert_matrix(&camera->transform);
+}
+
+void	sphere_transform(t_object *obj)
+{
+	t_mat	trans;
+	t_mat	scale;
+	t_mat	transform;
+
+	trans = translation(obj->sphere.location.x,
+						obj->sphere.location.y,
+						obj->sphere.location.z);
+	scale = scaling(obj->sphere.radius,
+					obj->sphere.radius,
+					obj->sphere.radius);
+	transform = multiply_matrices(&trans, &scale);
+	set_transform(obj, &transform);
+}
+
+void	prepare_scene(t_system *sys)
+{
+	int	i;
+
+	camera_transform(&sys->camera);
+	
+	i = 0;
+	while (i < sys->object_count)
+	{
+		if (sys->obj_list[i].type == SPHERE)
+			sphere_transform(&sys->obj_list[i]);
+		// TODO: setup_plane_transform, setup_cylinder_transform
+		i++;
+	}
 }
 
 /*
@@ -1251,19 +1298,8 @@ int	main(int argc, char **av)
 		ft_error(1);
 	init_system(&app.system);
 	rt_parser(av[1], &app.system);
-	
-	//camera test
-	t_tuple	from = app.system.camera.location;
-	t_tuple	to = add_tuple(&from, &app.system.camera.rotation);
-	t_tuple	up = create_vector(0, 1, 0);
+	prepare_scene(&app.system);
 
-	app.system.camera.transform = view_transform(&from, &to, &up);
-	app.system.camera.inverse = invert_matrix(&app.system.camera.transform);
-
-	//skew
-	t_mat skew_mat = skew(0.2f, 0.0f, 0, 0, 0, 0);
-	set_transform(&app.system.obj_list[0], &skew_mat);
-	//end test
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
 		ft_error(1);
@@ -1281,12 +1317,7 @@ int	main(int argc, char **av)
 
 /*
 TODO: 
-* moving the sphere in the world
-	steps:
-	map the rt. data to Translation (location) and scaling (radius)
-	just one matrix, transform_to_world = translation(location) * scaling(radius)
-	set_transform(obj, transform_to_world)
-	call ray_to_object_space for the object before intersect_unit_sphere
+* multiple lights, should be pretty similar to looping trough the object list. Dunno.
 * floor
 	implement the floor plane
 */

@@ -94,7 +94,6 @@ uint32_t	pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 	return (((uint32_t)r << 24) | ((uint32_t)g << 16) | ((uint32_t)b << 8) | (uint32_t)a);
 }
 
-
 static int	parse_rgb(char *buffer, t_tuple *color)
 {
 	int	r;
@@ -183,6 +182,7 @@ static void	check_camera(char *buffer, t_system *sys)
 	if (C_found == 0)
 		error_parser(NULL);
 }
+
 static void	check_lights(char *buffer, t_system *sys)
 {
 	int				i;
@@ -222,9 +222,10 @@ static void	check_sphere(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n");
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = SPHERE;
-			obj->sphere.transform_to_world = create_identity_matrix(4);
-			obj->sphere.inv_transform_to_obj = create_identity_matrix(4);
-			obj->sphere.is_transformed = false;
+			obj->sphere.material.ambient = MATERIAL_AMBIENT;
+			obj->sphere.material.diffuse = MATERIAL_DIFFUSE;
+			obj->sphere.material.specular = MATERIAL_SPECULAR;
+			obj->sphere.material.shininess = MATERIAL_SHININESS;	
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT);
 			i += parse_float(buffer + i, &obj->sphere.radius, -FLOAT_MAX, FLOAT_MAX);
 			i += parse_rgb(buffer + i, &obj->sphere.material.color);
