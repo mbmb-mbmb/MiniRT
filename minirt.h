@@ -218,7 +218,100 @@ typedef struct s_app
 
 void				rt_parser(char *input, t_system *sys);
 
-float				magnitude_vector(t_tuple *a);
 uint32_t			pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 t_mat				create_identity_matrix(int dim);
+t_mat				create_matrix_2(float m[2][2]);
+t_mat				create_matrix_3(float m[3][3]);
+
+bool				is_float_zero(float f);
+bool				is_float_equal(float a, float b);
+t_tuple				create_point(float x, float y, float z);
+t_tuple				create_vector(float x, float y, float z);
+bool				is_tuple_equal(const t_tuple *a, const t_tuple *b);
+t_tuple				add_tuple(const t_tuple *a, const t_tuple *b);
+t_tuple				subtract_tuple(const t_tuple *a, const t_tuple *b);
+t_tuple				negate_tuple(const t_tuple *a);
+t_tuple				multiply_tuple(t_tuple *a, float mult);
+t_tuple				multiply_tuple_w_tuple(t_tuple *a, t_tuple *b);
+t_tuple				divide_tuple(t_tuple *a, float div);
+t_tuple				clamp_tuple(t_tuple *in, float min, float max);
+float				magnitude_vector(t_tuple *a);
+t_tuple				normalize_vector(t_tuple *a);
+float				dot_product_tuple(t_tuple *a, t_tuple *b);
+float				dot_product_tuple_naive(t_tuple *a, t_tuple *b);
+t_tuple				cross_product_tuple(t_tuple *a, t_tuple *b);
+int				classify_w(const t_tuple *t);
+int				canonical_w(int kind);
+int				add_kind(int ak, int bk);
+int				sub_kind(int ak, int bk);
+float				degrees_to_radians(float degrees);
+float				radians_to_degrees(float radians);
+
+uint32_t			tuple_to_rgba(t_tuple *color);
+t_tuple				create_color(float red, float green, float blue, float alpha);
+
+/* matrix helpers */
+int				get_matrix_dim(t_mat *mat, t_mat *b);
+void				set_matrix_dim(t_mat *mat, int dim);
+t_tuple				row(t_mat *mat, int row);
+t_tuple				col(t_mat *mat, int col);
+t_mat				multiply_matrices(t_mat *ina, t_mat *inb);
+t_tuple				multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in);
+t_mat				transpose_matrix(t_mat *mat, int dim);
+t_mat				submatrix(t_mat *mat, int row, int col, int dim);
+float				determinant(t_mat *mat, int dim);
+float				cofactor_one_cell(t_mat *mat, int i, int j, int dim);
+t_mat				invert_matrix(t_mat *mat);
+bool				matrices_are_equal(t_mat *a, t_mat *b);
+
+/* rays */
+t_ray				ray_make(t_tuple origin, t_tuple direction);
+t_tuple				ray_position(t_ray *ray, float t);
+t_ray				ray_transform(t_ray *ray, t_mat *mat);
+t_ray				ray_to_object_space(t_ray *ray, t_object *obj);
+
+/* intersections */
+void				append_intersections(t_intersection_list *dest,
+				t_intersection_list *src);
+void				tag_intersections(t_intersection_list *intersections,
+				t_object *object);
+t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray);
+t_intersection_list	intersect_world(t_system *sys, t_ray *ray);
+t_intersection		*hit(t_intersection_list *intersections);
+
+/* transforms */
+t_mat				translation(float x, float y, float z);
+t_mat				scaling(float x, float y, float z);
+t_mat				rotate_x(float x);
+t_mat				rotate_y(float y);
+t_mat				rotate_z(float z);
+t_mat				rotation_from_tuple(t_tuple *angles);
+t_mat				skew(float xy, float xz, float yx, float yz, float zx, float zy);
+void				set_transform(t_object *obj, t_mat *transform);
+
+t_mat				build_orientation_from_view(t_tuple *eye, t_tuple *target, t_tuple *up);
+t_mat				view_transform(t_tuple *eye, t_tuple *target, t_tuple *up);
+
+/* normals */
+t_tuple				normal_at(t_sphere *sphere, t_tuple *world_point);
+
+t_tuple				reflect(t_tuple *vec, t_tuple *normal);
+t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray);
+t_tuple				lighting(t_material *material, t_amb_light *amb_light,
+				t_spot_light *light, t_shader_computations *comps);
+
+t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y);
+t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y);
+
+/* scene setup */
+void				init_system(t_system *sys);
+void				camera_transform(t_camera *camera);
+void				setup_sphere_transform(t_object *obj);
+void				prepare_scene(t_system *sys);
+
+/* render */
+t_tuple				color_at(t_system *sys, t_ray *ray);
+void				render(t_system *sys, mlx_image_t *img);
+
 #endif
+

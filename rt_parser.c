@@ -89,10 +89,6 @@ static int	parse_float(char *in, float *out, float min, float max)
 	return (i);
 }
 
-uint32_t	pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-{
-	return (((uint32_t)r << 24) | ((uint32_t)g << 16) | ((uint32_t)b << 8) | (uint32_t)a);
-}
 
 static int	parse_rgb(char *buffer, t_tuple *color)
 {
@@ -248,7 +244,7 @@ static void	check_cylinder(char *buffer, t_system *sys)
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
-			error_parser("Too many objects.\n");
+				error_parser("Too many objects.\n");
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = CYLINDER;
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT);
@@ -261,6 +257,7 @@ static void	check_cylinder(char *buffer, t_system *sys)
 			i += skip_to_end(buffer + i);
 			continue ;
 		}
+
 		i++;
 	}
 }
@@ -277,7 +274,7 @@ static void	check_plane(char *buffer, t_system *sys)
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
-			error_parser("Too many objects.\n");
+				error_parser("Too many objects.\n");
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = PLANE;
 			i += parse_xyz(buffer + i, &obj->plane.location, POINT);
