@@ -63,7 +63,6 @@ static void	init_system(t_system *sys)
 	*sys = (t_system){0};
 	sys->state = DRAFT_MODE;
 	sys->exit_code = 0;
-	// camera
 	sys->camera.aspect_ratio = (float)WIDTH / (float)HEIGHT;
 }
 
@@ -85,9 +84,19 @@ static int	cleanup(t_system *sys)
 
 void    resize_callback(int32_t width, int32_t height, void *param)
 {
-	(void)width;
-	(void)height;
-	(void)param;
+	t_app		*app;
+	t_system	*sys;
+
+	app = (t_app *)param;
+	sys = &app->system;
+	mlx_delete_image(app->mlx, app->img);
+	app->img = mlx_new_image(app->mlx, width, height);
+	if (!app->img)
+		return ;
+	if (mlx_image_to_window(app->mlx, app->img, 0, 0) < 0)
+		return ;
+	sys->camera.aspect_ratio = (float)width / (float)height;
+	sys->state &= ~RENDER_COMPLETE;
 }
 
 static void	frame(void *param)
@@ -786,7 +795,15 @@ void	set_transform(t_object *obj, t_mat *transform)
 		obj->sphere.inv_transform_to_obj = inverse;
 		obj->sphere.is_transformed = true;
 	}
-	// TODO: PLANE, CYLINDER
+	else if (obj->type == PLANE)
+	{
+		obj->plane.transform_to_world = *transform;
+		inverse = invert_matrix(transform);
+		obj->plane.inv_transform_to_obj = inverse;
+		obj->plane.is_transformed = true;
+	}
+	
+	// TODO: CYLINDER
 }
 
 //SHADING
@@ -797,7 +814,7 @@ void	set_transform(t_object *obj, t_mat *transform)
  * then transforms the normal back to world space using the inverse transpose.
  */
 
-t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
+t_tuple	normal_at_sphere(t_sphere *sphere, t_tuple *world_point)
 {
 	t_tuple	object_point;
 	t_tuple	object_normal;
@@ -810,6 +827,19 @@ t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
 	object_normal = subtract_tuple(&object_point, &origin);
 	transposed_inverse = transpose_matrix(&sphere->inv_transform_to_obj, 4);
 	world_normal = multiply_matrix_and_tuple(&transposed_inverse, &object_normal);
+	world_normal.w = VECTOR;
+	return (normalize_vector(&world_normal));
+}
+
+t_tuple	normal_at_plane(t_plane *plane)
+{
+	t_tuple	local_normal;
+	t_tuple	world_normal;
+	t_mat	transposed_inverse;
+
+	local_normal = create_vector(0, 1, 0);
+	transposed_inverse = transpose_matrix(&plane->inv_transform_to_obj, 4);
+	world_normal = multiply_matrix_and_tuple(&transposed_inverse, &local_normal);
 	world_normal.w = VECTOR;
 	return (normalize_vector(&world_normal));
 }
@@ -837,8 +867,16 @@ t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *w
 
 	comps.point = ray_position(world_ray, hit->t);
 	comps.eyev = negate_tuple(&world_ray->direction);
-	comps.normalv = normal_at(&hit->object->sphere, &comps.point);
-	comps.inside = false;  //TODO: Implement actual check for this.
+	if (hit->object->type == SPHERE)
+		comps.normalv = normal_at_sphere(&hit->object->sphere, &comps.point);
+	else if (hit->object->type == PLANE)
+		comps.normalv = normal_at_plane(&hit->object->plane);
+	comps.inside = false;
+	if (dot_product_tuple(&comps.normalv, &comps.eyev) < 0)
+	{
+		comps.inside = true;
+		comps.normalv = negate_tuple(&comps.normalv);
+	}
 	return (comps);
 }
 
@@ -960,9 +998,11 @@ t_ray	transform_ray(t_ray *ray, t_mat *mat)
 t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
 {
 	t_ray	obj_ray;
-
-	if (obj->sphere.is_transformed)
+ 
+	if (obj->type == SPHERE && obj->sphere.is_transformed)
 		obj_ray = transform_ray(ray, &obj->sphere.inv_transform_to_obj);
+	else if (obj->type == PLANE && obj->plane.is_transformed)
+		obj_ray = transform_ray(ray, &obj->plane.inv_transform_to_obj);
 	else
 		obj_ray = *ray;
 	return (obj_ray);
@@ -991,7 +1031,7 @@ bool	ray_misses_sphere(float a, float discriminant)
  * Uses the quadratic formula to solve for t values (intersection distances).
  */
 
-t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
+t_intersection_list	intersect_sphere(t_ray *ray)
 {
 	t_intersection_list	intersections;
 	float				discriminant;
@@ -999,7 +1039,6 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 	float				a;
 	float				b;
 	float				c;
-	(void)sphere;
 
 	intersections = (t_intersection_list){0};
 	intersections.count = 0;
@@ -1014,6 +1053,18 @@ t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray)
 	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
 	intersections.intersections[1].t = (-b + sqrtf(discriminant)) / (2 * a);
 	intersections.count = 2;
+	return (intersections);
+}
+
+t_intersection_list  intersect_plane(t_ray *ray)
+{
+	t_intersection_list	intersections;
+	
+	intersections.count = 0;
+	if (is_float_equal(ray->direction.y, 0.0f))
+		return (intersections);
+	intersections.intersections[0].t = -ray->origin.y / ray->direction.y;
+	intersections.count = 1;
 	return (intersections);
 }
 
@@ -1049,9 +1100,9 @@ t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
 		obj_intrs.count = 0;
 		obj_ray = ray_to_object_space(ray, &sys->obj_list[i]);
 		if (sys->obj_list[i].type == SPHERE)
-		{
-			obj_intrs = intersect_sphere(&sys->obj_list[i].sphere, &obj_ray);
-		}
+			obj_intrs = intersect_sphere(&obj_ray);
+		else if (sys->obj_list[i].type == PLANE)
+			obj_intrs = intersect_plane(&obj_ray);
 		tag_intersections(&obj_intrs, &sys->obj_list[i]);
 		append_intersections(&all_intrs, &obj_intrs);
 		i++;
@@ -1132,10 +1183,9 @@ t_mat	view_transform(t_tuple *eye, t_tuple *target, t_tuple *up)
 	return (multiply_matrices(&orientation, &translation_mat));
 }
 
-/*
-* 
-*/
-void	camera_transform(t_camera *camera)
+// TRANSFORMS
+
+void	transform_camera(t_camera *camera)
 {
 	t_tuple	from;
 	t_tuple	to;
@@ -1148,34 +1198,50 @@ void	camera_transform(t_camera *camera)
 	camera->inverse = invert_matrix(&camera->transform);
 }
 
-void	sphere_transform(t_object *obj)
+void	transform_sphere(t_object *sphere)
 {
-	t_mat	trans;
+	t_mat	world_location;
 	t_mat	scale;
 	t_mat	transform;
 
-	trans = translation(obj->sphere.location.x,
-						obj->sphere.location.y,
-						obj->sphere.location.z);
-	scale = scaling(obj->sphere.radius,
-					obj->sphere.radius,
-					obj->sphere.radius);
-	transform = multiply_matrices(&trans, &scale);
-	set_transform(obj, &transform);
+	world_location = translation(sphere->sphere.location.x,
+						sphere->sphere.location.y,
+						sphere->sphere.location.z);
+	scale = scaling(sphere->sphere.radius,
+					sphere->sphere.radius,
+					sphere->sphere.radius);
+	transform = multiply_matrices(&world_location, &scale);
+	set_transform(sphere, &transform);
+}
+
+void	transform_plane(t_object *plane)
+{
+	t_mat	world_location;
+	t_mat	rotation;
+	t_mat	transform;
+
+	world_location = translation(plane->plane.location.x,
+						plane->plane.location.y,
+						plane->plane.location.z);
+	rotation = rotation_from_tuple(&plane->plane.rotation);
+	transform = multiply_matrices(&world_location, &rotation);
+	set_transform(plane, &transform);
 }
 
 void	prepare_scene(t_system *sys)
 {
 	int	i;
 
-	camera_transform(&sys->camera);
+	transform_camera(&sys->camera);
 	
 	i = 0;
 	while (i < sys->object_count)
 	{
 		if (sys->obj_list[i].type == SPHERE)
-			sphere_transform(&sys->obj_list[i]);
-		// TODO: setup_plane_transform, setup_cylinder_transform
+			transform_sphere(&sys->obj_list[i]);
+		else if (sys->obj_list[i].type == PLANE)
+			transform_plane(&sys->obj_list[i]);
+		// TODO: cylinder_transform
 		i++;
 	}
 }
@@ -1185,7 +1251,7 @@ void	prepare_scene(t_system *sys)
  * Accounts for Field of View (FOV) and aspect ratio to determine world-space size.
  */
 
-t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y)
+t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img)
 {
 	float	half_view;
 	float	half_width;
@@ -1205,7 +1271,7 @@ t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y)
 		half_width = half_view * camera->aspect_ratio;
 		half_height = half_view;
 	}
-	pixel_size = (half_width * 2.0f) / (float)WIDTH;
+	pixel_size = (half_width * 2.0f) / (float)img->width;
 	world_x = half_width - ((float)x + 0.5f) * pixel_size;
 	world_y = half_height - ((float)y + 0.5f) * pixel_size;
 	return (create_point(world_x, world_y, -1.0f));
@@ -1216,7 +1282,7 @@ t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y)
  * Transforms the pixel from canvas space to world space to find the ray direction.
  */
 
-t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y)
+t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img)
 {
 	t_ray	ray;
 	t_tuple	pixel_on_canvas;
@@ -1225,7 +1291,7 @@ t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y)
 	t_tuple	origin_in_world;
 	t_tuple	direction;
 
-	pixel_on_canvas = compute_pixel_on_canvas(camera, x, y);
+	pixel_on_canvas = compute_pixel_on_canvas(camera, x, y, img);
 	pixel_in_world = multiply_matrix_and_tuple(&camera->inverse, &pixel_on_canvas);
 	camera_obj_origin = (t_tuple){0.0f, 0.0f, 0.0f, POINT};
 	origin_in_world = multiply_matrix_and_tuple(&camera->inverse, &camera_obj_origin);
@@ -1246,18 +1312,22 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 	t_shader_computations	comps;
 	t_intersection			*closest_hit;
 	t_tuple					color_at;
-
+ 
 	intersections = intersect_world(sys, ray);
 	closest_hit = hit(&intersections);
 	if (closest_hit == NULL)
-		return (create_color(0, 0, 0, 1));
+		return (create_color(0, 0, 0, 255));
 	comps = prepare_shading_computitions(closest_hit, ray);
-	color_at = lighting(&closest_hit->object->sphere.material,
-					&sys->amb_light,
-					&sys->light_list[0],
-					&comps);
+	if (closest_hit->object->type == SPHERE)
+		color_at = lighting(&closest_hit->object->sphere.material,
+						&sys->amb_light, &sys->light_list[0], &comps);
+	else if (closest_hit->object->type == PLANE)
+		color_at = lighting(&closest_hit->object->plane.material,
+						 &sys->amb_light, &sys->light_list[0], &comps);
+	else
+		color_at = create_color(0, 0, 0, 255);
 	return (color_at);
-}
+	}
 
 /*
  * Main rendering loop.
@@ -1273,12 +1343,12 @@ void	render(t_system *sys, mlx_image_t *img)
 	t_tuple	color;
 
 	y = 0;
-	while (y < HEIGHT)
+	while (y < (int)img->height)
 	{
 		x = 0;
-		while (x < WIDTH)
+		while (x < (int)img->width)
 		{
-			camera_ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y);
+			camera_ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y, img);
 			color = color_at(sys, &camera_ray);
 			mlx_put_pixel(img, x, y, tuple_to_rgba(&color));
 			x++;
@@ -1297,9 +1367,10 @@ int	main(int argc, char **av)
 	if (argc != 2)
 		ft_error(1);
 	init_system(&app.system);
+	app.system.state |= PARSING;
 	rt_parser(av[1], &app.system);
-	prepare_scene(&app.system);
-
+	prepare_scene(&app.system);  //dunno if this is part of parsing or init.
+	app.system.state &= ~PARSING;
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
 		ft_error(1);
@@ -1318,6 +1389,4 @@ int	main(int argc, char **av)
 /*
 TODO: 
 * multiple lights, should be pretty similar to looping trough the object list. Dunno.
-* floor
-	implement the floor plane
 */
