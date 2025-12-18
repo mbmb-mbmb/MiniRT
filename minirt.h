@@ -82,10 +82,13 @@ typedef struct s_material
 
 typedef struct s_plane
 {
+	t_material		material;
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	t_tuple			color;
+	t_mat			transform_to_world;
+	t_mat			inv_transform_to_obj;
+	bool			is_transformed;
 }					t_plane;
 
 typedef struct s_sphere
@@ -94,22 +97,25 @@ typedef struct s_sphere
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	float			radius;
 	t_mat			transform_to_world;
 	t_mat			inv_transform_to_obj;
 	bool			is_transformed;
+	float			radius;
 }					t_sphere;
 
 typedef struct s_cylinder
 {
+	t_material		material;
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	float			length;
+	t_mat			transform_to_world;
+	t_mat			inv_transform_to_obj;
+	bool			is_transformed;
 	float			diameter;
+	float			length;
 	t_plane			n_cap;
 	t_plane			s_cap;
-	t_tuple			color;
 }					t_cylinder;
 
 typedef enum e_type_flag
@@ -199,7 +205,6 @@ typedef struct s_system
 {
 	t_sys_state		state;
 	int				exit_code;
-
 	t_camera		camera;
 	t_object		obj_list[MAX_OBJECTS];
 	int				object_count;
@@ -221,4 +226,5 @@ void				rt_parser(char *input, t_system *sys);
 float				magnitude_vector(t_tuple *a);
 uint32_t			pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 t_mat				create_identity_matrix(int dim);
+
 #endif
