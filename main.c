@@ -1068,17 +1068,6 @@ t_intersection_list  intersect_plane(t_ray *ray)
 	return (intersections);
 }
 
-t_intersection_list  intersect_cylinder(t_ray *ray)
-{
-	t_intersection_list	intersections;
-	(void)ray;
-	
-	intersections.count = 0;
-	// Solve x² + z² = 1
-    // Then clamp hits to y bounds
-	return (intersections);
-}
-
 void	tag_intersections(t_intersection_list *intersections, t_object *object)
 {
 	int	i;
@@ -1400,6 +1389,4 @@ int	main(int argc, char **av)
 /*
 TODO: 
 * multiple lights, should be pretty similar to looping trough the object list. Dunno.
-* floor
-	implement the floor plane
 */
