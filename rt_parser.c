@@ -185,7 +185,6 @@ static void	check_camera(char *buffer, t_system *sys)
 		error_parser(NULL, sys);
 }
 
-
 static void	check_lights(char *buffer, t_system *sys)
 {
 	int				i;
@@ -209,6 +208,7 @@ static void	check_lights(char *buffer, t_system *sys)
 		i++;
 	}
 }
+
 void	phong_to_material(t_material *material)
 {
 	material->ambient = MATERIAL_AMBIENT;

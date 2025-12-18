@@ -1021,9 +1021,14 @@ void	append_intersections(t_intersection_list *dest, t_intersection_list *src)
 	}
 }
 
-bool	ray_misses_sphere(float a, float discriminant)
+bool	ray_misses_quadratic(float a, float discriminant)
 {
 	return (fabsf(a) < EPSILON || discriminant < 0.0f);
+}
+
+bool	ray_parallel_to_plane_y(t_ray *ray)
+{
+	return (is_float_equal(ray->direction.y, 0.0f));
 }
 
 /*
@@ -1048,8 +1053,8 @@ t_intersection_list	intersect_sphere(t_ray *ray)
 	b = 2 * dot_product_tuple(&ray->direction, &origin_to_center);
 	c = dot_product_tuple(&origin_to_center, &origin_to_center) - 1.0;
 	discriminant = b * b - 4 * a * c;
-	if (ray_misses_sphere(a, discriminant))
-		return (intersections);
+	if (ray_misses_quadratic(a, discriminant))
+	return (intersections);
 	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
 	intersections.intersections[1].t = (-b + sqrtf(discriminant)) / (2 * a);
 	intersections.count = 2;
@@ -1060,11 +1065,34 @@ t_intersection_list  intersect_plane(t_ray *ray)
 {
 	t_intersection_list	intersections;
 	
+	intersections = (t_intersection_list){0};
 	intersections.count = 0;
-	if (is_float_equal(ray->direction.y, 0.0f))
+	if (ray_parallel_to_plane_y(ray))
 		return (intersections);
 	intersections.intersections[0].t = -ray->origin.y / ray->direction.y;
 	intersections.count = 1;
+	return (intersections);
+}
+
+t_intersection_list  intersect_cylinder(t_ray *ray)
+{
+	t_intersection_list intersections;
+	float				discriminant;
+	float				a;
+	float				b;
+	float				c;
+    
+	intersections = (t_intersection_list){0};
+	intersections.count = 0;
+	a = ray->direction.x * ray->direction.x + ray->direction.z * ray->direction.z;
+	b = 2.0f * (ray->origin.x * ray->direction.x + ray->origin.z * ray->direction.z);
+	c = ray->origin.x * ray->origin.x + ray->origin.z * ray->origin.z - 1.0f;
+	discriminant = b * b - 4.0f * a * c;
+	if (ray_misses_quadratic(a, discriminant))
+		return (intersections);
+	intersections.intersections[0].t = (-b - sqrtf(discriminant)) / (2 * a);
+	intersections.intersections[1].t = (-b + sqrtf(discriminant)) / (2 * a);
+	intersections.count = 2;
 	return (intersections);
 }
 
