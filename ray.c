@@ -34,8 +34,10 @@ t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
 {
 	t_ray	obj_ray;
 
-	if (obj->sphere.is_transformed)
+	if (obj->type == SPHERE && obj->sphere.is_transformed)
 		obj_ray = ray_transform(ray, &obj->sphere.inv_transform_to_obj);
+	else if (obj->type == PLANE && obj->plane.is_transformed)
+		obj_ray = ray_transform(ray, &obj->plane.inv_transform_to_obj);
 	else
 		obj_ray = *ray;
 	return (obj_ray);

@@ -12,10 +12,18 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 	if (closest_hit == NULL)
 		return (create_vector(0, 0, 0));
 	comps = prepare_shading_computitions(closest_hit, ray);
-	color = lighting(&closest_hit->object->sphere.material,
-				&sys->amb_light,
-				&sys->light_list[0],
-				&comps);
+	if (closest_hit->object->type == SPHERE)
+		color = lighting(&closest_hit->object->sphere.material,
+					&sys->amb_light,
+					&sys->light_list[0],
+					&comps);
+	else if (closest_hit->object->type == PLANE)
+		color = lighting(&closest_hit->object->plane.material,
+					&sys->amb_light,
+					&sys->light_list[0],
+					&comps);
+	else
+		color = create_color(0, 0, 0, 255);
 	color.w = 1.0f;
 	return (color);
 }
@@ -28,12 +36,12 @@ void	render(t_system *sys, mlx_image_t *img)
 	t_tuple	color;
 
 	y = 0;
-	while (y < HEIGHT)
+	while (y < (int)img->height)
 	{
 		x = 0;
-		while (x < WIDTH)
+		while (x < (int)img->width)
 		{
-			ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y);
+			ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y, img);
 			color = color_at(sys, &ray);
 			mlx_put_pixel(img, x, y, tuple_to_rgba(&color));
 			x++;

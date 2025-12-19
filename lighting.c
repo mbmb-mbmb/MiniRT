@@ -18,7 +18,10 @@ t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *w
 
 	comps.point = ray_position(world_ray, hit->t);
 	comps.eyev = negate_tuple(&world_ray->direction);
-	comps.normalv = normal_at(&hit->object->sphere, &comps.point);
+	if (hit->object->type == SPHERE)
+		comps.normalv = normal_at(&hit->object->sphere, &comps.point);
+	else if (hit->object->type == PLANE)
+		comps.normalv = normal_at_plane(&hit->object->plane);
 	comps.inside = false;
 	return (comps);
 }

@@ -40,9 +40,19 @@ static int	cleanup(t_system *sys)
 
 void	resize_callback(int32_t width, int32_t height, void *param)
 {
-	(void)width;
-	(void)height;
-	(void)param;
+	t_app		*app;
+	t_system	*sys;
+
+	app = (t_app *)param;
+	sys = &app->system;
+	mlx_delete_image(app->mlx, app->img);
+	app->img = mlx_new_image(app->mlx, width, height);
+	if (!app->img)
+		return ;
+	if (mlx_image_to_window(app->mlx, app->img, 0, 0) < 0)
+		return ;
+	sys->camera.aspect_ratio = (float)width / (float)height;
+	sys->state &= ~RENDER_COMPLETE;
 }
 
 static void	frame(void *param)

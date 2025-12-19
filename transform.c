@@ -97,4 +97,12 @@ void	set_transform(t_object *obj, t_mat *transform)
 		obj->sphere.inv_transform_to_obj = inverse;
 		obj->sphere.is_transformed = true;
 	}
+	else if (obj->type == PLANE)
+	{
+		obj->plane.transform_to_world = *transform;
+		inverse = invert_matrix(transform);
+		obj->plane.inv_transform_to_obj = inverse;
+		obj->plane.is_transformed = true;
+	}
 }
+

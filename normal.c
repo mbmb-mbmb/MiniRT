@@ -16,3 +16,17 @@ t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
 	world_normal.w = VECTOR;
 	return (normalize_vector(&world_normal));
 }
+
+t_tuple	normal_at_plane(t_plane *plane)
+{
+	t_tuple	local_normal;
+	t_tuple	world_normal;
+	t_mat	transposed_inverse;
+
+	local_normal = create_vector(0, 1, 0);
+	transposed_inverse = transpose_matrix(&plane->inv_transform_to_obj, 4);
+	world_normal = multiply_matrix_and_tuple(&transposed_inverse, &local_normal);
+	world_normal.w = VECTOR;
+	return (normalize_vector(&world_normal));
+}
+

@@ -37,6 +37,20 @@ void	setup_sphere_transform(t_object *obj)
 	set_transform(obj, &transform);
 }
 
+void	transform_plane(t_object *obj)
+{
+	t_mat	world_location;
+	t_mat	rotation;
+	t_mat	transform;
+
+	world_location = translation(obj->plane.location.x,
+								 obj->plane.location.y,
+								 obj->plane.location.z);
+	rotation = rotation_from_tuple(&obj->plane.rotation);
+	transform = multiply_matrices(&world_location, &rotation);
+	set_transform(obj, &transform);
+}
+
 void	prepare_scene(t_system *sys)
 {
 	int	i;
@@ -47,6 +61,8 @@ void	prepare_scene(t_system *sys)
 	{
 		if (sys->obj_list[i].type == SPHERE)
 			setup_sphere_transform(&sys->obj_list[i]);
+		else if (sys->obj_list[i].type == PLANE)
+			transform_plane(&sys->obj_list[i]);
 		i++;
 	}
 }

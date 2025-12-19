@@ -82,10 +82,13 @@ typedef struct s_material
 
 typedef struct s_plane
 {
+	t_material		material;
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	t_tuple			color;
+	t_mat			transform_to_world;
+	t_mat			inv_transform_to_obj;
+	bool			is_transformed;
 }					t_plane;
 
 typedef struct s_sphere
@@ -102,14 +105,17 @@ typedef struct s_sphere
 
 typedef struct s_cylinder
 {
+	t_material		material;
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	float			length;
+	t_mat			transform_to_world;
+	t_mat			inv_transform_to_obj;
+	bool			is_transformed;
 	float			diameter;
+	float			length;
 	t_plane			n_cap;
 	t_plane			s_cap;
-	t_tuple			color;
 }					t_cylinder;
 
 typedef enum e_type_flag
@@ -216,6 +222,18 @@ typedef struct s_app
 	t_system		system;
 }					t_app;
 
+/* parser utilities */
+void				error_parser(char *print, t_system *sys);
+int					skip_spaces(const char *str);
+int					skip_commas(char *buffer, t_system *sys);
+int					skip_float(char *buffer);
+int					skip_to_end(char *buffer, t_system *sys);
+int					parse_int(char *in, int *value, int min, int max, t_system *sys);
+int					parse_float(char *in, float *out, float min, float max, t_system *sys);
+int					parse_rgb(char *buffer, t_tuple *color, t_system *sys);
+int					parse_xyz(char *buffer, t_tuple *tuple, float w, t_system *sys);
+int					check_extension(char *filename);
+
 void				rt_parser(char *input, t_system *sys);
 
 uint32_t			pack_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
@@ -276,6 +294,7 @@ void				append_intersections(t_intersection_list *dest,
 void				tag_intersections(t_intersection_list *intersections,
 				t_object *object);
 t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray);
+t_intersection_list	intersect_plane(t_ray *ray);
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray);
 t_intersection		*hit(t_intersection_list *intersections);
 
@@ -294,19 +313,21 @@ t_mat				view_transform(t_tuple *eye, t_tuple *target, t_tuple *up);
 
 /* normals */
 t_tuple				normal_at(t_sphere *sphere, t_tuple *world_point);
+t_tuple				normal_at_plane(t_plane *plane);
 
 t_tuple				reflect(t_tuple *vec, t_tuple *normal);
 t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray);
 t_tuple				lighting(t_material *material, t_amb_light *amb_light,
 				t_spot_light *light, t_shader_computations *comps);
 
-t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y);
-t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y);
+t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
+t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
 
 /* scene setup */
 void				init_system(t_system *sys);
 void				camera_transform(t_camera *camera);
 void				setup_sphere_transform(t_object *obj);
+void				transform_plane(t_object *obj);
 void				prepare_scene(t_system *sys);
 
 /* render */
