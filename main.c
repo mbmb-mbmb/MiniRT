@@ -844,6 +844,17 @@ t_tuple	normal_at_plane(t_plane *plane)
 	return (normalize_vector(&world_normal));
 }
 
+t_tuple normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point)
+{
+	t_tuple	object_normal;
+
+	(void)cylinder;
+	(void)world_point;
+
+	object_normal = create_vector(world_point->x, 0, world_point->z);
+	return(normalize_vector(&object_normal));
+}
+
 t_tuple	reflect(t_tuple *vec, t_tuple *normal)
 {
 	t_tuple	v_reflected;
@@ -871,6 +882,9 @@ t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *w
 		comps.normalv = normal_at_sphere(&hit->object->sphere, &comps.point);
 	else if (hit->object->type == PLANE)
 		comps.normalv = normal_at_plane(&hit->object->plane);
+	else if (hit->object->type == CYLINDER)
+		comps.normalv = normal_at_cylinder(&hit->object->cylinder, &comps.point);
+	
 	comps.inside = false;
 	if (dot_product_tuple(&comps.normalv, &comps.eyev) < 0)
 	{
@@ -1131,6 +1145,9 @@ t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
 			obj_intrs = intersect_sphere(&obj_ray);
 		else if (sys->obj_list[i].type == PLANE)
 			obj_intrs = intersect_plane(&obj_ray);
+		else if (sys->obj_list[i].type == CYLINDER)
+			obj_intrs = intersect_cylinder(&obj_ray);
+		
 		tag_intersections(&obj_intrs, &sys->obj_list[i]);
 		append_intersections(&all_intrs, &obj_intrs);
 		i++;
@@ -1350,6 +1367,9 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 		color_at = lighting(&closest_hit->object->sphere.material,
 						&sys->amb_light, &sys->light_list[0], &comps);
 	else if (closest_hit->object->type == PLANE)
+		color_at = lighting(&closest_hit->object->plane.material,
+						 &sys->amb_light, &sys->light_list[0], &comps);
+	else if (closest_hit->object->type == CYLINDER)
 		color_at = lighting(&closest_hit->object->plane.material,
 						 &sys->amb_light, &sys->light_list[0], &comps);
 	else
