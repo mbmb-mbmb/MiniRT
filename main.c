@@ -485,7 +485,7 @@ bool	matrices_are_equal(t_mat *A, t_mat *B)
 	return (true);
 }
 
-t_tuple	row(t_mat *mat, int row)
+t_tuple	get_row(t_mat *mat, int row)
 {
 	t_tuple	mat_row;
 
@@ -496,7 +496,7 @@ t_tuple	row(t_mat *mat, int row)
 	return (mat_row);
 }
 
-t_tuple	col(t_mat *mat, int col)
+t_tuple	get_col(t_mat *mat, int col)
 {
 	t_tuple	mat_col;
 
@@ -505,6 +505,21 @@ t_tuple	col(t_mat *mat, int col)
 	mat_col.z = mat->m[2][col];
 	mat_col.w = mat->m[3][col];
 	return (mat_col);
+}
+
+void	set_col(t_mat *mat, int col, t_tuple *tup)
+{
+	mat->m[0][col] = tup->x;
+	mat->m[1][col] = tup->y;
+	mat->m[2][col] = tup->z;
+	mat->m[3][col] = tup->w;
+}
+void	set_row(t_mat *mat, int row, t_tuple *tup)
+{
+	mat->m[row][0] = tup->x;
+	mat->m[row][1] = tup->y;
+	mat->m[row][2] = tup->z;
+	mat->m[row][3] = tup->w;
 }
 
 t_mat	multiply_matrices(t_mat *ina, t_mat *inb)
@@ -523,8 +538,8 @@ t_mat	multiply_matrices(t_mat *ina, t_mat *inb)
 		j = 0;
 		while (j < 4)
 		{
-			row_result = row(ina, i);
-			col_result = col(inb, j);
+			row_result = get_row(ina, i);
+			col_result = get_col(inb, j);
 			out.m[i][j] = dot_product_tuple_naive(&row_result, &col_result);
 			j++;
 		}
@@ -542,7 +557,7 @@ t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in)
 	i = 0;
 	while (i < 4)
 	{
-		row_result = row(mat, i);
+		row_result = get_row(mat, i);
 		if (i == 0)
 			tup_out.x = dot_product_tuple_naive(&row_result, tup_in);
 		else if (i == 1)
@@ -765,6 +780,34 @@ t_mat	rotation_from_tuple(t_tuple *angles)
 	return (multiply_matrices(&rot_z, &rot_temp));
 }
 
+static t_tuple	pick_non_parallel_vector(t_tuple *axis)
+{
+	if (fabsf(axis->x) < 0.9f)
+		return (create_vector(1, 0, 0));
+	else
+		return (create_vector(0, 0, 1));
+}
+
+static t_mat	rotation_from_axis(t_tuple *axis)
+{
+	t_tuple	up;
+	t_tuple	arbitrary;
+	t_tuple	right;
+	t_tuple	forward;
+	t_mat	rot;
+
+	up = normalize_vector(axis);
+	arbitrary = pick_non_parallel_vector(&up);
+	right = cross_product_tuple(&arbitrary, &up);
+	right = normalize_vector(&right);
+	forward = cross_product_tuple(&up, &right); 
+	rot = create_identity_matrix(4);
+	set_col(&rot, 0, &right);
+	set_col(&rot, 1, &up);
+	set_col(&rot, 2, &forward);
+	return (rot);
+}
+
 t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
 {
 	t_mat	mat;
@@ -802,8 +845,13 @@ void	set_transform(t_object *obj, t_mat *transform)
 		obj->plane.inv_transform_to_obj = inverse;
 		obj->plane.is_transformed = true;
 	}
-	
-	// TODO: CYLINDER
+	else if (obj->type == CYLINDER)
+	{
+		obj->cylinder.transform_to_world = *transform;
+		inverse = invert_matrix(transform);
+		obj->cylinder.inv_transform_to_obj = inverse;
+		obj->cylinder.is_transformed = true;
+	}
 }
 
 //SHADING
@@ -833,26 +881,30 @@ t_tuple	normal_at_sphere(t_sphere *sphere, t_tuple *world_point)
 
 t_tuple	normal_at_plane(t_plane *plane)
 {
-	t_tuple	local_normal;
+	t_tuple	object_normal;
 	t_tuple	world_normal;
 	t_mat	transposed_inverse;
-
-	local_normal = create_vector(0, 1, 0);
+	
+	object_normal = create_vector(0, 1, 0);
 	transposed_inverse = transpose_matrix(&plane->inv_transform_to_obj, 4);
-	world_normal = multiply_matrix_and_tuple(&transposed_inverse, &local_normal);
+	world_normal = multiply_matrix_and_tuple(&transposed_inverse, &object_normal);
 	world_normal.w = VECTOR;
 	return (normalize_vector(&world_normal));
 }
 
 t_tuple normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point)
 {
+	t_tuple	object_point;
 	t_tuple	object_normal;
-
-	(void)cylinder;
-	(void)world_point;
-
-	object_normal = create_vector(world_point->x, 0, world_point->z);
-	return(normalize_vector(&object_normal));
+	t_tuple	world_normal;
+	t_mat	transposed_inverse;
+	
+	object_point = multiply_matrix_and_tuple(&cylinder->inv_transform_to_obj, world_point);
+	object_normal = create_vector(object_point.x, 0, object_point.z);
+	transposed_inverse = transpose_matrix(&cylinder->inv_transform_to_obj, 4);
+	world_normal = multiply_matrix_and_tuple(&transposed_inverse, &object_normal);
+	world_normal.w = VECTOR;
+	return(normalize_vector(&world_normal));
 }
 
 t_tuple	reflect(t_tuple *vec, t_tuple *normal)
@@ -884,7 +936,6 @@ t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *w
 		comps.normalv = normal_at_plane(&hit->object->plane);
 	else if (hit->object->type == CYLINDER)
 		comps.normalv = normal_at_cylinder(&hit->object->cylinder, &comps.point);
-	
 	comps.inside = false;
 	if (dot_product_tuple(&comps.normalv, &comps.eyev) < 0)
 	{
@@ -1017,6 +1068,8 @@ t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
 		obj_ray = transform_ray(ray, &obj->sphere.inv_transform_to_obj);
 	else if (obj->type == PLANE && obj->plane.is_transformed)
 		obj_ray = transform_ray(ray, &obj->plane.inv_transform_to_obj);
+	else if (obj->type == CYLINDER && obj->cylinder.is_transformed)
+		obj_ray = transform_ray(ray, &obj->cylinder.inv_transform_to_obj);
 	else
 		obj_ray = *ray;
 	return (obj_ray);
@@ -1088,7 +1141,7 @@ t_intersection_list  intersect_plane(t_ray *ray)
 	return (intersections);
 }
 
-t_intersection_list  intersect_cylinder(t_ray *ray)
+t_intersection_list intersect_cylinder(t_ray *ray)
 {
 	t_intersection_list intersections;
 	float				discriminant;
@@ -1201,15 +1254,10 @@ t_mat	build_orientation_from_view(t_tuple *eye, t_tuple *target, t_tuple *up)
 	left = cross_product_tuple(&camera_forward, &upn);
 	true_up = cross_product_tuple(&left, &camera_forward);
 	orientation = create_identity_matrix(4);
-	orientation.m[0][0] = left.x;
-	orientation.m[0][1] = left.y;
-	orientation.m[0][2] = left.z;
-	orientation.m[1][0] = true_up.x;
-	orientation.m[1][1] = true_up.y;
-	orientation.m[1][2] = true_up.z;
-	orientation.m[2][0] = -camera_forward.x;
-	orientation.m[2][1] = -camera_forward.y;
-	orientation.m[2][2] = -camera_forward.z;
+	set_row(&orientation, 0, &left);
+	set_row(&orientation, 1, &true_up);
+	camera_forward = negate_tuple(&camera_forward);
+	set_row(&orientation, 2, &camera_forward);
 	return (orientation);
 }
 
@@ -1273,6 +1321,23 @@ void	transform_plane(t_object *plane)
 	set_transform(plane, &transform);
 }
 
+void    transform_cylinder(t_object *cyl)
+{
+    t_mat   translation_matrix;
+    t_mat   rotation_matrix;
+    t_mat   scaling_matrix;
+    t_mat   temp;
+	t_mat   mult;
+    float   radius;
+
+    radius = cyl->cylinder.diameter / 2.0f;
+    translation_matrix = translation(cyl->cylinder.location.x, cyl->cylinder.location.y, cyl->cylinder.location.z);
+    rotation_matrix = rotation_from_axis(&cyl->cylinder.rotation);
+    scaling_matrix = scaling(radius, 1.0f, radius);
+    temp = multiply_matrices(&rotation_matrix, &scaling_matrix);
+    mult = multiply_matrices(&translation_matrix, &temp);
+    set_transform(cyl, &mult);
+}
 void	prepare_scene(t_system *sys)
 {
 	int	i;
@@ -1286,7 +1351,8 @@ void	prepare_scene(t_system *sys)
 			transform_sphere(&sys->obj_list[i]);
 		else if (sys->obj_list[i].type == PLANE)
 			transform_plane(&sys->obj_list[i]);
-		// TODO: cylinder_transform
+		else if (sys->obj_list[i].type == CYLINDER)
+			transform_cylinder(&sys->obj_list[i]);
 		i++;
 	}
 }

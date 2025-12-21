@@ -133,7 +133,7 @@ typedef struct s_object
 		t_plane		plane;
 		t_sphere	sphere;
 		t_cylinder	cylinder;
-    };
+	};
 }					t_object;
 
 typedef struct s_intersection
