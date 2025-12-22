@@ -85,9 +85,10 @@ int	main(int argc, char **av)
 	if (argc != 2)
 		ft_error(1);
 	init_system(&app.system);
+	app.system.state |= PARSING;
 	rt_parser(av[1], &app.system);
-	prepare_scene(&app.system);
-
+	prepare_scene(&app.system);  //dunno if this is part of parsing or init.
+	app.system.state &= ~PARSING;
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
 		ft_error(1);

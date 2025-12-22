@@ -97,10 +97,10 @@ typedef struct s_sphere
 	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
-	float			radius;
 	t_mat			transform_to_world;
 	t_mat			inv_transform_to_obj;
 	bool			is_transformed;
+	float			radius;
 }					t_sphere;
 
 typedef struct s_cylinder
@@ -205,7 +205,6 @@ typedef struct s_system
 {
 	t_sys_state		state;
 	int				exit_code;
-
 	t_camera		camera;
 	t_object		obj_list[MAX_OBJECTS];
 	int				object_count;

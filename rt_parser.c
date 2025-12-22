@@ -63,11 +63,12 @@ static void	check_camera(char *buffer, t_system *sys)
 		error_parser(NULL, sys);
 }
 
+
 static void	check_lights(char *buffer, t_system *sys)
 {
 	int				i;
 	t_spot_light	*light;
-
+	
 	i = 0;
 	while (buffer[i])
 	{
@@ -86,12 +87,19 @@ static void	check_lights(char *buffer, t_system *sys)
 		i++;
 	}
 }
+void	phong_to_material(t_material *material)
+{
+	material->ambient = MATERIAL_AMBIENT;
+	material->diffuse = MATERIAL_DIFFUSE;
+	material->specular = MATERIAL_SPECULAR;
+	material->shininess = MATERIAL_SHININESS;
+}
 
 static void	check_sphere(char *buffer, t_system *sys)
 {
 	int				i;
 	t_object		*obj;
-
+	
 	i = 0;
 	while (buffer[i])
 	{
@@ -115,8 +123,8 @@ static void	check_sphere(char *buffer, t_system *sys)
 
 static void	check_cylinder(char *buffer, t_system *sys)
 {
-	int				i;
-	t_object		*obj;
+	int			i;
+	t_object	*obj;
 
 	i = 0;
 	while (buffer[i])
