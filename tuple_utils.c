@@ -31,13 +31,3 @@ int	sub_kind(int ak, int bk)
 		return (TUPLE_INCORRECT);
 	return (ak ^ bk);
 }
-
-float	degrees_to_radians(float degrees)
-{
-	return (degrees * M_PI / 180.0);
-}
-
-float	radians_to_degrees(float radians)
-{
-	return (radians * 180.0 / M_PI);
-}
