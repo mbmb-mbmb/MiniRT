@@ -333,5 +333,11 @@ void				prepare_scene(t_system *sys);
 t_tuple				color_at(t_system *sys, t_ray *ray);
 void				render(t_system *sys, mlx_image_t *img);
 
+/* lighting */
+t_tuple				calc_light_direction(t_tuple *light_pos, t_tuple *point);
+t_tuple				calculate_ambient(t_material *material, t_amb_light *amb_light);
+t_tuple				calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computations *comps);
+t_tuple				calculate_specular(t_material *material, t_spot_light *light, t_shader_computations *comps);
+
 #endif
 
