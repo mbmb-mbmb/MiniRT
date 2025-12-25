@@ -21,6 +21,10 @@ int	parse_int(char *in, int *value, int min, int max, t_system *sys)
 	num = ft_atoi(in + i);
 	if (num < min || num > max)
 		error_parser("Integer out of range\n", sys);
+	if (num == 0)
+		num = 1;
+	if (num == 180)
+		num = 179;
 	*value = num;
 	while (in[i] == '-' || in[i] == '+' || ft_isdigit(in[i]))
 		i++;

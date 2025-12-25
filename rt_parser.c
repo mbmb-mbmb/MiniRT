@@ -1,5 +1,22 @@
 #include "minirt.h"
 
+static void	normalize_or_error(t_tuple *vec, t_system *sys)
+{
+	float	len;
+
+	len = magnitude_vector(vec);
+	if (len < EPSILON)
+	{
+		error_parser("Vector is a zero vector\n", sys);
+		return ;
+	}
+	if (fabsf(len - 1.0f) > 0.01f)
+	{
+		printf("Warning: vector not normalized (len=%.3f), normalizing...\n", len);
+		*vec = normalize_vector(vec);
+	}
+}
+
 static void	check_AmbLight(char *buffer, t_system *sys)
 {
 	int	i;
@@ -43,8 +60,7 @@ static void	check_camera(char *buffer, t_system *sys)
 				error_parser("Only one camera (C) allowed.\n", sys);
 			i += parse_xyz(buffer + i, &sys->camera.location, POINT, sys);
 			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR, sys);
-			if (magnitude_vector(&sys->camera.rotation) > 1.0)
-				error_parser("TODO: vector not normalized error", sys);
+			normalize_or_error(&sys->camera.rotation, sys);
 			i += parse_int(buffer + i, &sys->camera.fov, 0, 180, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
@@ -104,7 +120,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 			obj->type = SPHERE;
 			phong_to_material(&obj->sphere.material);
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT, sys);
-			i += parse_float(buffer + i, &obj->sphere.radius, -FLOAT_MAX, FLOAT_MAX, sys);
+			i += parse_float(buffer + i, &obj->sphere.radius, 0.0f, FLOAT_MAX, sys);
 			i += parse_rgb(buffer + i, &obj->sphere.material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
@@ -131,10 +147,9 @@ static void	check_cylinder(char *buffer, t_system *sys)
 			phong_to_material(&obj->cylinder.material);
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, sys);
-			if (magnitude_vector(&sys->camera.rotation) > 1.0)
-				error_parser("TODO: vector not normalized error", sys);
-			i += parse_float(buffer + i, &obj->cylinder.diameter, -FLOAT_MAX, FLOAT_MAX, sys);
-			i += parse_float(buffer + i, &obj->cylinder.length, -FLOAT_MAX, FLOAT_MAX, sys);
+			normalize_or_error(&obj->cylinder.rotation, sys);
+			i += parse_float(buffer + i, &obj->cylinder.diameter, 0.0f, FLOAT_MAX, sys);
+			i += parse_float(buffer + i, &obj->cylinder.length, 0.0f, FLOAT_MAX, sys);
 			i += parse_rgb(buffer + i, &obj->cylinder.material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
@@ -162,8 +177,7 @@ static void	check_plane(char *buffer, t_system *sys)
 			phong_to_material(&obj->plane.material);
 			i += parse_xyz(buffer + i, &obj->plane.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR, sys);
-			if (magnitude_vector(&sys->camera.rotation) > 1.0)
-				error_parser("TODO: vector not normalized error", sys);
+			normalize_or_error(&obj->plane.rotation, sys);
 			i += parse_rgb(buffer + i, &obj->plane.material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;

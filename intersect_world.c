@@ -43,6 +43,8 @@ t_intersection_list	intersect_world(t_system *sys, t_ray *ray)
 			obj_intrs = intersect_sphere(&sys->obj_list[i].sphere, &obj_ray);
 		else if (sys->obj_list[i].type == PLANE)
 			obj_intrs = intersect_plane(&obj_ray);
+		else if (sys->obj_list[i].type == CYLINDER)
+			obj_intrs = intersect_cylinder(&sys->obj_list[i].cylinder, &obj_ray);
 		tag_intersections(&obj_intrs, &sys->obj_list[i]);
 		append_intersections(&all_intrs, &obj_intrs);
 		i++;

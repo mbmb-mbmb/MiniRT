@@ -10,7 +10,7 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 	intersections = intersect_world(sys, ray);
 	closest_hit = hit(&intersections);
 	if (closest_hit == NULL)
-		return (create_vector(0, 0, 0));
+		return (create_color(0, 0, 0, 1));
 	comps = prepare_shading_computitions(closest_hit, ray);
 	if (closest_hit->object->type == SPHERE)
 		color = lighting(&closest_hit->object->sphere.material,
@@ -22,8 +22,13 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 					&sys->amb_light,
 					&sys->light_list[0],
 					&comps);
+	else if (closest_hit->object->type == CYLINDER)
+		color = lighting(&closest_hit->object->cylinder.material,
+					&sys->amb_light,
+					&sys->light_list[0],
+					&comps);
 	else
-		color = create_color(0, 0, 0, 255);
+		color = create_color(0, 0, 0, 1);
 	color.w = 1.0f;
 	return (color);
 }

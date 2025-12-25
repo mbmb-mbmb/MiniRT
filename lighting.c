@@ -22,7 +22,14 @@ t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *w
 		comps.normalv = normal_at(&hit->object->sphere, &comps.point);
 	else if (hit->object->type == PLANE)
 		comps.normalv = normal_at_plane(&hit->object->plane);
+	else if (hit->object->type == CYLINDER)
+		comps.normalv = normal_at_cylinder(&hit->object->cylinder, &comps.point);
 	comps.inside = false;
+	if (dot_product_tuple(&comps.normalv, &comps.eyev) < 0)
+	{
+		comps.inside = true;
+		comps.normalv = negate_tuple(&comps.normalv);
+	}
 	return (comps);
 }
 

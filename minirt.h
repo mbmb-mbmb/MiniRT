@@ -26,7 +26,7 @@
 # define MATERIAL_AMBIENT 0.1f
 # define MATERIAL_DIFFUSE 0.5f
 # define MATERIAL_SPECULAR 1.0f
-# define MATERIAL_SHININESS 100.0f
+# define MATERIAL_SHININESS 50.0f
 // # define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
@@ -268,7 +268,7 @@ uint32_t			tuple_to_rgba(t_tuple *color);
 t_tuple				create_color(float red, float green, float blue, float alpha);
 
 /* matrix helpers */
-int				get_matrix_dim(t_mat *mat, t_mat *b);
+int					get_matrix_dim(t_mat *mat, t_mat *b);
 void				set_matrix_dim(t_mat *mat, int dim);
 t_tuple				row(t_mat *mat, int row);
 t_tuple				col(t_mat *mat, int col);
@@ -294,6 +294,7 @@ void				tag_intersections(t_intersection_list *intersections,
 				t_object *object);
 t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray);
 t_intersection_list	intersect_plane(t_ray *ray);
+t_intersection_list	intersect_cylinder(t_cylinder *cylinder, t_ray *ray);
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray);
 t_intersection		*hit(t_intersection_list *intersections);
 
@@ -303,7 +304,7 @@ t_mat				scaling(float x, float y, float z);
 t_mat				rotate_x(float x);
 t_mat				rotate_y(float y);
 t_mat				rotate_z(float z);
-t_mat				rotation_from_tuple(t_tuple *angles);
+t_mat				rotation_from_axis(t_tuple *axis);
 t_mat				skew(float xy, float xz, float yx, float yz, float zx, float zy);
 void				set_transform(t_object *obj, t_mat *transform);
 
@@ -313,6 +314,7 @@ t_mat				view_transform(t_tuple *eye, t_tuple *target, t_tuple *up);
 /* normals */
 t_tuple				normal_at(t_sphere *sphere, t_tuple *world_point);
 t_tuple				normal_at_plane(t_plane *plane);
+t_tuple				normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point);
 
 t_tuple				reflect(t_tuple *vec, t_tuple *normal);
 t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray);
@@ -327,6 +329,7 @@ void				init_system(t_system *sys);
 void				camera_transform(t_camera *camera);
 void				setup_sphere_transform(t_object *obj);
 void				transform_plane(t_object *obj);
+void				transform_cylinder(t_object *obj);
 void				prepare_scene(t_system *sys);
 
 /* render */

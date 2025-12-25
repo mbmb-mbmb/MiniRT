@@ -38,6 +38,8 @@ t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
 		obj_ray = ray_transform(ray, &obj->sphere.inv_transform_to_obj);
 	else if (obj->type == PLANE && obj->plane.is_transformed)
 		obj_ray = ray_transform(ray, &obj->plane.inv_transform_to_obj);
+	else if (obj->type == CYLINDER && obj->cylinder.is_transformed)
+		obj_ray = ray_transform(ray, &obj->cylinder.inv_transform_to_obj);
 	else
 		obj_ray = *ray;
 	return (obj_ray);
