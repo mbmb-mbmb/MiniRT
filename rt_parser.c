@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   rt_parser.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:08:30 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
 static void	normalize_or_error(t_tuple *vec, t_system *sys)
@@ -76,7 +88,7 @@ static void	check_lights(char *buffer, t_system *sys)
 {
 	int				i;
 	t_spot_light	*light;
-	
+
 	i = 0;
 	while (buffer[i])
 	{
@@ -107,7 +119,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 {
 	int				i;
 	t_object		*obj;
-	
+
 	i = 0;
 	while (buffer[i])
 	{

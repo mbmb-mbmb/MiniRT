@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:07:14 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:07:15 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
 static void ft_error(int error_code)
@@ -105,7 +117,7 @@ int	main(int argc, char **av)
 
 
 /*
-TODO: 
+TODO:
 * multiple lights, should be pretty similar to looping trough the object list. Dunno.
 * floor
 	implement the floor plane
