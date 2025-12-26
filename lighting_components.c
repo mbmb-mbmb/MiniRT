@@ -36,7 +36,7 @@ t_tuple	calculate_diffuse(t_material *material, t_spot_light *light, t_shader_co
 	float	scalar;
 
 	if (is_light_behind_surface(&comps->light_dir, &comps->normalv))
-		return (create_vector(0, 0, 0));
+		return (create_color(0, 0, 0, 1));
 	color = multiply_tuple_w_tuple(&material->color, &light->color);
 	scalar = material->diffuse * light->range
 		* dot_product_tuple(&comps->light_dir, &comps->normalv);
@@ -53,11 +53,11 @@ t_tuple	calculate_specular(t_material *material, t_spot_light *light, t_shader_c
 	float	factor;
 
 	if (is_light_behind_surface(&comps->light_dir, &comps->normalv))
-		return (create_vector(0, 0, 0));
+		return (create_color(0, 0, 0, 1));
 	neg_lightv = negate_tuple(&comps->light_dir);
 	reflectv = reflect(&neg_lightv, &comps->normalv);
 	if (dot_product_tuple(&reflectv, &comps->eyev) < 0)
-		return (create_vector(0, 0, 0));
+		return (create_color(0, 0, 0, 1));
 	factor = powf(dot_product_tuple(&reflectv, &comps->eyev), material->shininess);
 	specular = multiply_tuple(&light->color,
 					material->specular * light->range * factor);

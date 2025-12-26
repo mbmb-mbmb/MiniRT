@@ -29,7 +29,7 @@ static void	normalize_or_error(t_tuple *vec, t_system *sys)
 	}
 }
 
-static void	check_AmbLight(char *buffer, t_system *sys)
+static void	check_ambient_light(char *buffer, t_system *sys)
 {
 	int	i;
 	int	A_found;
@@ -52,7 +52,7 @@ static void	check_AmbLight(char *buffer, t_system *sys)
 		i++;
 	}
 	if (A_found == 0)
-	error_parser(NULL, sys);
+		error_parser(NULL, sys);
 }
 
 static void	check_camera(char *buffer, t_system *sys)
@@ -201,21 +201,23 @@ static void	check_plane(char *buffer, t_system *sys)
 void	rt_parser(char *input, t_system *sys)
 {
 	int		fd;
-	char	buffer[2096];
+	char	buffer[4096];
 	int		bytes_read;
 	char	buffer_overflow;
 
 	if (!check_extension(input))
-		error_parser("Error: File must have .rt extension\n", sys);
+		error_parser("File must have .rt extension\n", sys);
 	fd = open(input, O_RDONLY);
 	if (fd == -1)
-		error_parser("Error: Cannot open file\n", sys);
+		error_parser("Cannot open file\n", sys);
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
 	if(read(fd, &buffer_overflow, 1) > 0)
-		error_parser("Error: File is too large\n", sys);
+		error_parser("File is too large\n", sys);
+	if (bytes_read < 0)
+		error_parser("Cannot read file\n", sys);
 	buffer[bytes_read] = '\0';
 	close(fd);
-	check_AmbLight(buffer, sys);
+	check_ambient_light(buffer, sys);
 	check_camera(buffer, sys);
 	sys->light_count = 0;
 	check_lights(buffer, sys);
