@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:08:30 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2025/12/26 16:33:28 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,17 @@ static void	normalize_or_error(t_tuple *vec, t_system *sys)
 static void	check_ambient_light(char *buffer, t_system *sys)
 {
 	int	i;
-	int	A_found;
+	int	a_found;
 
 	i = 0;
-	A_found = 0;
+	a_found = 0;
 	while (buffer[i])
 	{
 		if (buffer[i] == 'A' && (i == 0 || buffer[i-1] == '\n'))
 		{
-			A_found++;
+			a_found++;
 			i++;
-			if (A_found > 1)
+			if (a_found > 1)
 				error_parser("Only one ambient light (A) allowed.\n", sys);
 			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0, sys);
 			i += parse_rgb(buffer + i, &sys->amb_light.color, sys);
@@ -51,24 +51,24 @@ static void	check_ambient_light(char *buffer, t_system *sys)
 		}
 		i++;
 	}
-	if (A_found == 0)
+	if (a_found == 0)
 		error_parser(NULL, sys);
 }
 
 static void	check_camera(char *buffer, t_system *sys)
 {
 	int	i;
-	int	C_found;
+	int	c_found;
 
 	i = 0;
-	C_found = 0;
+	c_found = 0;
 	while (buffer[i])
 	{
 		if (buffer[i] == 'C' && (i == 0 || buffer[i-1] == '\n'))
 		{
-			C_found++;
+			c_found++;
 			i++;
-			if (C_found > 1)
+			if (c_found > 1)
 				error_parser("Only one camera (C) allowed.\n", sys);
 			i += parse_xyz(buffer + i, &sys->camera.location, POINT, sys);
 			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR, sys);
@@ -79,7 +79,7 @@ static void	check_camera(char *buffer, t_system *sys)
 		}
 		i++;
 	}
-	if (C_found == 0)
+	if (c_found == 0)
 		error_parser(NULL, sys);
 }
 

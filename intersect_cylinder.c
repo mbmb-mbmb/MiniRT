@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:06:28 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:06:29 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2025/12/26 16:35:22 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,5 +82,3 @@ t_intersection_list	intersect_cylinder(t_cylinder *cylinder, t_ray *ray)
 	intersect_cylinder_caps(ray, &intersections);
 	return (intersections);
 }
-
-
