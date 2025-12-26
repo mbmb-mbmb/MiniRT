@@ -114,8 +114,6 @@ typedef struct s_cylinder
 	bool			is_transformed;
 	float			diameter;
 	float			length;
-	t_plane			n_cap;
-	t_plane			s_cap;
 }					t_cylinder;
 
 typedef enum e_type_flag
