@@ -298,15 +298,11 @@ t_ray				ray_transform(t_ray *ray, t_mat *mat);
 t_ray				ray_to_object_space(t_ray *ray, t_object *obj);
 
 /* intersections */
-void				append_intersections(t_intersection_list *dest,
-				t_intersection_list *src);
-void				tag_intersections(t_intersection_list *intersections,
-				t_object *object);
-t_intersection_list	intersect_sphere(t_sphere *sphere, t_ray *ray);
-t_intersection_list	intersect_plane(t_ray *ray);
-t_intersection_list	intersect_cylinder(t_cylinder *cylinder, t_ray *ray);
+void				intersect_sphere(t_ray *ray, t_intersection_list *list);
+void				intersect_plane(t_ray *ray, t_intersection_list *list);
+void				intersect_cylinder(t_ray *ray, t_intersection_list *list);
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray);
-t_intersection		*hit(t_intersection_list *intersections);
+t_intersection		*hit(t_intersection_list *list);
 
 /* transforms */
 t_mat				translation(float x, float y, float z);

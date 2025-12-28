@@ -12,25 +12,24 @@
 
 #include "minirt.h"
 
-t_mat	multiply_matrices(t_mat *ina, t_mat *inb)
+t_mat	multiply_matrices(t_mat *a, t_mat *b)
 {
 	t_mat	out;
 	int		i;
 	int		j;
-	t_tuple	row_result;
-	t_tuple	col_result;
 
 	out = (t_mat){0};
-	out.type = ina->type;
+	out.type = a->type;
 	i = 0;
 	while (i < 4)
 	{
 		j = 0;
 		while (j < 4)
 		{
-			row_result = row(ina, i);
-			col_result = col(inb, j);
-			out.m[i][j] = dot_product_tuple_naive(&row_result, &col_result);
+			out.m[i][j] = a->m[i][0] * b->m[0][j]
+				+ a->m[i][1] * b->m[1][j]
+				+ a->m[i][2] * b->m[2][j]
+				+ a->m[i][3] * b->m[3][j];
 			j++;
 		}
 		i++;
@@ -38,27 +37,19 @@ t_mat	multiply_matrices(t_mat *ina, t_mat *inb)
 	return (out);
 }
 
-t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in)
+t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *in)
 {
-	int		i;
-	t_tuple	tup_out;
-	t_tuple	row_result;
+	t_tuple	out;
 
-	i = 0;
-	while (i < 4)
-	{
-		row_result = row(mat, i);
-		if (i == 0)
-			tup_out.x = dot_product_tuple_naive(&row_result, tup_in);
-		else if (i == 1)
-			tup_out.y = dot_product_tuple_naive(&row_result, tup_in);
-		else if (i == 2)
-			tup_out.z = dot_product_tuple_naive(&row_result, tup_in);
-		else if (i == 3)
-			tup_out.w = dot_product_tuple_naive(&row_result, tup_in);
-		i++;
-	}
-	return (tup_out);
+	out.x = mat->m[0][0] * in->x + mat->m[0][1] * in->y
+		+ mat->m[0][2] * in->z + mat->m[0][3] * in->w;
+	out.y = mat->m[1][0] * in->x + mat->m[1][1] * in->y
+		+ mat->m[1][2] * in->z + mat->m[1][3] * in->w;
+	out.z = mat->m[2][0] * in->x + mat->m[2][1] * in->y
+		+ mat->m[2][2] * in->z + mat->m[2][3] * in->w;
+	out.w = mat->m[3][0] * in->x + mat->m[3][1] * in->y
+		+ mat->m[3][2] * in->z + mat->m[3][3] * in->w;
+	return (out);
 }
 
 t_mat	transpose_matrix(t_mat *mat, int dim)
