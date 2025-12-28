@@ -14,31 +14,36 @@
 
 t_tuple	color_at(t_system *sys, t_ray *ray)
 {
-	t_intersection_list	intersections;
+	t_intersection_list		intersections;
 	t_shader_computations	comps;
-	t_intersection		*closest_hit;
-	t_tuple				color;
+	t_intersection			*closest_hit;
+	t_tuple					color;
+	bool					in_shadow;
 
 	intersections = intersect_world(sys, ray);
 	closest_hit = hit(&intersections);
 	if (closest_hit == NULL)
 		return (create_color(0, 0, 0, 1));
 	comps = prepare_shading_computitions(closest_hit, ray);
+	in_shadow = is_shadowed(sys, &sys->light_list[0].location, &comps.over_point);
 	if (closest_hit->object->type == SPHERE)
 		color = lighting(&closest_hit->object->sphere.material,
 					&sys->amb_light,
 					&sys->light_list[0],
-					&comps);
+					&comps,
+					in_shadow);
 	else if (closest_hit->object->type == PLANE)
 		color = lighting(&closest_hit->object->plane.material,
 					&sys->amb_light,
 					&sys->light_list[0],
-					&comps);
+					&comps,
+					in_shadow);
 	else if (closest_hit->object->type == CYLINDER)
 		color = lighting(&closest_hit->object->cylinder.material,
 					&sys->amb_light,
 					&sys->light_list[0],
-					&comps);
+					&comps,
+					in_shadow);
 	else
 		color = create_color(0, 0, 0, 1);
 	color.w = 1.0f;

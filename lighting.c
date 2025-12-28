@@ -24,37 +24,62 @@ t_tuple	reflect(t_tuple *vec, t_tuple *normal)
 	return (v_reflected);
 }
 
+bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
+{
+	t_intersection_list	shadow_inters;
+	t_intersection		*shadow_hit;
+	t_ray				shadow_ray;
+	t_tuple				overpoint_to_light;
+	float				distance;
+
+	overpoint_to_light = subtract_tuple(light_pos, over_point);
+	distance = magnitude_vector(&overpoint_to_light);
+	shadow_ray.direction = normalize_vector(&overpoint_to_light);
+	shadow_ray.origin = *over_point;
+	
+	shadow_inters = intersect_world(sys, &shadow_ray);
+	shadow_hit = hit(&shadow_inters);
+	if (shadow_hit != NULL && shadow_hit->t < distance)
+		return (true);
+	return (false);
+}
+
 t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray)
 {
 	t_shader_computations	comps;
+	t_tuple					offset;
 
 	comps.point = ray_position(world_ray, hit->t);
 	comps.eyev = negate_tuple(&world_ray->direction);
 	if (hit->object->type == SPHERE)
-		comps.normalv = normal_at(&hit->object->sphere, &comps.point);
+	comps.normalv = normal_at(&hit->object->sphere, &comps.point);
 	else if (hit->object->type == PLANE)
-		comps.normalv = normal_at_plane(&hit->object->plane);
+	comps.normalv = normal_at_plane(&hit->object->plane);
 	else if (hit->object->type == CYLINDER)
-		comps.normalv = normal_at_cylinder(&hit->object->cylinder, &comps.point);
+	comps.normalv = normal_at_cylinder(&hit->object->cylinder, &comps.point);
 	comps.inside = false;
 	if (dot_product_tuple(&comps.normalv, &comps.eyev) < 0)
 	{
 		comps.inside = true;
 		comps.normalv = negate_tuple(&comps.normalv);
 	}
+	offset = multiply_tuple(&comps.normalv, SHADOW_EPSILON);
+	comps.over_point = add_tuple(&comps.point, &offset);
 	return (comps);
 }
 
 t_tuple	lighting(t_material *material, t_amb_light *amb_light,
-				t_spot_light *light, t_shader_computations *comps)
+				t_spot_light *light, t_shader_computations *comps, bool	in_shadow)
 {
 	t_tuple	ambient;
 	t_tuple	diffuse;
 	t_tuple	specular;
 	t_tuple	result;
 
-	comps->light_dir = calc_light_direction(&light->location, &comps->point);
 	ambient = calculate_ambient(material, amb_light);
+	if (in_shadow)
+		return (ambient);
+	comps->light_dir = calc_light_direction(&light->location, &comps->point);
 	diffuse = calculate_diffuse(material, light, comps);
 	specular = calculate_specular(material, light, comps);
 	result = add_tuple(&ambient, &diffuse);

@@ -27,6 +27,7 @@
 # define CANVAS_HEIGHT 3.0f
 # define WIDTH 1024
 # define EPSILON 0.00001
+# define SHADOW_EPSILON 0.001
 # define FLOAT_MAX 3.40282347e+38F
 # define MAX_LIGHTS 256
 # define MAX_OBJECTS 512
@@ -199,12 +200,12 @@ typedef struct s_amb_light
 typedef struct s_shader_computations
 {
 	t_tuple			point;
+	t_tuple			over_point;
 	t_tuple			eyev;
 	t_tuple			normalv;
 	t_tuple			reflectv;
 	t_tuple			color;
 	t_tuple			light_dir;
-	float			over_point;
 	float			ambient;
 	float			diffuse;
 	float			specular;
@@ -325,7 +326,7 @@ t_tuple				normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point);
 t_tuple				reflect(t_tuple *vec, t_tuple *normal);
 t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray);
 t_tuple				lighting(t_material *material, t_amb_light *amb_light,
-				t_spot_light *light, t_shader_computations *comps);
+				t_spot_light *light, t_shader_computations *comps, bool in_shadow);
 
 t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
 t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
@@ -347,6 +348,6 @@ t_tuple				calc_light_direction(t_tuple *light_pos, t_tuple *point);
 t_tuple				calculate_ambient(t_material *material, t_amb_light *amb_light);
 t_tuple				calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computations *comps);
 t_tuple				calculate_specular(t_material *material, t_spot_light *light, t_shader_computations *comps);
-
+bool				is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point);
 #endif
 
