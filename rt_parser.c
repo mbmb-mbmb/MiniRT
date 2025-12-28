@@ -130,10 +130,10 @@ static void	check_sphere(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = SPHERE;
-			phong_to_material(&obj->sphere.material);
+			phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT, sys);
 			i += parse_float(buffer + i, &obj->sphere.radius, 0.0f, FLOAT_MAX, sys);
-			i += parse_rgb(buffer + i, &obj->sphere.material.color, sys);
+			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
@@ -156,13 +156,13 @@ static void	check_cylinder(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = CYLINDER;
-			phong_to_material(&obj->cylinder.material);
+			phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, sys);
 			normalize_or_error(&obj->cylinder.rotation, sys);
 			i += parse_float(buffer + i, &obj->cylinder.diameter, 0.0f, FLOAT_MAX, sys);
 			i += parse_float(buffer + i, &obj->cylinder.length, 0.0f, FLOAT_MAX, sys);
-			i += parse_rgb(buffer + i, &obj->cylinder.material.color, sys);
+			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
@@ -186,11 +186,11 @@ static void	check_plane(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = PLANE;
-			phong_to_material(&obj->plane.material);
+			phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->plane.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR, sys);
 			normalize_or_error(&obj->plane.rotation, sys);
-			i += parse_rgb(buffer + i, &obj->plane.material.color, sys);
+			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}

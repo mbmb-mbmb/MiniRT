@@ -16,12 +16,12 @@ t_tuple	calculate_ambient(t_material *material, t_amb_light *amb_light)
 {
 	t_tuple	ambient;
 	t_tuple	color;
-	t_tuple	with_range;
+	t_tuple	final_ambient;
 
 	color = multiply_tuple_w_tuple(&material->color, &amb_light->color);
 	ambient = multiply_tuple(&color, material->ambient);
-	with_range = multiply_tuple(&ambient, amb_light->range);
-	return (with_range);
+	final_ambient = multiply_tuple(&ambient, amb_light->range);
+	return (final_ambient);
 }
 
 bool	is_light_behind_surface(t_tuple *light_dir, t_tuple *normal)
@@ -65,7 +65,7 @@ t_tuple	calculate_specular(t_material *material, t_spot_light *light, t_shader_c
 	return (specular);
 }
 
-t_tuple	calc_light_direction(t_tuple *light_pos, t_tuple *point)
+t_tuple	calculate_light_direction(t_tuple *light_pos, t_tuple *point)
 {
 	t_tuple	direction;
 

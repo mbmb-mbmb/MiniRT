@@ -36,7 +36,6 @@ bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
 	distance = magnitude_vector(&overpoint_to_light);
 	shadow_ray.direction = normalize_vector(&overpoint_to_light);
 	shadow_ray.origin = *over_point;
-	
 	shadow_inters = intersect_world(sys, &shadow_ray);
 	shadow_hit = hit(&shadow_inters);
 	if (shadow_hit != NULL && shadow_hit->t < distance)
@@ -44,7 +43,7 @@ bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
 	return (false);
 }
 
-t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray)
+t_shader_computations	prepare_shading_computations(t_intersection *hit, t_ray *world_ray)
 {
 	t_shader_computations	comps;
 	t_tuple					offset;
@@ -66,24 +65,4 @@ t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *w
 	offset = multiply_tuple(&comps.normalv, SHADOW_EPSILON);
 	comps.over_point = add_tuple(&comps.point, &offset);
 	return (comps);
-}
-
-t_tuple	lighting(t_material *material, t_amb_light *amb_light,
-				t_spot_light *light, t_shader_computations *comps, bool	in_shadow)
-{
-	t_tuple	ambient;
-	t_tuple	diffuse;
-	t_tuple	specular;
-	t_tuple	result;
-
-	ambient = calculate_ambient(material, amb_light);
-	if (in_shadow)
-		return (ambient);
-	comps->light_dir = calc_light_direction(&light->location, &comps->point);
-	diffuse = calculate_diffuse(material, light, comps);
-	specular = calculate_specular(material, light, comps);
-	result = add_tuple(&ambient, &diffuse);
-	result = add_tuple(&result, &specular);
-	result = clamp_tuple(&result, 0.0f, 1.0f);
-	return (result);
 }

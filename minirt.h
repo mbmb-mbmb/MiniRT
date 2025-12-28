@@ -95,8 +95,6 @@ typedef struct s_material
 
 typedef struct s_plane
 {
-	t_material		material;
-	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
 	t_mat			transform_to_world;
@@ -106,8 +104,6 @@ typedef struct s_plane
 
 typedef struct s_sphere
 {
-	t_material		material;
-	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
 	t_mat			transform_to_world;
@@ -118,8 +114,6 @@ typedef struct s_sphere
 
 typedef struct s_cylinder
 {
-	t_material		material;
-	t_obj_state		state;
 	t_tuple			location;
 	t_tuple			rotation;
 	t_mat			transform_to_world;
@@ -140,6 +134,7 @@ typedef enum e_type_flag
 typedef struct s_object
 {
 	t_type_flag	type;
+	t_material	material;
 	union {
 		t_plane		plane;
 		t_sphere	sphere;
@@ -161,16 +156,6 @@ typedef struct s_intersection_list
 	int				count;
 }					t_intersection_list;
 
-typedef struct s_world
-{
-	t_plane			heaven;
-	t_plane			ground;
-	t_plane			north;
-	t_plane			west;
-	t_plane			east;
-	t_plane			south;
-}					t_world;
-
 typedef struct s_camera
 {
 	t_tuple			location;
@@ -186,8 +171,6 @@ typedef struct s_spot_light
 {
 	float			range;
 	t_tuple			location;
-	t_tuple			rotation;
-	int				size;
 	t_tuple			color;
 }					t_spot_light;
 
@@ -222,7 +205,6 @@ typedef struct s_system
 	t_amb_light		amb_light;
 	t_spot_light	light_list[MAX_LIGHTS];
 	int				light_count;
-	t_world			world;
 }					t_system;
 
 typedef struct s_app
@@ -266,7 +248,6 @@ t_tuple				clamp_tuple(t_tuple *in, float min, float max);
 float				magnitude_vector(t_tuple *a);
 t_tuple				normalize_vector(t_tuple *a);
 float				dot_product_tuple(t_tuple *a, t_tuple *b);
-float				dot_product_tuple_naive(t_tuple *a, t_tuple *b);
 t_tuple				cross_product_tuple(t_tuple *a, t_tuple *b);
 int				classify_w(const t_tuple *t);
 int				canonical_w(int kind);
@@ -324,9 +305,7 @@ t_tuple				normal_at_plane(t_plane *plane);
 t_tuple				normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point);
 
 t_tuple				reflect(t_tuple *vec, t_tuple *normal);
-t_shader_computations	prepare_shading_computitions(t_intersection *hit, t_ray *world_ray);
-t_tuple				lighting(t_material *material, t_amb_light *amb_light,
-				t_spot_light *light, t_shader_computations *comps, bool in_shadow);
+t_shader_computations	prepare_shading_computations(t_intersection *hit, t_ray *world_ray);
 
 t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
 t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
@@ -344,7 +323,7 @@ t_tuple				color_at(t_system *sys, t_ray *ray);
 void				render(t_system *sys, mlx_image_t *img);
 
 /* lighting */
-t_tuple				calc_light_direction(t_tuple *light_pos, t_tuple *point);
+t_tuple				calculate_light_direction(t_tuple *light_pos, t_tuple *point);
 t_tuple				calculate_ambient(t_material *material, t_amb_light *amb_light);
 t_tuple				calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computations *comps);
 t_tuple				calculate_specular(t_material *material, t_spot_light *light, t_shader_computations *comps);
