@@ -49,7 +49,7 @@ int	parse_float(char *in, float *out, float min, float max, t_system *sys)
 	float	num;
 
 	i = skip_spaces(in);
-	num = atof(in + i);
+	num = ft_atof(in + i);
 	if (num < min || num > max)
 		error_parser("float out of range\n", sys);
 	*out = num;
