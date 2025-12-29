@@ -117,6 +117,7 @@ int	main(int argc, char **av)
 
 /*
 todo: 
+* camera around origin at runtime
 * unified error handling. Main and parser to same function.
 * error messages
 * flag system (might be ok as is)
