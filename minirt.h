@@ -267,10 +267,10 @@ t_tuple				col(t_mat *mat, int col);
 t_mat				multiply_matrices(t_mat *ina, t_mat *inb);
 t_tuple				multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in);
 t_mat				transpose_matrix(t_mat *mat, int dim);
-t_mat				submatrix(t_mat *mat, int row, int col, int dim);
-float				determinant(t_mat *mat, int dim);
-float				cofactor_one_cell(t_mat *mat, int i, int j, int dim);
-t_mat				invert_matrix(t_mat *mat);
+// t_mat				submatrix(t_mat *mat, int row, int col, int dim);
+// float				determinant(t_mat *mat, int dim);
+// float				cofactor_one_cell(t_mat *mat, int i, int j, int dim);
+t_mat				invert_matrix(t_mat *m);
 bool				matrices_are_equal(t_mat *a, t_mat *b);
 
 /* rays */
