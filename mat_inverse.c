@@ -69,7 +69,9 @@ float	determinant(t_mat *mat, int dim)
 	while (col < dim)
 	{
 		sub = submatrix(mat, 0, col, dim);
-		sign = ((0 + col) % 2 == 0) ? 1.0f : -1.0f;
+		sign = 1.0f;
+		if ((0 + col) % 2 != 0)
+			sign = -1.0f;
 		det_term = determinant(&sub, dim - 1);
 		det += sign * mat->m[0][col] * det_term;
 		col++;
@@ -85,7 +87,10 @@ float	cofactor_one_cell(t_mat *mat, int i, int j, int dim)
 
 	sub = submatrix(mat, i, j, dim);
 	c = determinant(&sub, dim - 1);
-	sign = ((i + j) % 2 == 0) ? 1.0f : -1.0f;
+
+	sign = 1.0f;
+	if ((i + j) % 2 != 0)
+		sign = -1.0f;
 	return (c * sign);
 }
 
