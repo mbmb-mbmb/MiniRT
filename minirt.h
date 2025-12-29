@@ -215,12 +215,12 @@ typedef struct s_app
 }					t_app;
 
 /* parser utilities */
-void				error_parser(char *print, t_system *sys);
+int					parse_fov(char *in, int *value, t_system *sys);
+int					parse_int(char *in, int *value, t_system *sys);
 int					skip_spaces(const char *str);
 int					skip_commas(char *buffer, t_system *sys);
 int					skip_float(char *buffer);
 int					skip_to_end(char *buffer, t_system *sys);
-int					parse_int(char *in, int *value, int min, int max, t_system *sys);
 int					parse_float(char *in, float *out, float min, float max, t_system *sys);
 int					parse_rgb(char *buffer, t_tuple *color, t_system *sys);
 int					parse_xyz(char *buffer, t_tuple *tuple, float w, t_system *sys);
@@ -328,5 +328,8 @@ t_tuple				calculate_ambient(t_material *material, t_amb_light *amb_light);
 t_tuple				calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computations *comps);
 t_tuple				calculate_specular(t_material *material, t_spot_light *light, t_shader_computations *comps);
 bool				is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point);
+
+/* error */
+void				error_exit(char *msg, t_system *sys);
 #endif
 
