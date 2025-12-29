@@ -1,27 +1,48 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   rt_parser.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:33:28 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
-static void	phong_to_material(t_material *material)
+static void	normalize_or_error(t_tuple *vec, t_system *sys)
 {
-	material->ambient = MATERIAL_AMBIENT;
-	material->diffuse = MATERIAL_DIFFUSE;
-	material->specular = MATERIAL_SPECULAR;
-	material->shininess = MATERIAL_SHININESS;
+	float	len;
+
+	len = magnitude_vector(vec);
+	if (len < EPSILON)
+	{
+		error_parser("Vector is a zero vector\n", sys);
+		return ;
+	}
+	if (fabsf(len - 1.0f) > 0.01f)
+	{
+		printf("Warning: vector not normalized (len=%.3f), normalizing...\n", len);
+		*vec = normalize_vector(vec);
+	}
 }
 
-static void	check_AmbLight(char *buffer, t_system *sys)
+static void	check_ambient_light(char *buffer, t_system *sys)
 {
 	int	i;
-	int	A_found;
+	int	a_found;
 
 	i = 0;
-	A_found = 0;
+	a_found = 0;
 	while (buffer[i])
 	{
 		if (buffer[i] == 'A' && (i == 0 || buffer[i-1] == '\n'))
 		{
-			A_found++;
+			a_found++;
 			i++;
-			if (A_found > 1)
+			if (a_found > 1)
 				error_parser("Only one ambient light (A) allowed.\n", sys);
 			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0, sys);
 			i += parse_rgb(buffer + i, &sys->amb_light.color, sys);
@@ -30,36 +51,35 @@ static void	check_AmbLight(char *buffer, t_system *sys)
 		}
 		i++;
 	}
-	if (A_found == 0)
-	error_parser(NULL, sys);
+	if (a_found == 0)
+		error_parser(NULL, sys);
 }
 
 static void	check_camera(char *buffer, t_system *sys)
 {
 	int	i;
-	int	C_found;
+	int	c_found;
 
 	i = 0;
-	C_found = 0;
+	c_found = 0;
 	while (buffer[i])
 	{
 		if (buffer[i] == 'C' && (i == 0 || buffer[i-1] == '\n'))
 		{
-			C_found++;
+			c_found++;
 			i++;
-			if (C_found > 1)
+			if (c_found > 1)
 				error_parser("Only one camera (C) allowed.\n", sys);
 			i += parse_xyz(buffer + i, &sys->camera.location, POINT, sys);
 			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR, sys);
-			if (magnitude_vector(&sys->camera.rotation) > 1.0)
-				error_parser("TODO: vector not normalized error", sys);
+			normalize_or_error(&sys->camera.rotation, sys);
 			i += parse_int(buffer + i, &sys->camera.fov, 0, 180, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
 		i++;
 	}
-	if (C_found == 0)
+	if (c_found == 0)
 		error_parser(NULL, sys);
 }
 
@@ -68,7 +88,7 @@ static void	check_lights(char *buffer, t_system *sys)
 {
 	int				i;
 	t_spot_light	*light;
-	
+
 	i = 0;
 	while (buffer[i])
 	{
@@ -99,7 +119,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 {
 	int				i;
 	t_object		*obj;
-	
+
 	i = 0;
 	while (buffer[i])
 	{
@@ -110,10 +130,10 @@ static void	check_sphere(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = SPHERE;
-			phong_to_material(&obj->sphere.material);
+			phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT, sys);
-			i += parse_float(buffer + i, &obj->sphere.radius, -FLOAT_MAX, FLOAT_MAX, sys);
-			i += parse_rgb(buffer + i, &obj->sphere.material.color, sys);
+			i += parse_float(buffer + i, &obj->sphere.radius, 0.0f, FLOAT_MAX, sys);
+			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
@@ -136,14 +156,13 @@ static void	check_cylinder(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = CYLINDER;
-			phong_to_material(&obj->cylinder.material);
+			phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, sys);
-			if (magnitude_vector(&sys->camera.rotation) > 1.0)
-				error_parser("TODO: vector not normalized error", sys);
-			i += parse_float(buffer + i, &obj->cylinder.diameter, -FLOAT_MAX, FLOAT_MAX, sys);
-			i += parse_float(buffer + i, &obj->cylinder.length, -FLOAT_MAX, FLOAT_MAX, sys);
-			i += parse_rgb(buffer + i, &obj->cylinder.material.color, sys);
+			normalize_or_error(&obj->cylinder.rotation, sys);
+			i += parse_float(buffer + i, &obj->cylinder.diameter, 0.0f, FLOAT_MAX, sys);
+			i += parse_float(buffer + i, &obj->cylinder.length, 0.0f, FLOAT_MAX, sys);
+			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
@@ -167,12 +186,11 @@ static void	check_plane(char *buffer, t_system *sys)
 				error_parser("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = PLANE;
-			phong_to_material(&obj->plane.material);
+			phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->plane.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR, sys);
-			if (magnitude_vector(&sys->camera.rotation) > 1.0)
-				error_parser("TODO: vector not normalized error", sys);
-			i += parse_rgb(buffer + i, &obj->plane.material.color, sys);
+			normalize_or_error(&obj->plane.rotation, sys);
+			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
@@ -183,21 +201,23 @@ static void	check_plane(char *buffer, t_system *sys)
 void	rt_parser(char *input, t_system *sys)
 {
 	int		fd;
-	char	buffer[2096];
+	char	buffer[4096];
 	int		bytes_read;
 	char	buffer_overflow;
 
 	if (!check_extension(input))
-		error_parser("Error: File must have .rt extension\n", sys);
+		error_parser("File must have .rt extension\n", sys);
 	fd = open(input, O_RDONLY);
 	if (fd == -1)
-		error_parser("Error: Cannot open file\n", sys);
+		error_parser("Cannot open file\n", sys);
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
 	if(read(fd, &buffer_overflow, 1) > 0)
-		error_parser("Error: File is too large\n", sys);
+		error_parser("File is too large\n", sys);
+	if (bytes_read < 0)
+		error_parser("Cannot read file\n", sys);
 	buffer[bytes_read] = '\0';
 	close(fd);
-	check_AmbLight(buffer, sys);
+	check_ambient_light(buffer, sys);
 	check_camera(buffer, sys);
 	sys->light_count = 0;
 	check_lights(buffer, sys);

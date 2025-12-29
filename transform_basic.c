@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   transform_basic.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:08:40 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:08:41 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
 t_mat	translation(float x, float y, float z)
@@ -22,18 +34,37 @@ t_mat	scaling(float x, float y, float z)
 	return (mat);
 }
 
-t_mat	rotation_from_tuple(t_tuple *angles)
+static t_tuple	pick_non_parallel_vector(t_tuple *axis)
 {
-	t_mat	rot_x;
-	t_mat	rot_y;
-	t_mat	rot_z;
-	t_mat	rot_temp;
+	if (fabsf(axis->x) < 0.9f)
+		return (create_vector(1, 0, 0));
+	return (create_vector(0, 0, 1));
+}
 
-	rot_x = rotate_x(angles->x);
-	rot_y = rotate_y(angles->y);
-	rot_z = rotate_z(angles->z);
-	rot_temp = multiply_matrices(&rot_y, &rot_x);
-	return (multiply_matrices(&rot_z, &rot_temp));
+t_mat	rotation_from_axis(t_tuple *axis)
+{
+	t_tuple	up;
+	t_tuple	arbitrary;
+	t_tuple	right;
+	t_tuple	forward;
+	t_mat	rot;
+
+	up = normalize_vector(axis);
+	arbitrary = pick_non_parallel_vector(&up);
+	right = cross_product_tuple(&arbitrary, &up);
+	right = normalize_vector(&right);
+	forward = cross_product_tuple(&up, &right);
+	rot = create_identity_matrix(4);
+	rot.m[0][0] = right.x;
+	rot.m[1][0] = right.y;
+	rot.m[2][0] = right.z;
+	rot.m[0][1] = up.x;
+	rot.m[1][1] = up.y;
+	rot.m[2][1] = up.z;
+	rot.m[0][2] = forward.x;
+	rot.m[1][2] = forward.y;
+	rot.m[2][2] = forward.z;
+	return (rot);
 }
 
 t_mat	skew(float xy, float xz, float yx, float yz, float zx, float zy)
@@ -67,5 +98,12 @@ void	set_transform(t_object *obj, t_mat *transform)
 		inverse = invert_matrix(transform);
 		obj->plane.inv_transform_to_obj = inverse;
 		obj->plane.is_transformed = true;
+	}
+	else if (obj->type == CYLINDER)
+	{
+		obj->cylinder.transform_to_world = *transform;
+		inverse = invert_matrix(transform);
+		obj->cylinder.inv_transform_to_obj = inverse;
+		obj->cylinder.is_transformed = true;
 	}
 }

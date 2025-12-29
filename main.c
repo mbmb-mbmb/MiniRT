@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:07:14 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:07:15 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
-static void ft_error(int error_code)
+static void	ft_error(int error_code)
 {
 	exit(error_code);
 }
@@ -87,7 +99,7 @@ int	main(int argc, char **av)
 	init_system(&app.system);
 	app.system.state |= PARSING;
 	rt_parser(av[1], &app.system);
-	prepare_scene(&app.system);  //dunno if this is part of parsing or init.
+	prepare_scene(&app.system);
 	app.system.state &= ~PARSING;
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
@@ -103,10 +115,11 @@ int	main(int argc, char **av)
 	return (code);
 }
 
-
 /*
-TODO: 
-* multiple lights, should be pretty similar to looping trough the object list. Dunno.
-* floor
-	implement the floor plane
+todo: 
+* unified error handling. Main and parser to same function.
+* error messages
+* flag system (might be ok as is)
+* runtime modifications to objects.
+* ft_atof norminette check
 */

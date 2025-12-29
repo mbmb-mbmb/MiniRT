@@ -24,7 +24,7 @@ SRC		= main.c rt_parser.c parser_utils.c parser_helpers.c \
 		  transform_basic.c transform_rotate.c \
 		  lighting.c lighting_components.c \
 		  camera.c render.c ray.c \
-		  intersect_sphere.c intersect_plane.c intersect_world.c \
+		  intersect_sphere.c intersect_plane.c intersect_cylinder.c intersect_world.c \
 		  system_init.c normal.c color.c point_basic.c
 OBJS	= $(SRC:.c=.o)
 

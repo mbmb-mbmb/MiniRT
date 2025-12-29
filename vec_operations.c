@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   vec_operations.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:09:04 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:09:05 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
 t_tuple	normalize_vector(t_tuple *a)
@@ -30,12 +42,6 @@ float	dot_product_tuple(t_tuple *a, t_tuple *b)
 		return (0.0f);
 	return (a->x * b->x + a->y * b->y + a->z * b->z);
 }
-
-float	dot_product_tuple_naive(t_tuple *a, t_tuple *b)
-{
-	return (a->x * b->x + a->y * b->y + a->z * b->z + a->w * b->w);
-}
-
 t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 {
 	t_tuple	v_result;

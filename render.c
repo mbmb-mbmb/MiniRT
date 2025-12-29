@@ -1,29 +1,60 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   render.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:08:24 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:08:25 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
+
+static t_tuple	shade_hit(t_system *sys, t_material *mat,
+				t_shader_computations *comps)
+{
+	t_tuple	color;
+	t_tuple	contrib;
+	int		i;
+
+	color = calculate_ambient(mat, &sys->amb_light);
+	i = 0;
+	while (i < sys->light_count)
+	{
+		if (!is_shadowed(sys, &sys->light_list[i].location, &comps->over_point))
+		{
+			comps->light_dir = calculate_light_direction(
+					&sys->light_list[i].location, &comps->point);
+			contrib = calculate_diffuse(mat, &sys->light_list[i], comps);
+			color = add_tuple(&color, &contrib);
+			contrib = calculate_specular(mat, &sys->light_list[i], comps);
+			color = add_tuple(&color, &contrib);
+		}
+		i++;
+	}
+	return (color);
+}
 
 t_tuple	color_at(t_system *sys, t_ray *ray)
 {
-	t_intersection_list	intersections;
+	t_intersection_list		intersections;
 	t_shader_computations	comps;
-	t_intersection		*closest_hit;
-	t_tuple				color;
+	t_intersection			*closest_hit;
+	t_material				*mat;
+	t_tuple					color;
 
 	intersections = intersect_world(sys, ray);
 	closest_hit = hit(&intersections);
 	if (closest_hit == NULL)
-		return (create_vector(0, 0, 0));
-	comps = prepare_shading_computitions(closest_hit, ray);
-	if (closest_hit->object->type == SPHERE)
-		color = lighting(&closest_hit->object->sphere.material,
-					&sys->amb_light,
-					&sys->light_list[0],
-					&comps);
-	else if (closest_hit->object->type == PLANE)
-		color = lighting(&closest_hit->object->plane.material,
-					&sys->amb_light,
-					&sys->light_list[0],
-					&comps);
-	else
-		color = create_color(0, 0, 0, 255);
+		return (create_color(0, 0, 0, 1));
+	mat = &closest_hit->object->material;
+	if (mat == NULL)
+		return (create_color(0, 0, 0, 1));
+	comps = prepare_shading_computations(closest_hit, ray);
+	color = shade_hit(sys, mat, &comps);
+	color = clamp_tuple(&color, 0.0f, 1.0f);
 	color.w = 1.0f;
 	return (color);
 }

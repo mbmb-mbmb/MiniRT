@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_utils.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/26 16:08:10 by mbonsdor          #+#    #+#             */
+/*   Updated: 2025/12/26 16:08:11 by mbonsdor         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minirt.h"
 
 void	error_parser(char *print, t_system *sys)
@@ -21,6 +33,10 @@ int	parse_int(char *in, int *value, int min, int max, t_system *sys)
 	num = ft_atoi(in + i);
 	if (num < min || num > max)
 		error_parser("Integer out of range\n", sys);
+	if (num == 0)
+		num = 1;
+	if (num == 180)
+		num = 179;
 	*value = num;
 	while (in[i] == '-' || in[i] == '+' || ft_isdigit(in[i]))
 		i++;
@@ -33,7 +49,7 @@ int	parse_float(char *in, float *out, float min, float max, t_system *sys)
 	float	num;
 
 	i = skip_spaces(in);
-	num = atof(in + i);
+	num = ft_atof(in + i);
 	if (num < min || num > max)
 		error_parser("float out of range\n", sys);
 	*out = num;
