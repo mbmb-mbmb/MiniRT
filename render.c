@@ -72,7 +72,7 @@ void	render(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < (int)img->width)
 		{
-			ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y, img);
+			ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y);
 			color = color_at(sys, &ray);
 			mlx_put_pixel(img, x, y, tuple_to_rgba(&color));
 			x++;

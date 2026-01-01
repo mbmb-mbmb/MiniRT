@@ -59,6 +59,7 @@ void	resize_callback(int32_t width, int32_t height, void *param)
 	if (mlx_image_to_window(app->mlx, app->img, 0, 0) < 0)
 		return ;
 	sys->camera.aspect_ratio = (float)width / (float)height;
+	init_canvas_dimensions(&sys->camera, width);
 	sys->state &= ~RENDER_COMPLETE;
 }
 

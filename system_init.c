@@ -25,12 +25,16 @@ void	camera_transform(t_camera *camera)
 	t_tuple	from;
 	t_tuple	to;
 	t_tuple	up;
+	t_tuple	camera_obj_origin;
 
 	from = camera->location;
 	to = add_tuple(&from, &camera->rotation);
 	up = create_vector(0, 1, 0);
 	camera->transform = view_transform(&from, &to, &up);
 	camera->inverse = invert_matrix(&camera->transform);
+	camera_obj_origin = (t_tuple){0.0f, 0.0f, 0.0f, POINT};
+	camera->world_origin = multiply_matrix_and_tuple(&camera->inverse,
+			&camera_obj_origin);
 }
 
 void	setup_sphere_transform(t_object *obj)
@@ -83,11 +87,30 @@ void	transform_cylinder(t_object *obj)
 	set_transform(obj, &transform);
 }
 
+void	init_canvas_dimensions(t_camera *camera, uint32_t img_width)
+{
+	float	half_view;
+
+	half_view = tanf(degrees_to_radians((float)camera->fov) / 2.0f);
+	if (camera->aspect_ratio >= 1.0f)
+	{
+		camera->canvas_dims.half_width = half_view;
+		camera->canvas_dims.half_height = half_view / camera->aspect_ratio;
+	}
+	else
+	{
+		camera->canvas_dims.half_width = half_view * camera->aspect_ratio;
+		camera->canvas_dims.half_height = half_view;
+	}
+	camera->canvas_dims.pixel_size = (camera->canvas_dims.half_width * 2.0f) / (float)img_width;
+}
+
 void	prepare_scene(t_system *sys)
 {
 	int	i;
 
 	camera_transform(&sys->camera);
+	init_canvas_dimensions(&sys->camera, WIDTH);
 	i = 0;
 	while (i < sys->object_count)
 	{

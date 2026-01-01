@@ -156,15 +156,24 @@ typedef struct s_intersection_list
 	int				count;
 }					t_intersection_list;
 
+typedef struct s_canvas_dims
+{
+	float			half_width;
+	float			half_height;
+	float			pixel_size;
+}	t_canvas_dims;
+
 typedef struct s_camera
 {
 	t_tuple			location;
 	t_tuple			rotation;
-	t_sphere		sphere;
+	t_tuple			world_origin;
+	//t_sphere		sphere;
 	int				fov;
 	float			aspect_ratio;
 	t_mat			transform;
 	t_mat			inverse;
+	t_canvas_dims	canvas_dims;
 }					t_camera;
 
 typedef struct s_spot_light
@@ -307,11 +316,12 @@ t_tuple				normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point);
 t_tuple				reflect(t_tuple *vec, t_tuple *normal);
 t_shader_computations	prepare_shading_computations(t_intersection *hit, t_ray *world_ray);
 
-t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
-t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img);
+t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y);
+t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y);
 
 /* scene setup */
 void				init_system(t_system *sys);
+void				init_canvas_dimensions(t_camera *camera, uint32_t img_width);
 void				camera_transform(t_camera *camera);
 void				setup_sphere_transform(t_object *obj);
 void				transform_plane(t_object *obj);
