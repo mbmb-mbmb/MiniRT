@@ -32,8 +32,13 @@ static void	calc_subdets_bot(t_mat *m, float subdets_23[6])
 	subdets_23[5] = m->m[2][2] * m->m[3][3] - m->m[3][2] * m->m[2][3];
 }
 
-static void	build_inverse_matrix(t_mat *inv, t_mat *m, float t[6], float b[6], float inv_det)
+static void	build_inverse_matrix(t_mat *inv, t_mat *m, float inv_det)
 {
+	float	t[6];
+	float	b[6];
+
+	calc_subdets_top(m, t);
+	calc_subdets_bot(m, b);
 	inv->type = FOUR;
 	inv->m[0][0] = (m->m[1][1] * b[5] - m->m[1][2] * b[4] + m->m[1][3] * b[3]) * inv_det;
 	inv->m[0][1] = (-m->m[0][1] * b[5] + m->m[0][2] * b[4] - m->m[0][3] * b[3]) * inv_det;
@@ -67,7 +72,7 @@ t_mat	invert_matrix(t_mat *m)
 	if (is_float_zero(det))
 		return (create_identity_matrix(4));
 	det = 1.0f / det;
-	build_inverse_matrix(&inv, m, subdets_01, subdets_23, det);
+	build_inverse_matrix(&inv, m, det);
 	set_matrix_dim(&inv, 4);
 	return (inv);
 }
