@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:33:28 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 12:17:18 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static void	check_ambient_light(char *buffer, t_system *sys)
 	a_found = 0;
 	while (buffer[i])
 	{
-		if (buffer[i] == 'A' && (i == 0 || buffer[i-1] == '\n'))
+		if (buffer[i] == 'A' && (i == 0 || buffer[i - 1] == '\n'))
 		{
 			a_found++;
 			i++;
@@ -64,7 +64,7 @@ static void	check_camera(char *buffer, t_system *sys)
 	c_found = 0;
 	while (buffer[i])
 	{
-		if (buffer[i] == 'C' && (i == 0 || buffer[i-1] == '\n'))
+		if (buffer[i] == 'C' && (i == 0 || buffer[i - 1] == '\n'))
 		{
 			c_found++;
 			i++;
@@ -83,7 +83,6 @@ static void	check_camera(char *buffer, t_system *sys)
 		error_exit("No camera (C) found.\n", sys);
 }
 
-
 static void	check_lights(char *buffer, t_system *sys)
 {
 	int				i;
@@ -92,7 +91,7 @@ static void	check_lights(char *buffer, t_system *sys)
 	i = 0;
 	while (buffer[i])
 	{
-		if (buffer[i] == 'L' && (i == 0 || buffer[i-1] == '\n'))
+		if (buffer[i] == 'L' && (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i++;
 			if (sys->light_count >= MAX_LIGHTS)
@@ -107,6 +106,7 @@ static void	check_lights(char *buffer, t_system *sys)
 		i++;
 	}
 }
+
 void	phong_to_material(t_material *material)
 {
 	material->ambient = MATERIAL_AMBIENT;
@@ -123,7 +123,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 	i = 0;
 	while (buffer[i])
 	{
-		if (ft_strncmp(buffer + i, "sp", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))
+		if (ft_strncmp(buffer + i, "sp", 2) == 0 && (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
@@ -149,7 +149,7 @@ static void	check_cylinder(char *buffer, t_system *sys)
 	i = 0;
 	while (buffer[i])
 	{
-		if (ft_strncmp(buffer + i, "cy", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))
+		if (ft_strncmp(buffer + i, "cy", 2) == 0 && (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
@@ -166,7 +166,6 @@ static void	check_cylinder(char *buffer, t_system *sys)
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
-
 		i++;
 	}
 }
@@ -179,7 +178,7 @@ static void	check_plane(char *buffer, t_system *sys)
 	i = 0;
 	while (buffer[i])
 	{
-		if (ft_strncmp(buffer + i, "pl", 2) == 0 && (i == 0 || buffer[i-1] == '\n'))
+		if (ft_strncmp(buffer + i, "pl", 2) == 0 && (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
@@ -211,7 +210,7 @@ void	rt_parser(char *input, t_system *sys)
 	if (fd == -1)
 		error_exit("Cannot open file\n", sys);
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
-	if(read(fd, &buffer_overflow, 1) > 0)
+	if (read(fd, &buffer_overflow, 1) > 0)
 		error_exit("File is too large\n", sys);
 	if (bytes_read < 0)
 		error_exit("Cannot read file\n", sys);

@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:04 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:08:05 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 12:03:33 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@ int	skip_float(char *buffer)
 	return (i);
 }
 
-int skip_to_end(char *buffer, t_system *sys)
+int	skip_to_end(char *buffer, t_system *sys)
 {
-	int i;
+	int	i;
 
 	i = skip_spaces(buffer);
 	if (buffer[i] == '\n')

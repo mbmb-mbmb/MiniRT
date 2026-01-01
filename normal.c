@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:07:59 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:08:00 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 12:13:48 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,4 +62,3 @@ t_tuple	normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point)
 	world_normal.w = VECTOR;
 	return (normalize_vector(&world_normal));
 }
-

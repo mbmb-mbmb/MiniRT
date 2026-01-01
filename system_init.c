@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:34 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:08:35 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 12:18:47 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ void	setup_sphere_transform(t_object *obj)
 	t_mat	transform;
 
 	trans = translation(obj->sphere.location.x,
-						obj->sphere.location.y,
-						obj->sphere.location.z);
+			obj->sphere.location.y,
+			obj->sphere.location.z);
 	scale = scaling(obj->sphere.radius,
-					obj->sphere.radius,
-					obj->sphere.radius);
+			obj->sphere.radius,
+			obj->sphere.radius);
 	transform = multiply_matrices(&trans, &scale);
 	set_transform(obj, &transform);
 }
@@ -56,8 +56,8 @@ void	transform_plane(t_object *obj)
 	t_mat	transform;
 
 	world_location = translation(obj->plane.location.x,
-								 obj->plane.location.y,
-								 obj->plane.location.z);
+			obj->plane.location.y,
+			obj->plane.location.z);
 	rotation = rotation_from_axis(&obj->plane.rotation);
 	transform = multiply_matrices(&world_location, &rotation);
 	set_transform(obj, &transform);
@@ -74,8 +74,8 @@ void	transform_cylinder(t_object *obj)
 
 	radius = obj->cylinder.diameter / 2.0f;
 	trans = translation(obj->cylinder.location.x,
-						obj->cylinder.location.y,
-						obj->cylinder.location.z);
+			obj->cylinder.location.y,
+			obj->cylinder.location.z);
 	rotation = rotation_from_axis(&obj->cylinder.rotation);
 	scale = scaling(radius, obj->cylinder.length / 2.0f, radius);
 	temp = multiply_matrices(&rotation, &scale);

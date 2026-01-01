@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:05:52 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:05:53 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 12:13:19 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,8 @@ t_mat	view_transform(t_tuple *eye, t_tuple *target, t_tuple *up)
 	return (multiply_matrices(&orientation, &translate));
 }
 
-t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img)
+t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y,
+								mlx_image_t *img)
 {
 	float	half_view;
 	float	half_width;
@@ -75,7 +76,8 @@ t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y, mlx_im
 	return (create_point(world_x, world_y, -1.0f));
 }
 
-t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img)
+t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y,
+						mlx_image_t *img)
 {
 	t_ray	ray;
 	t_tuple	pixel_on_canvas;
@@ -87,7 +89,8 @@ t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y, mlx_image_t *img)
 	pixel_on_canvas = compute_pixel_on_canvas(camera, x, y, img);
 	pixel_in_world = multiply_matrix_and_tuple(&camera->inverse, &pixel_on_canvas);
 	camera_obj_origin = (t_tuple){0.0f, 0.0f, 0.0f, POINT};
-	origin_in_world = multiply_matrix_and_tuple(&camera->inverse, &camera_obj_origin);
+	origin_in_world = multiply_matrix_and_tuple(&camera->inverse,
+			&camera_obj_origin);
 	direction = subtract_tuple(&pixel_in_world, &origin_in_world);
 	ray.origin = origin_in_world;
 	ray.direction = normalize_vector(&direction);

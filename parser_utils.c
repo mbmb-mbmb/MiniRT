@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:10 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:08:11 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 12:04:10 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,5 +93,3 @@ int	parse_xyz(char *buffer, t_tuple *tuple, float w, t_system *sys)
 	tuple->w = w;
 	return (i);
 }
-
-
