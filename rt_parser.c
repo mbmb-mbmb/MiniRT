@@ -44,7 +44,7 @@ static void	check_ambient_light(char *buffer, t_system *sys)
 			i++;
 			if (a_found > 1)
 				error_exit("Only one ambient light (A) allowed.\n", sys);
-			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0, sys);
+			i += parse_float(buffer + i, &sys->amb_light.range, RATIO_0_1, sys);
 			i += parse_rgb(buffer + i, &sys->amb_light.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
@@ -98,7 +98,7 @@ static void	check_lights(char *buffer, t_system *sys)
 				error_exit("Too many lights.\n", sys);
 			light = &sys->light_list[sys->light_count++];
 			i += parse_xyz(buffer + i, &light->location, POINT, sys);
-			i += parse_float(buffer + i, &light->range, 0.0, 1.0, sys);
+			i += parse_float(buffer + i, &light->range, RATIO_0_1, sys);
 			i += parse_rgb(buffer + i, &light->color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
@@ -132,7 +132,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 			obj->type = SPHERE;
 			phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT, sys);
-			i += parse_float(buffer + i, &obj->sphere.radius, 0.0f, FLOAT_MAX, sys);
+			i += parse_float(buffer + i, &obj->sphere.radius, POSITIVE, sys);
 			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
@@ -160,8 +160,8 @@ static void	check_cylinder(char *buffer, t_system *sys)
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, sys);
 			normalize_or_error(&obj->cylinder.rotation, sys);
-			i += parse_float(buffer + i, &obj->cylinder.diameter, 0.0f, FLOAT_MAX, sys);
-			i += parse_float(buffer + i, &obj->cylinder.length, 0.0f, FLOAT_MAX, sys);
+			i += parse_float(buffer + i, &obj->cylinder.diameter, POSITIVE, sys);
+			i += parse_float(buffer + i, &obj->cylinder.length, POSITIVE, sys);
 			i += parse_rgb(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
@@ -197,6 +197,18 @@ static void	check_plane(char *buffer, t_system *sys)
 	}
 }
 
+static void	check_objects(char *buffer, t_system *sys)
+{
+	check_ambient_light(buffer, sys);
+	check_camera(buffer, sys);
+	sys->light_count = 0;
+	check_lights(buffer, sys);
+	sys->object_count = 0;
+	check_sphere(buffer, sys);
+	check_cylinder(buffer, sys);
+	check_plane(buffer, sys);
+	ft_putstr_fd("Inputfile OK!\n", 1);
+}
 void	rt_parser(char *input, t_system *sys)
 {
 	int		fd;
@@ -216,13 +228,5 @@ void	rt_parser(char *input, t_system *sys)
 		error_exit("Cannot read file\n", sys);
 	buffer[bytes_read] = '\0';
 	close(fd);
-	check_ambient_light(buffer, sys);
-	check_camera(buffer, sys);
-	sys->light_count = 0;
-	check_lights(buffer, sys);
-	sys->object_count = 0;
-	check_sphere(buffer, sys);
-	check_cylinder(buffer, sys);
-	check_plane(buffer, sys);
-	ft_putstr_fd("Inputfile OK!\n", 1);
+	check_objects(buffer, sys);
 }

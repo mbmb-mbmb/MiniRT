@@ -58,6 +58,13 @@ typedef enum e_matrix_type
 	TWO
 }	t_matrix_type;
 
+typedef enum e_float_check
+{
+	ANY,
+	POSITIVE,
+	RATIO_0_1
+}	t_float_check;
+
 typedef	struct s_mat
 {
 	t_matrix_type	type;
@@ -163,6 +170,13 @@ typedef struct s_canvas_dims
 	float			pixel_size;
 }	t_canvas_dims;
 
+typedef struct s_transform_components
+{
+	t_mat	translation_mat;
+	t_mat	rotation_mat;
+	t_mat	scale_mat;
+}	t_transform_components;
+
 typedef struct s_camera
 {
 	t_tuple			location;
@@ -230,7 +244,7 @@ int					skip_spaces(const char *str);
 int					skip_commas(char *buffer, t_system *sys);
 int					skip_float(char *buffer);
 int					skip_to_end(char *buffer, t_system *sys);
-int					parse_float(char *in, float *out, float min, float max, t_system *sys);
+int					parse_float(char *in, float *out, t_float_check check, t_system *sys);
 int					parse_rgb(char *buffer, t_tuple *color, t_system *sys);
 int					parse_xyz(char *buffer, t_tuple *tuple, float w, t_system *sys);
 int					check_extension(char *filename);

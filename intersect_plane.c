@@ -12,11 +12,6 @@
 
 #include "minirt.h"
 
-/*
- * Computes the intersection of a ray with an infinite plane.
- * The plane is at y=0 with normal pointing up (0,1,0) in object space.
- * Returns empty list if ray is parallel to plane.
- */
 void	intersect_plane(t_ray *ray, t_intersection_list *list)
 {
 	if (is_float_equal(ray->direction.y, 0.0f))

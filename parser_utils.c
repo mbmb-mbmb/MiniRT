@@ -46,16 +46,18 @@ int	parse_fov(char *in, int *value, t_system *sys)
 	return (i);
 }
 
-int	parse_float(char *in, float *out, float min, float max, t_system *sys)
+int	parse_float(char *in, float *out, t_float_check check, t_system *sys)
 {
 	int		i;
-	float	num;
 
 	i = skip_spaces(in);
-	num = ft_atof(in + i);
-	if (num < min || num > max)
-		error_exit("float out of range\n", sys);
-	*out = num;
+	*out = ft_atof(in + i);
+	if (*out < -FLOAT_MAX || *out > FLOAT_MAX)
+		error_exit("Float overflow\n", sys);
+	if (check == POSITIVE && *out < 0.0f)
+		error_exit("Value must be positive\n", sys);
+	else if (check == RATIO_0_1 && (*out < 0.0f || *out > 1.0f))
+		error_exit("Value must be between 0 and 1\n", sys);
 	i += skip_float(in + i);
 	return (i);
 }
@@ -85,11 +87,11 @@ int	parse_xyz(char *buffer, t_tuple *tuple, float w, t_system *sys)
 	int	i;
 
 	i = 0;
-	i += parse_float(buffer + i, &tuple->x, -FLOAT_MAX, FLOAT_MAX, sys);
+	i += parse_float(buffer + i, &tuple->x, ANY, sys);
 	i += skip_commas(buffer + i, sys);
-	i += parse_float(buffer + i, &tuple->y, -FLOAT_MAX, FLOAT_MAX, sys);
+	i += parse_float(buffer + i, &tuple->y, ANY, sys);
 	i += skip_commas(buffer + i, sys);
-	i += parse_float(buffer + i, &tuple->z, -FLOAT_MAX, FLOAT_MAX, sys);
+	i += parse_float(buffer + i, &tuple->z, ANY, sys);
 	tuple->w = w;
 	return (i);
 }

@@ -39,52 +39,47 @@ void	camera_transform(t_camera *camera)
 
 void	setup_sphere_transform(t_object *obj)
 {
-	t_mat	trans;
-	t_mat	scale;
-	t_mat	transform;
+	t_transform_components	trs;	
+	t_mat					temp;
 
-	trans = translation(obj->sphere.location.x,
+	trs.translation_mat = translation(obj->sphere.location.x,
 			obj->sphere.location.y,
 			obj->sphere.location.z);
-	scale = scaling(obj->sphere.radius,
+	trs.scale_mat = scaling(obj->sphere.radius,
 			obj->sphere.radius,
 			obj->sphere.radius);
-	transform = multiply_matrices(&trans, &scale);
-	set_transform(obj, &transform);
+	temp = multiply_matrices(&trs.translation_mat, &trs.scale_mat);
+	set_transform(obj, &temp);
 }
 
 void	transform_plane(t_object *obj)
 {
-	t_mat	world_location;
-	t_mat	rotation;
-	t_mat	transform;
+	t_mat					temp;
+	t_transform_components	trs;
 
-	world_location = translation(obj->plane.location.x,
+	trs.translation_mat = translation(obj->plane.location.x,
 			obj->plane.location.y,
 			obj->plane.location.z);
-	rotation = rotation_from_axis(&obj->plane.rotation);
-	transform = multiply_matrices(&world_location, &rotation);
-	set_transform(obj, &transform);
+	trs.rotation_mat = rotation_from_axis(&obj->plane.rotation);
+	temp = multiply_matrices(&trs.translation_mat, &trs.rotation_mat);
+	set_transform(obj, &temp);
 }
 
 void	transform_cylinder(t_object *obj)
 {
-	t_mat	trans;
-	t_mat	rotation;
-	t_mat	scale;
-	t_mat	temp;
-	t_mat	transform;
-	float	radius;
+	t_transform_components	trs;
+	t_mat					temp;
+	t_mat					final;
+	float					radius;
 
 	radius = obj->cylinder.diameter / 2.0f;
-	trans = translation(obj->cylinder.location.x,
-			obj->cylinder.location.y,
-			obj->cylinder.location.z);
-	rotation = rotation_from_axis(&obj->cylinder.rotation);
-	scale = scaling(radius, obj->cylinder.length / 2.0f, radius);
-	temp = multiply_matrices(&rotation, &scale);
-	transform = multiply_matrices(&trans, &temp);
-	set_transform(obj, &transform);
+	trs.translation_mat = translation(obj->cylinder.location.x,
+			obj->cylinder.location.y, obj->cylinder.location.z);
+	trs.rotation_mat = rotation_from_axis(&obj->cylinder.rotation);
+	trs.scale_mat = scaling(radius, obj->cylinder.length / 2.0f, radius);
+	temp = multiply_matrices(&trs.rotation_mat, &trs.scale_mat);
+	final = multiply_matrices(&trs.translation_mat, &temp);
+	set_transform(obj, &final);
 }
 
 void	init_canvas_dimensions(t_camera *camera, uint32_t img_width)
