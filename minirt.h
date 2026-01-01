@@ -6,15 +6,15 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:12:49 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:12:50 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 11:35:27 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINIRT_H
 # define MINIRT_H
 
-# include "../MLX42/include/MLX42/MLX42.h"
-# include "../libft/libft.h"
+# include "MLX42/include/MLX42/MLX42.h"
+# include "libft/libft.h"
 # include <fcntl.h>
 # include <math.h>
 # include <stdbool.h>
