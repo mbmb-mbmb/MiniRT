@@ -12,109 +12,62 @@
 
 #include "minirt.h"
 
-t_mat	submatrix(t_mat *mat, int row, int col, int dim)
+static void	calc_subdets_top(t_mat *m, float subdets_01[6])
 {
-	int		mat_r;
-	int		mat_c;
-	int		out_r;
-	int		out_c;
-	float	out[dim - 1][dim - 1];
-
-	out_r = 0;
-	mat_r = 0;
-	while (mat_r < dim)
-	{
-		if (mat_r == row)
-		{
-			mat_r++;
-			continue ;
-		}
-		out_c = 0;
-		mat_c = 0;
-		while (mat_c < dim)
-		{
-			if (mat_c == col)
-			{
-				mat_c++;
-				continue ;
-			}
-			out[out_r][out_c] = mat->m[mat_r][mat_c];
-			mat_c++;
-			out_c++;
-		}
-		mat_r++;
-		out_r++;
-	}
-	if (dim == 4)
-		return (create_matrix_3(out));
-	return (create_matrix_2(out));
+	subdets_01[0] = m->m[0][0] * m->m[1][1] - m->m[1][0] * m->m[0][1];
+	subdets_01[1] = m->m[0][0] * m->m[1][2] - m->m[1][0] * m->m[0][2];
+	subdets_01[2] = m->m[0][0] * m->m[1][3] - m->m[1][0] * m->m[0][3];
+	subdets_01[3] = m->m[0][1] * m->m[1][2] - m->m[1][1] * m->m[0][2];
+	subdets_01[4] = m->m[0][1] * m->m[1][3] - m->m[1][1] * m->m[0][3];
+	subdets_01[5] = m->m[0][2] * m->m[1][3] - m->m[1][2] * m->m[0][3];
 }
 
-float	determinant(t_mat *mat, int dim)
+static void	calc_subdets_bot(t_mat *m, float subdets_23[6])
 {
-	t_mat	sub;
-	int		col;
-	float	sign;
-	float	det;
-	float	det_term;
-
-	col = 0;
-	det = 0.0f;
-	sign = 0;
-	if (dim == 1)
-		return (mat->m[0][0]);
-	if (dim == 2)
-		return (mat->m[0][0] * mat->m[1][1]
-			- mat->m[0][1] * mat->m[1][0]);
-	while (col < dim)
-	{
-		sub = submatrix(mat, 0, col, dim);
-		sign = ((0 + col) % 2 == 0) ? 1.0f : -1.0f;
-		det_term = determinant(&sub, dim - 1);
-		det += sign * mat->m[0][col] * det_term;
-		col++;
-	}
-	return (det);
+	subdets_23[0] = m->m[2][0] * m->m[3][1] - m->m[3][0] * m->m[2][1];
+	subdets_23[1] = m->m[2][0] * m->m[3][2] - m->m[3][0] * m->m[2][2];
+	subdets_23[2] = m->m[2][0] * m->m[3][3] - m->m[3][0] * m->m[2][3];
+	subdets_23[3] = m->m[2][1] * m->m[3][2] - m->m[3][1] * m->m[2][2];
+	subdets_23[4] = m->m[2][1] * m->m[3][3] - m->m[3][1] * m->m[2][3];
+	subdets_23[5] = m->m[2][2] * m->m[3][3] - m->m[3][2] * m->m[2][3];
 }
 
-float	cofactor_one_cell(t_mat *mat, int i, int j, int dim)
+static void	build_inverse_matrix(t_mat *inv, t_mat *m, float t[6], float b[6], float inv_det)
 {
-	t_mat	sub;
-	float	sign;
-	float	c;
-
-	sub = submatrix(mat, i, j, dim);
-	c = determinant(&sub, dim - 1);
-	sign = ((i + j) % 2 == 0) ? 1.0f : -1.0f;
-	return (c * sign);
+	inv->type = FOUR;
+	inv->m[0][0] = (m->m[1][1] * b[5] - m->m[1][2] * b[4] + m->m[1][3] * b[3]) * inv_det;
+	inv->m[0][1] = (-m->m[0][1] * b[5] + m->m[0][2] * b[4] - m->m[0][3] * b[3]) * inv_det;
+	inv->m[0][2] = (m->m[3][1] * t[5] - m->m[3][2] * t[4] + m->m[3][3] * t[3]) * inv_det;
+	inv->m[0][3] = (-m->m[2][1] * t[5] + m->m[2][2] * t[4] - m->m[2][3] * t[3]) * inv_det;
+	inv->m[1][0] = (-m->m[1][0] * b[5] + m->m[1][2] * b[2] - m->m[1][3] * b[1]) * inv_det;
+	inv->m[1][1] = (m->m[0][0] * b[5] - m->m[0][2] * b[2] + m->m[0][3] * b[1]) * inv_det;
+	inv->m[1][2] = (-m->m[3][0] * t[5] + m->m[3][2] * t[2] - m->m[3][3] * t[1]) * inv_det;
+	inv->m[1][3] = (m->m[2][0] * t[5] - m->m[2][2] * t[2] + m->m[2][3] * t[1]) * inv_det;
+	inv->m[2][0] = (m->m[1][0] * b[4] - m->m[1][1] * b[2] + m->m[1][3] * b[0]) * inv_det;
+	inv->m[2][1] = (-m->m[0][0] * b[4] + m->m[0][1] * b[2] - m->m[0][3] * b[0]) * inv_det;
+	inv->m[2][2] = (m->m[3][0] * t[4] - m->m[3][1] * t[2] + m->m[3][3] * t[0]) * inv_det;
+	inv->m[2][3] = (-m->m[2][0] * t[4] + m->m[2][1] * t[2] - m->m[2][3] * t[0]) * inv_det;
+	inv->m[3][0] = (-m->m[1][0] * b[3] + m->m[1][1] * b[1] - m->m[1][2] * b[0]) * inv_det;
+	inv->m[3][1] = (m->m[0][0] * b[3] - m->m[0][1] * b[1] + m->m[0][2] * b[0]) * inv_det;
+	inv->m[3][2] = (-m->m[3][0] * t[3] + m->m[3][1] * t[1] - m->m[3][2] * t[0]) * inv_det;
+	inv->m[3][3] = (m->m[2][0] * t[3] - m->m[2][1] * t[1] + m->m[2][2] * t[0]) * inv_det;
 }
 
-t_mat	invert_matrix(t_mat *mat)
+t_mat	invert_matrix(t_mat *m)
 {
 	t_mat	inv;
-	float	cof;
 	float	det;
-	int		i;
-	int		j;
-	int		dim;
+	float	subdets_01[6];
+	float	subdets_23[6];
 
-	dim = get_matrix_dim(mat, NULL);
-	det = determinant(mat, dim);
-	inv.type = mat->type;
-	i = 0;
+	calc_subdets_top(m, subdets_01);
+	calc_subdets_bot(m, subdets_23);
+	det = subdets_01[0] * subdets_23[5] - subdets_01[1] * subdets_23[4] + subdets_01[2] * subdets_23[3]
+	+ subdets_01[3] * subdets_23[2] - subdets_01[4] * subdets_23[1] + subdets_01[5] * subdets_23[0];
 	if (is_float_zero(det))
-		return (create_identity_matrix(dim));
-	while (i < dim)
-	{
-		j = 0;
-		while (j < dim)
-		{
-			cof = cofactor_one_cell(mat, j, i, dim);
-			inv.m[i][j] = cof / det;
-			j++;
-		}
-		i++;
-	}
-	set_matrix_dim(&inv, dim);
+		return (create_identity_matrix(4));
+	det = 1.0f / det;
+	build_inverse_matrix(&inv, m, subdets_01, subdets_23, det);
+	set_matrix_dim(&inv, 4);
 	return (inv);
 }

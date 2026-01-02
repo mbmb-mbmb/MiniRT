@@ -30,7 +30,7 @@ int	skip_commas(char *buffer, t_system *sys)
 	while (buffer[i] && buffer[i] != ',' && buffer[i] != '\n')
 		i++;
 	if (buffer[i] != ',')
-		error_parser("Expected comma between componenets\n", sys);
+		error_exit("Expected comma between componenets\n", sys);
 	return (i + 1);
 }
 
@@ -58,7 +58,7 @@ int skip_to_end(char *buffer, t_system *sys)
 	}
 	if (buffer[i] == '\0')
 		return (i);
-	error_parser("some strange characters found around end of file\n", sys);
+	error_exit("some strange characters found around end of file\n", sys);
 	return (i);
 }
 

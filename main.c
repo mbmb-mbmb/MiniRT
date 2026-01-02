@@ -12,11 +12,6 @@
 
 #include "minirt.h"
 
-static void	ft_error(int error_code)
-{
-	exit(error_code);
-}
-
 /* DEBUGGING FUNCTIONS */
 
 void	print_matrix(t_mat *mat)
@@ -95,7 +90,7 @@ int	main(int argc, char **av)
 	app = (t_app){};
 	app.system = (t_system){};
 	if (argc != 2)
-		ft_error(1);
+		error_exit(NULL, &app.system);
 	init_system(&app.system);
 	app.system.state |= PARSING;
 	rt_parser(av[1], &app.system);
@@ -103,10 +98,10 @@ int	main(int argc, char **av)
 	app.system.state &= ~PARSING;
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);
 	if (!app.mlx)
-		ft_error(1);
+		error_exit("Failed to initialize MLX\n", &app.system);
 	app.img = mlx_new_image(app.mlx, WIDTH, HEIGHT);
 	if (!app.img || (mlx_image_to_window(app.mlx, app.img, 0, 0) < 0))
-		ft_error(1);
+		error_exit("Failed to create image\n", &app.system);
 	mlx_loop_hook(app.mlx, frame, &app);
 	mlx_resize_hook(app.mlx, resize_callback, &app);
 	mlx_loop(app.mlx);
@@ -114,12 +109,3 @@ int	main(int argc, char **av)
 	mlx_terminate(app.mlx);
 	return (code);
 }
-
-/*
-todo: 
-* unified error handling. Main and parser to same function.
-* error messages
-* flag system (might be ok as is)
-* runtime modifications to objects.
-* ft_atof norminette check
-*/

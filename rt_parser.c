@@ -19,7 +19,7 @@ static void	normalize_or_error(t_tuple *vec, t_system *sys)
 	len = magnitude_vector(vec);
 	if (len < EPSILON)
 	{
-		error_parser("Vector is a zero vector\n", sys);
+		error_exit("Vector is a zero vector\n", sys);
 		return ;
 	}
 	if (fabsf(len - 1.0f) > 0.01f)
@@ -43,7 +43,7 @@ static void	check_ambient_light(char *buffer, t_system *sys)
 			a_found++;
 			i++;
 			if (a_found > 1)
-				error_parser("Only one ambient light (A) allowed.\n", sys);
+				error_exit("Only one ambient light (A) allowed.\n", sys);
 			i += parse_float(buffer + i, &sys->amb_light.range, 0.0, 1.0, sys);
 			i += parse_rgb(buffer + i, &sys->amb_light.color, sys);
 			i += skip_to_end(buffer + i, sys);
@@ -52,7 +52,7 @@ static void	check_ambient_light(char *buffer, t_system *sys)
 		i++;
 	}
 	if (a_found == 0)
-		error_parser(NULL, sys);
+		error_exit("No ambient light (A) found.\n", sys);
 }
 
 static void	check_camera(char *buffer, t_system *sys)
@@ -69,18 +69,18 @@ static void	check_camera(char *buffer, t_system *sys)
 			c_found++;
 			i++;
 			if (c_found > 1)
-				error_parser("Only one camera (C) allowed.\n", sys);
+				error_exit("Only one camera (C) allowed.\n", sys);
 			i += parse_xyz(buffer + i, &sys->camera.location, POINT, sys);
 			i += parse_xyz(buffer + i, &sys->camera.rotation, VECTOR, sys);
 			normalize_or_error(&sys->camera.rotation, sys);
-			i += parse_int(buffer + i, &sys->camera.fov, 0, 180, sys);
+			i += parse_fov(buffer + i, &sys->camera.fov, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;
 		}
 		i++;
 	}
 	if (c_found == 0)
-		error_parser(NULL, sys);
+		error_exit("No camera (C) found.\n", sys);
 }
 
 
@@ -96,7 +96,7 @@ static void	check_lights(char *buffer, t_system *sys)
 		{
 			i++;
 			if (sys->light_count >= MAX_LIGHTS)
-				error_parser("Too many lights.\n", sys);
+				error_exit("Too many lights.\n", sys);
 			light = &sys->light_list[sys->light_count++];
 			i += parse_xyz(buffer + i, &light->location, POINT, sys);
 			i += parse_float(buffer + i, &light->range, 0.0, 1.0, sys);
@@ -127,7 +127,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
-				error_parser("Too many objects.\n", sys);
+				error_exit("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = SPHERE;
 			phong_to_material(&obj->material);
@@ -153,7 +153,7 @@ static void	check_cylinder(char *buffer, t_system *sys)
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
-				error_parser("Too many objects.\n", sys);
+				error_exit("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = CYLINDER;
 			phong_to_material(&obj->material);
@@ -183,7 +183,7 @@ static void	check_plane(char *buffer, t_system *sys)
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
-				error_parser("Too many objects.\n", sys);
+				error_exit("Too many objects.\n", sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = PLANE;
 			phong_to_material(&obj->material);
@@ -206,15 +206,15 @@ void	rt_parser(char *input, t_system *sys)
 	char	buffer_overflow;
 
 	if (!check_extension(input))
-		error_parser("File must have .rt extension\n", sys);
+		error_exit("File must have .rt extension\n", sys);
 	fd = open(input, O_RDONLY);
 	if (fd == -1)
-		error_parser("Cannot open file\n", sys);
+		error_exit("Cannot open file\n", sys);
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
 	if(read(fd, &buffer_overflow, 1) > 0)
-		error_parser("File is too large\n", sys);
+		error_exit("File is too large\n", sys);
 	if (bytes_read < 0)
-		error_parser("Cannot read file\n", sys);
+		error_exit("Cannot read file\n", sys);
 	buffer[bytes_read] = '\0';
 	close(fd);
 	check_ambient_light(buffer, sys);
