@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:34 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/01 12:18:47 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:43:12 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void	camera_transform(t_camera *camera)
 
 void	setup_sphere_transform(t_object *obj)
 {
-	t_transform_components	trs;	
+	t_transform_components	trs;
 	t_mat					temp;
 
 	trs.translation_mat = translation(obj->sphere.location.x,
@@ -97,7 +97,8 @@ void	init_canvas_dimensions(t_camera *camera, uint32_t img_width)
 		camera->canvas_dims.half_width = half_view * camera->aspect_ratio;
 		camera->canvas_dims.half_height = half_view;
 	}
-	camera->canvas_dims.pixel_size = (camera->canvas_dims.half_width * 2.0f) / (float)img_width;
+	camera->canvas_dims.pixel_size = (camera->canvas_dims.half_width
+			* 2.0f) / (float)img_width;
 }
 
 void	prepare_scene(t_system *sys)

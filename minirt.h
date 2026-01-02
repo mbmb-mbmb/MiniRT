@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:12:49 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 10:58:57 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:42:30 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,6 @@ typedef struct s_camera
 	t_tuple			location;
 	t_tuple			rotation;
 	t_tuple			world_origin;
-	//t_sphere		sphere;
 	int				fov;
 	float			aspect_ratio;
 	t_mat			transform;
@@ -245,9 +244,11 @@ int					skip_spaces(const char *str);
 int					skip_commas(char *buffer, t_system *sys);
 int					skip_float(char *buffer);
 int					skip_to_end(char *buffer, t_system *sys);
-int					parse_float(char *in, float *out, t_float_check check, t_system *sys);
+int					parse_float(char *in, float *out, t_float_check check,
+						t_system *sys);
 int					parse_rgb(char *buffer, t_tuple *color, t_system *sys);
-int					parse_xyz(char *buffer, t_tuple *tuple, float w, t_system *sys);
+int					parse_xyz(char *buffer, t_tuple *tuple, float w,
+						t_system *sys);
 int					check_extension(char *filename);
 
 void				rt_parser(char *input, t_system *sys);
@@ -279,9 +280,9 @@ int					add_kind(int ak, int bk);
 int					sub_kind(int ak, int bk);
 float				degrees_to_radians(float degrees);
 float				radians_to_degrees(float radians);
-
 uint32_t			tuple_to_rgba(t_tuple *color);
-t_tuple				create_color(float red, float green, float blue, float alpha);
+t_tuple				create_color(float red, float green,
+						float blue, float alpha);
 
 /* matrix helpers */
 int					get_matrix_dim(t_mat *mat, t_mat *b);
@@ -291,9 +292,6 @@ t_tuple				col(t_mat *mat, int col);
 t_mat				multiply_matrices(t_mat *ina, t_mat *inb);
 t_tuple				multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in);
 t_mat				transpose_matrix(t_mat *mat, int dim);
-// t_mat				submatrix(t_mat *mat, int row, int col, int dim);
-// float				determinant(t_mat *mat, int dim);
-// float				cofactor_one_cell(t_mat *mat, int i, int j, int dim);
 t_mat				invert_matrix(t_mat *m);
 bool				matrices_are_equal(t_mat *a, t_mat *b);
 
@@ -319,22 +317,27 @@ t_mat				rotate_z(float z);
 t_mat				rotation_from_axis(t_tuple *axis);
 void				set_transform(t_object *obj, t_mat *transform);
 
-t_mat				build_orientation_from_view(t_tuple *eye, t_tuple *target, t_tuple *up);
+t_mat				build_orientation_from_view(t_tuple *eye,
+						t_tuple *target, t_tuple *up);
 t_mat				view_transform(t_tuple *eye, t_tuple *target, t_tuple *up);
 
 /* normals */
 t_tuple				normal_at(t_sphere *sphere, t_tuple *world_point);
 t_tuple				normal_at_plane(t_plane *plane);
-t_tuple				normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point);
+t_tuple				normal_at_cylinder(t_cylinder *cylinder,
+						t_tuple *world_point);
 
 t_tuple				reflect(t_tuple *vec, t_tuple *normal);
-t_shader_computs	prepare_shading_computations(t_intersection *hit, t_ray *world_ray);
-t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y);
+t_shader_computs	prepare_shading_computations(t_intersection *hit,
+						t_ray *world_ray);
+t_tuple				compute_pixel_on_canvas(t_camera *camera,
+						uint32_t x, uint32_t y);
 t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y);
 
 /* scene setup */
 void				init_system(t_system *sys);
-void				init_canvas_dimensions(t_camera *camera, uint32_t img_width);
+void				init_canvas_dimensions(t_camera *camera,
+						uint32_t img_width);
 void				camera_transform(t_camera *camera);
 void				setup_sphere_transform(t_object *obj);
 void				transform_plane(t_object *obj);
@@ -346,11 +349,16 @@ t_tuple				color_at(t_system *sys, t_ray *ray);
 void				render(t_system *sys, mlx_image_t *img);
 
 /* lighting */
-t_tuple				calculate_light_direction(t_tuple *light_pos, t_tuple *point);
-t_tuple				calculate_ambient(t_material *material, t_amb_light *amb_light);
-t_tuple				calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computs *comps);
-t_tuple				calculate_specular(t_material *material, t_spot_light *light, t_shader_computs *comps);
-bool				is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point);
+t_tuple				calculate_light_direction(t_tuple *light_pos,
+						t_tuple *point);
+t_tuple				calculate_ambient(t_material *material,
+						t_amb_light *amb_light);
+t_tuple				calculate_diffuse(t_material *material, t_spot_light *light,
+						t_shader_computs *comps);
+t_tuple				calculate_specular(t_material *material,
+						t_spot_light *light, t_shader_computs *comps);
+bool				is_shadowed(t_system *sys, t_tuple *light_pos,
+						t_tuple *over_point);
 
 /* error */
 void				error_exit(char *msg, t_system *sys);

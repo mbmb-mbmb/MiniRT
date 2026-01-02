@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 10:52:48 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:34:34 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ static void	normalize_or_error(t_tuple *vec, t_system *sys)
 	}
 	if (fabsf(len - 1.0f) > 0.01f)
 	{
-		printf("Warning: vector not normalized (len=%.3f), normalizing...\n", len);
+		printf("Warning: vector not normalized \
+				(len=%.3f), normalizing...\n", len);
 		*vec = normalize_vector(vec);
 	}
 }
@@ -123,7 +124,8 @@ static void	check_sphere(char *buffer, t_system *sys)
 	i = 0;
 	while (buffer[i])
 	{
-		if (ft_strncmp(buffer + i, "sp", 2) == 0 && (i == 0 || buffer[i - 1] == '\n'))
+		if (ft_strncmp(buffer + i, "sp", 2) == 0
+			&& (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
@@ -141,7 +143,7 @@ static void	check_sphere(char *buffer, t_system *sys)
 	}
 }
 
-static void	check_cylinder(char *buffer, t_system *sys)
+static void	check_cylinder(char *buffer, t_system *s)
 {
 	int			i;
 	t_object	*obj;
@@ -149,21 +151,22 @@ static void	check_cylinder(char *buffer, t_system *sys)
 	i = 0;
 	while (buffer[i])
 	{
-		if (ft_strncmp(buffer + i, "cy", 2) == 0 && (i == 0 || buffer[i - 1] == '\n'))
+		if (ft_strncmp(buffer + i, "cy", 2) == 0
+			&& (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i += 2;
-			if (sys->object_count >= MAX_OBJECTS)
-				error_exit("Too many objects.\n", sys);
-			obj = &sys->obj_list[sys->object_count++];
+			if (s->object_count >= MAX_OBJECTS)
+				error_exit("Too many objects.\n", s);
+			obj = &s->obj_list[s->object_count++];
 			obj->type = CYLINDER;
 			phong_to_material(&obj->material);
-			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, sys);
-			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, sys);
-			normalize_or_error(&obj->cylinder.rotation, sys);
-			i += parse_float(buffer + i, &obj->cylinder.diameter, POSITIVE, sys);
-			i += parse_float(buffer + i, &obj->cylinder.length, POSITIVE, sys);
-			i += parse_rgb(buffer + i, &obj->material.color, sys);
-			i += skip_to_end(buffer + i, sys);
+			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, s);
+			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, s);
+			normalize_or_error(&obj->cylinder.rotation, s);
+			i += parse_float(buffer + i, &obj->cylinder.diameter, POSITIVE, s);
+			i += parse_float(buffer + i, &obj->cylinder.length, POSITIVE, s);
+			i += parse_rgb(buffer + i, &obj->material.color, s);
+			i += skip_to_end(buffer + i, s);
 			continue ;
 		}
 		i++;
@@ -178,7 +181,8 @@ static void	check_plane(char *buffer, t_system *sys)
 	i = 0;
 	while (buffer[i])
 	{
-		if (ft_strncmp(buffer + i, "pl", 2) == 0 && (i == 0 || buffer[i - 1] == '\n'))
+		if (ft_strncmp(buffer + i, "pl", 2) == 0
+			&& (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)

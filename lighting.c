@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:07:10 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 11:07:59 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:16:33 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,8 @@ bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
 	return (false);
 }
 
-t_shader_computs	prepare_shading_computations(t_intersection *hit, t_ray *world_ray)
+t_shader_computs	prepare_shading_computations(t_intersection *hit,
+													t_ray *world_ray)
 {
 	t_shader_computs		comps;
 	t_tuple					offset;
@@ -56,7 +57,8 @@ t_shader_computs	prepare_shading_computations(t_intersection *hit, t_ray *world_
 	else if (hit->object->type == PLANE)
 		comps.normalv = normal_at_plane(&hit->object->plane);
 	else if (hit->object->type == CYLINDER)
-		comps.normalv = normal_at_cylinder(&hit->object->cylinder, &comps.point);
+		comps.normalv = normal_at_cylinder(&hit->object->cylinder,
+				&comps.point);
 	if (dot_product_tuple(&comps.normalv, &comps.eyev) < 0)
 	{
 		comps.inside = true;
