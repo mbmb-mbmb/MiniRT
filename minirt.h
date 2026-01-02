@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:12:49 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/01 11:35:27 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 10:58:57 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ typedef enum e_float_check
 	RATIO_0_1
 }	t_float_check;
 
-typedef	struct s_mat
+typedef struct s_mat
 {
 	t_matrix_type	type;
 	float			m[4][4];
@@ -142,11 +142,12 @@ typedef struct s_object
 {
 	t_type_flag	type;
 	t_material	material;
-	union {
+	union
+	{
 		t_plane		plane;
 		t_sphere	sphere;
 		t_cylinder	cylinder;
-    };
+	};
 }					t_object;
 
 typedef struct s_intersection
@@ -203,7 +204,7 @@ typedef struct s_amb_light
 	t_tuple			color;
 }					t_amb_light;
 
-typedef struct s_shader_computations
+typedef struct s_shader_computs
 {
 	t_tuple			point;
 	t_tuple			over_point;
@@ -216,7 +217,7 @@ typedef struct s_shader_computations
 	float			diffuse;
 	float			specular;
 	bool			inside;
-}					t_shader_computations;
+}					t_shader_computs;
 
 typedef struct s_system
 {
@@ -272,10 +273,10 @@ float				magnitude_vector(t_tuple *a);
 t_tuple				normalize_vector(t_tuple *a);
 float				dot_product_tuple(t_tuple *a, t_tuple *b);
 t_tuple				cross_product_tuple(t_tuple *a, t_tuple *b);
-int				classify_w(const t_tuple *t);
-int				canonical_w(int kind);
-int				add_kind(int ak, int bk);
-int				sub_kind(int ak, int bk);
+int					classify_w(const t_tuple *t);
+int					canonical_w(int kind);
+int					add_kind(int ak, int bk);
+int					sub_kind(int ak, int bk);
 float				degrees_to_radians(float degrees);
 float				radians_to_degrees(float radians);
 
@@ -316,7 +317,6 @@ t_mat				rotate_x(float x);
 t_mat				rotate_y(float y);
 t_mat				rotate_z(float z);
 t_mat				rotation_from_axis(t_tuple *axis);
-t_mat				skew(float xy, float xz, float yx, float yz, float zx, float zy);
 void				set_transform(t_object *obj, t_mat *transform);
 
 t_mat				build_orientation_from_view(t_tuple *eye, t_tuple *target, t_tuple *up);
@@ -328,8 +328,7 @@ t_tuple				normal_at_plane(t_plane *plane);
 t_tuple				normal_at_cylinder(t_cylinder *cylinder, t_tuple *world_point);
 
 t_tuple				reflect(t_tuple *vec, t_tuple *normal);
-t_shader_computations	prepare_shading_computations(t_intersection *hit, t_ray *world_ray);
-
+t_shader_computs	prepare_shading_computations(t_intersection *hit, t_ray *world_ray);
 t_tuple				compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y);
 t_ray				ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y);
 
@@ -349,11 +348,10 @@ void				render(t_system *sys, mlx_image_t *img);
 /* lighting */
 t_tuple				calculate_light_direction(t_tuple *light_pos, t_tuple *point);
 t_tuple				calculate_ambient(t_material *material, t_amb_light *amb_light);
-t_tuple				calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computations *comps);
-t_tuple				calculate_specular(t_material *material, t_spot_light *light, t_shader_computations *comps);
+t_tuple				calculate_diffuse(t_material *material, t_spot_light *light, t_shader_computs *comps);
+t_tuple				calculate_specular(t_material *material, t_spot_light *light, t_shader_computs *comps);
 bool				is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point);
 
 /* error */
 void				error_exit(char *msg, t_system *sys);
 #endif
-

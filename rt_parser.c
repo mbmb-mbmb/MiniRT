@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/01 12:17:18 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 10:52:48 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,6 +209,7 @@ static void	check_objects(char *buffer, t_system *sys)
 	check_plane(buffer, sys);
 	ft_putstr_fd("Inputfile OK!\n", 1);
 }
+
 void	rt_parser(char *input, t_system *sys)
 {
 	int		fd;

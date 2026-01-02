@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:05:52 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/01 12:13:19 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 10:53:41 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y)
 	t_tuple	direction;
 
 	pixel_on_canvas = compute_pixel_on_canvas(camera, x, y);
-	pixel_in_world = multiply_matrix_and_tuple(&camera->inverse, 
+	pixel_in_world = multiply_matrix_and_tuple(&camera->inverse,
 			&pixel_on_canvas);
 	direction = subtract_tuple(&pixel_in_world, &camera->world_origin);
 	ray.origin = camera->world_origin;
