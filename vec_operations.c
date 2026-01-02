@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:09:04 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:09:05 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/01 12:09:47 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ float	dot_product_tuple(t_tuple *a, t_tuple *b)
 		return (0.0f);
 	return (a->x * b->x + a->y * b->y + a->z * b->z);
 }
+
 t_tuple	cross_product_tuple(t_tuple *a, t_tuple *b)
 {
 	t_tuple	v_result;

@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:06:28 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:35:22 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:45:23 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,12 @@ static void	intersect_cylinder_walls(t_ray *ray, t_intersection_list *list)
 	float	c;
 	float	disc;
 
-	a = ray->direction.x * ray->direction.x + ray->direction.z * ray->direction.z;
-	b = 2.0f * (ray->origin.x * ray->direction.x + ray->origin.z * ray->direction.z);
-	c = ray->origin.x * ray->origin.x + ray->origin.z * ray->origin.z - 1.0f;
+	a = ray->direction.x * ray->direction.x
+		+ ray->direction.z * ray->direction.z;
+	b = 2.0f * (ray->origin.x * ray->direction.x
+			+ ray->origin.z * ray->direction.z);
+	c = ray->origin.x * ray->origin.x
+		+ ray->origin.z * ray->origin.z - 1.0f;
 	disc = b * b - 4.0f * a * c;
 	if (ray_misses_cylinder(a, disc))
 		return ;

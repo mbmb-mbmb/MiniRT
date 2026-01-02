@@ -6,26 +6,11 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:07:14 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:07:15 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:41:53 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
-
-/* DEBUGGING FUNCTIONS */
-
-void	print_matrix(t_mat *mat)
-{
-	printf("%f %f %f %f\n", mat->m[0][0], mat->m[0][1], mat->m[0][2], mat->m[0][3]);
-	printf("%f %f %f %f\n", mat->m[1][0], mat->m[1][1], mat->m[1][2], mat->m[1][3]);
-	printf("%f %f %f %f\n", mat->m[2][0], mat->m[2][1], mat->m[2][2], mat->m[2][3]);
-	printf("%f %f %f %f\n", mat->m[3][0], mat->m[3][1], mat->m[3][2], mat->m[3][3]);
-}
-
-void	print_tuple(t_tuple *tup)
-{
-	printf("tup: %f, %f, %f, %f\n", tup->x, tup->y, tup->z, tup->w);
-}
 
 /* SYSTEM FUNCTIONS */
 
@@ -59,6 +44,7 @@ void	resize_callback(int32_t width, int32_t height, void *param)
 	if (mlx_image_to_window(app->mlx, app->img, 0, 0) < 0)
 		return ;
 	sys->camera.aspect_ratio = (float)width / (float)height;
+	init_canvas_dimensions(&sys->camera, width);
 	sys->state &= ~RENDER_COMPLETE;
 }
 

@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:06:50 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:06:51 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:14:53 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,9 @@ void	intersect_sphere(t_ray *ray, t_intersection_list *list)
 	if (ray_misses_sphere(a, discriminant))
 		return ;
 	if (list->count < MAX_INTERSECTIONS)
-		list->intersections[list->count++].t = (-b - sqrtf(discriminant)) / (2 * a);
+		list->intersections[list->count++].t
+			= (-b - sqrtf(discriminant)) / (2 * a);
 	if (list->count < MAX_INTERSECTIONS)
-		list->intersections[list->count++].t = (-b + sqrtf(discriminant)) / (2 * a);
+		list->intersections[list->count++].t
+			= (-b + sqrtf(discriminant)) / (2 * a);
 }

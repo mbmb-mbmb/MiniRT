@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:34 by mbonsdor          #+#    #+#             */
-/*   Updated: 2025/12/26 16:08:35 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:43:12 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,62 +25,80 @@ void	camera_transform(t_camera *camera)
 	t_tuple	from;
 	t_tuple	to;
 	t_tuple	up;
+	t_tuple	camera_obj_origin;
 
 	from = camera->location;
 	to = add_tuple(&from, &camera->rotation);
 	up = create_vector(0, 1, 0);
 	camera->transform = view_transform(&from, &to, &up);
 	camera->inverse = invert_matrix(&camera->transform);
+	camera_obj_origin = (t_tuple){0.0f, 0.0f, 0.0f, POINT};
+	camera->world_origin = multiply_matrix_and_tuple(&camera->inverse,
+			&camera_obj_origin);
 }
 
 void	setup_sphere_transform(t_object *obj)
 {
-	t_mat	trans;
-	t_mat	scale;
-	t_mat	transform;
+	t_transform_components	trs;
+	t_mat					temp;
 
-	trans = translation(obj->sphere.location.x,
-						obj->sphere.location.y,
-						obj->sphere.location.z);
-	scale = scaling(obj->sphere.radius,
-					obj->sphere.radius,
-					obj->sphere.radius);
-	transform = multiply_matrices(&trans, &scale);
-	set_transform(obj, &transform);
+	trs.translation_mat = translation(obj->sphere.location.x,
+			obj->sphere.location.y,
+			obj->sphere.location.z);
+	trs.scale_mat = scaling(obj->sphere.radius,
+			obj->sphere.radius,
+			obj->sphere.radius);
+	temp = multiply_matrices(&trs.translation_mat, &trs.scale_mat);
+	set_transform(obj, &temp);
 }
 
 void	transform_plane(t_object *obj)
 {
-	t_mat	world_location;
-	t_mat	rotation;
-	t_mat	transform;
+	t_mat					temp;
+	t_transform_components	trs;
 
-	world_location = translation(obj->plane.location.x,
-								 obj->plane.location.y,
-								 obj->plane.location.z);
-	rotation = rotation_from_axis(&obj->plane.rotation);
-	transform = multiply_matrices(&world_location, &rotation);
-	set_transform(obj, &transform);
+	trs.translation_mat = translation(obj->plane.location.x,
+			obj->plane.location.y,
+			obj->plane.location.z);
+	trs.rotation_mat = rotation_from_axis(&obj->plane.rotation);
+	temp = multiply_matrices(&trs.translation_mat, &trs.rotation_mat);
+	set_transform(obj, &temp);
 }
 
 void	transform_cylinder(t_object *obj)
 {
-	t_mat	trans;
-	t_mat	rotation;
-	t_mat	scale;
-	t_mat	temp;
-	t_mat	transform;
-	float	radius;
+	t_transform_components	trs;
+	t_mat					temp;
+	t_mat					final;
+	float					radius;
 
 	radius = obj->cylinder.diameter / 2.0f;
-	trans = translation(obj->cylinder.location.x,
-						obj->cylinder.location.y,
-						obj->cylinder.location.z);
-	rotation = rotation_from_axis(&obj->cylinder.rotation);
-	scale = scaling(radius, obj->cylinder.length / 2.0f, radius);
-	temp = multiply_matrices(&rotation, &scale);
-	transform = multiply_matrices(&trans, &temp);
-	set_transform(obj, &transform);
+	trs.translation_mat = translation(obj->cylinder.location.x,
+			obj->cylinder.location.y, obj->cylinder.location.z);
+	trs.rotation_mat = rotation_from_axis(&obj->cylinder.rotation);
+	trs.scale_mat = scaling(radius, obj->cylinder.length / 2.0f, radius);
+	temp = multiply_matrices(&trs.rotation_mat, &trs.scale_mat);
+	final = multiply_matrices(&trs.translation_mat, &temp);
+	set_transform(obj, &final);
+}
+
+void	init_canvas_dimensions(t_camera *camera, uint32_t img_width)
+{
+	float	half_view;
+
+	half_view = tanf(degrees_to_radians((float)camera->fov) / 2.0f);
+	if (camera->aspect_ratio >= 1.0f)
+	{
+		camera->canvas_dims.half_width = half_view;
+		camera->canvas_dims.half_height = half_view / camera->aspect_ratio;
+	}
+	else
+	{
+		camera->canvas_dims.half_width = half_view * camera->aspect_ratio;
+		camera->canvas_dims.half_height = half_view;
+	}
+	camera->canvas_dims.pixel_size = (camera->canvas_dims.half_width
+			* 2.0f) / (float)img_width;
 }
 
 void	prepare_scene(t_system *sys)
@@ -88,6 +106,7 @@ void	prepare_scene(t_system *sys)
 	int	i;
 
 	camera_transform(&sys->camera);
+	init_canvas_dimensions(&sys->camera, WIDTH);
 	i = 0;
 	while (i < sys->object_count)
 	{
