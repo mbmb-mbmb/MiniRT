@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:07:10 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 11:00:59 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 11:07:59 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
 
 t_shader_computs	prepare_shading_computations(t_intersection *hit, t_ray *world_ray)
 {
-	t_shader_computs	comps;
+	t_shader_computs		comps;
 	t_tuple					offset;
 
 	comps.point = ray_position(world_ray, hit->t);
