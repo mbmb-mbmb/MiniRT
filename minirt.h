@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:12:49 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 11:42:30 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 12:58:29 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@
 # define POINT 1.0f
 # define TUPLE_INCORRECT 2.0f
 # define MAX_INTERSECTIONS 1024
+# define INFILE_BUFSIZE 16384
 
 # define MATERIAL_AMBIENT 0.1f
 # define MATERIAL_DIFFUSE 0.5f

@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 12:53:55 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 12:55:43 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,7 +222,7 @@ static void	check_objects(char *buffer, t_system *sys)
 void	rt_parser(char *input, t_system *sys)
 {
 	int		fd;
-	char	buffer[4096];
+	char	buffer[INFILE_BUFSIZE];
 	int		bytes_read;
 	char	buffer_overflow;
 
