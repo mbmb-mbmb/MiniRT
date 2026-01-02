@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 11:34:34 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/02 12:53:55 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,12 @@ static void	check_sphere(char *buffer, t_system *sys)
 	}
 }
 
+static void	max_object_check(t_system *sys)
+{
+	if (sys->object_count >= MAX_OBJECTS)
+		error_exit("Too many objects.\n", sys);
+}
+
 static void	check_cylinder(char *buffer, t_system *s)
 {
 	int			i;
@@ -155,8 +161,7 @@ static void	check_cylinder(char *buffer, t_system *s)
 			&& (i == 0 || buffer[i - 1] == '\n'))
 		{
 			i += 2;
-			if (s->object_count >= MAX_OBJECTS)
-				error_exit("Too many objects.\n", s);
+			max_object_check(s);
 			obj = &s->obj_list[s->object_count++];
 			obj->type = CYLINDER;
 			phong_to_material(&obj->material);
