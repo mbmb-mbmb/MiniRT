@@ -12,7 +12,7 @@
 
 #include "minirt.h"
 
-void	camera_transform(t_camera *camera)
+void	camera_update_transform(t_camera *camera)
 {
 	t_tuple	from;
 	t_tuple	to;
@@ -27,6 +27,13 @@ void	camera_transform(t_camera *camera)
 	camera_obj_origin = (t_tuple){0.0f, 0.0f, 0.0f, POINT};
 	camera->world_origin = multiply_matrix_and_tuple(&camera->inverse,
 			&camera_obj_origin);
+}
+
+void	camera_transform(t_camera *camera)
+{
+	camera_update_transform(camera);
+	camera->original_location = camera->location;
+	camera->original_rotation = camera->rotation;
 }
 
 void	setup_sphere_transform(t_object *obj)

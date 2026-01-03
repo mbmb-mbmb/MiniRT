@@ -176,6 +176,8 @@ typedef struct s_camera
 	t_tuple			location;
 	t_tuple			rotation;
 	t_tuple			world_origin;
+	t_tuple			original_location;
+	t_tuple			original_rotation;
 	int				fov;
 	float			aspect_ratio;
 	t_mat			transform;
@@ -325,10 +327,16 @@ void				init_system(t_system *sys);
 void				init_canvas_dimensions(t_camera *camera,
 						uint32_t img_width);
 void				camera_transform(t_camera *camera);
+void				camera_update_transform(t_camera *camera);
 void				setup_sphere_transform(t_object *obj);
 void				transform_plane(t_object *obj);
 void				transform_cylinder(t_object *obj);
 void				prepare_scene(t_system *sys);
+
+/* camera controls */
+void				camera_move(t_camera *camera, float dx, float dy, float dz);
+void				camera_rotate_yaw(t_camera *camera, float angle);
+void				camera_reset(t_camera *camera);
 
 /* render */
 void				frame(void *param);
