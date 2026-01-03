@@ -35,8 +35,8 @@ void	init_canvas_dimensions(t_camera *camera, uint32_t img_width)
 		camera->canvas_dims.half_width = half_view * camera->aspect_ratio;
 		camera->canvas_dims.half_height = half_view;
 	}
-	camera->canvas_dims.pixel_size = (camera->canvas_dims.half_width
-			* 2.0f) / (float)img_width;
+	camera->canvas_dims.pixel_size = (camera->canvas_dims.half_width * 2.0f)
+		/ (float)img_width;
 }
 
 void	prepare_scene(t_system *sys)

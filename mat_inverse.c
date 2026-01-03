@@ -69,10 +69,9 @@ t_mat	invert_matrix(t_mat *m)
 
 	calc_subdets_top(m, subdets_01);
 	calc_subdets_bot(m, subdets_23);
-	det = subdets_01[0] * subdets_23[5] - subdets_01[1]
-		* subdets_23[4] + subdets_01[2] * subdets_23[3]
-		+ subdets_01[3] * subdets_23[2] - subdets_01[4]
-		* subdets_23[1] + subdets_01[5] * subdets_23[0];
+	det = subdets_01[0] * subdets_23[5] - subdets_01[1] * subdets_23[4]
+		+ subdets_01[2] * subdets_23[3] + subdets_01[3] * subdets_23[2]
+		- subdets_01[4] * subdets_23[1] + subdets_01[5] * subdets_23[0];
 	if (is_float_zero(det))
 		return (create_identity_matrix(4));
 	det = 1.0f / det;

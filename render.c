@@ -41,15 +41,15 @@ static void	fill_pixel_block(mlx_image_t *img, int x, int y, uint32_t color)
 	}
 }
 
-static t_tuple	calculate_light_contribution(t_system *sys,
-					t_material *mat, t_shader_computs *comps, int i)
+static t_tuple	calculate_light_contribution(t_system *sys, t_material *mat,
+		t_shader_computs *comps, int i)
 {
 	t_tuple	color;
 	t_tuple	contrib;
 
 	color = create_color(0, 0, 0, 1);
-	comps->light_dir = calculate_light_direction(
-			&sys->light_list[i].location, &comps->point);
+	comps->light_dir = calculate_light_direction(&sys->light_list[i].location,
+			&comps->point);
 	contrib = calculate_diffuse(mat, &sys->light_list[i], comps);
 	color = add_tuple(&color, &contrib);
 	contrib = calculate_specular(mat, &sys->light_list[i], comps);
@@ -58,7 +58,7 @@ static t_tuple	calculate_light_contribution(t_system *sys,
 }
 
 static t_tuple	shade_hit(t_system *sys, t_material *mat,
-				t_shader_computs *comps)
+		t_shader_computs *comps)
 {
 	t_tuple	color;
 	t_tuple	contrib;
@@ -73,9 +73,8 @@ static t_tuple	shade_hit(t_system *sys, t_material *mat,
 	i = 0;
 	while (i < light_limit)
 	{
-		if ((sys->render_flags & RENDER_SKIP_SHADOWS)
-			|| !is_shadowed(sys, &sys->light_list[i].location,
-				&comps->over_point))
+		if ((sys->render_flags & RENDER_SKIP_SHADOWS) || !is_shadowed(sys,
+				&sys->light_list[i].location, &comps->over_point))
 		{
 			contrib = calculate_light_contribution(sys, mat, comps, i);
 			color = add_tuple(&color, &contrib);
@@ -87,11 +86,11 @@ static t_tuple	shade_hit(t_system *sys, t_material *mat,
 
 t_tuple	color_at(t_system *sys, t_ray *ray)
 {
-	t_intersection_list		intersections;
-	t_shader_computs		comps;
-	t_intersection			*closest_hit;
-	t_material				*mat;
-	t_tuple					color;
+	t_intersection_list	intersections;
+	t_shader_computs	comps;
+	t_intersection		*closest_hit;
+	t_material			*mat;
+	t_tuple				color;
 
 	intersections = intersect_world(sys, ray);
 	closest_hit = hit(&intersections);
@@ -121,8 +120,7 @@ static void	render_pass_draft(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < (int)img->width)
 		{
-			ray = ray_for_pixel(&sys->camera, (uint32_t)x,
-					(uint32_t)y);
+			ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y);
 			color = color_at(sys, &ray);
 			tinted = apply_green_tint(&color);
 			fill_pixel_block(img, x, y, tuple_to_rgba(&tinted));
@@ -147,8 +145,7 @@ static void	render_pass_final(t_system *sys, mlx_image_t *img)
 		x = 0;
 		while (x < (int)img->width)
 		{
-			ray = ray_for_pixel(&sys->camera, (uint32_t)x,
-					(uint32_t)y);
+			ray = ray_for_pixel(&sys->camera, (uint32_t)x, (uint32_t)y);
 			color = color_at(sys, &ray);
 			mlx_put_pixel(img, x, y, tuple_to_rgba(&color));
 			x++;
@@ -164,8 +161,7 @@ void	render(t_system *sys, mlx_image_t *img)
 {
 	if (!(sys->state & DRAFT_RENDERED))
 	{
-		sys->render_flags = RENDER_SKIP_SHADOWS
-			| RENDER_SKIP_MULTILIGHT
+		sys->render_flags = RENDER_SKIP_SHADOWS | RENDER_SKIP_MULTILIGHT
 			| RENDER_DRAFT_BLOCKS;
 		render_pass_draft(sys, img);
 		sys->state |= DRAFT_RENDERED;

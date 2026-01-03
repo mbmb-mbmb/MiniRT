@@ -14,8 +14,8 @@
 
 int	parse_int(char *in, int *value, t_system *sys)
 {
-	int		i;
-	int		num;
+	int	i;
+	int	num;
 
 	i = skip_spaces(in);
 	num = ft_atoi(in + i);
@@ -29,8 +29,8 @@ int	parse_int(char *in, int *value, t_system *sys)
 
 int	parse_fov(char *in, int *value, t_system *sys)
 {
-	int		i;
-	int		num;
+	int	i;
+	int	num;
 
 	i = skip_spaces(in);
 	num = ft_atoi(in + i);
@@ -48,7 +48,7 @@ int	parse_fov(char *in, int *value, t_system *sys)
 
 int	parse_float(char *in, float *out, t_float_check check, t_system *sys)
 {
-	int		i;
+	int	i;
 
 	i = skip_spaces(in);
 	*out = ft_atof(in + i);

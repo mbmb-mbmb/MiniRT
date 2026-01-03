@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   camera_controls.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/02 00:00:00 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 00:00:00 by mbonsdor         ###   ########.fr       */
+/*   Created: 2026/01/03 14:05:23 by jyniemit          #+#    #+#             */
+/*   Updated: 2026/01/03 14:05:28 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

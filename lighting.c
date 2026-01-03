@@ -43,7 +43,7 @@ bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
 	return (false);
 }
 
-static void flip_normal_if_inside(t_tuple *normalv, t_tuple * eyev)
+static void	flip_normal_if_inside(t_tuple *normalv, t_tuple *eyev)
 {
 	if (dot_product_tuple(normalv, eyev) < 0)
 	{
@@ -52,10 +52,10 @@ static void flip_normal_if_inside(t_tuple *normalv, t_tuple * eyev)
 }
 
 t_shader_computs	prepare_shading_computations(t_intersection *hit,
-													t_ray *world_ray)
+		t_ray *world_ray)
 {
-	t_shader_computs		comps;
-	t_tuple					offset;
+	t_shader_computs	comps;
+	t_tuple				offset;
 
 	comps.point = ray_position(world_ray, hit->t);
 	comps.eyev = negate_tuple(&world_ray->direction);
