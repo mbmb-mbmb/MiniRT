@@ -2,17 +2,7 @@ NAME	= miniRT
 LIBMLX	= MLX42
 LIBFT	= libft
 
-UNAME = $(shell uname)
-ifeq ($(UNAME), Darwin)
-	# Mac
-	LIBS = $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -L"/opt/homebrew/lib" -lglfw -pthread -lm
-else ifeq ($(OS), Windows_NT)
-	# Windows
-	LIBS = $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a $(LIBMLX)/build/_deps/glfw-build/src/libglfw3.a -lopengl32 -lgdi32 -pthread -lm
-else
-	# Linux
-	LIBS = $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -lglfw -pthread -lm
-endif
+LIBS	= $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -lglfw -pthread -lm
 
 CC		= gcc
 CFLAGS	= -Wall -Wextra -Werror -O2 -ffast-math
