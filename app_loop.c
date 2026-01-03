@@ -5,6 +5,11 @@ static void	draft_transformations(t_system *sys)
 	(void)sys;
 }
 
+static void	render_scene(t_system *sys, mlx_image_t *img)
+{
+	render(sys, img);
+}
+
 static void	handle_camera_controls(t_app *app, t_system *system)
 {
 	bool	camera_changed;
@@ -63,6 +68,8 @@ static void	handle_camera_controls(t_app *app, t_system *system)
 	{
 		camera_update_transform(&system->camera);
 		system->state &= ~RENDER_COMPLETE;
+		system->state &= ~DRAFT_RENDERED;
+		system->render_line = 0;
 	}
 }
 
@@ -81,10 +88,7 @@ void	frame(void *param)
 		if (system->state & DRAFT_MODE)
 			draft_transformations(system);
 		if (!(system->state & RENDER_COMPLETE))
-		{
-			render(system, app->img);
-			system->state |= RENDER_COMPLETE;
-		}
+			render_scene(system, app->img);
 	}
 	else
 		mlx_close_window(app->mlx);

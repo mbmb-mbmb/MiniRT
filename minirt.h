@@ -50,7 +50,15 @@ typedef enum e_sys_state
 	SHOULD_EXIT = (1 << 2),
 	PARSING = (1 << 3),
 	INIT = (1 << 4),
+	DRAFT_RENDERED = (1 << 5),
 }					t_sys_state;
+
+typedef enum e_render_flags
+{
+	RENDER_SKIP_SHADOWS = (1 << 0),
+	RENDER_SKIP_MULTILIGHT = (1 << 1),
+	RENDER_DRAFT_BLOCKS = (1 << 2),
+}					t_render_flags;
 
 typedef enum e_matrix_type
 {
@@ -210,6 +218,7 @@ typedef struct s_shader_computs
 typedef struct s_system
 {
 	t_sys_state		state;
+	uint32_t		render_flags;
 	int				exit_code;
 	t_camera		camera;
 	t_object		obj_list[MAX_OBJECTS];
@@ -217,6 +226,7 @@ typedef struct s_system
 	t_amb_light		amb_light;
 	t_spot_light	light_list[MAX_LIGHTS];
 	int				light_count;
+	int				render_line;
 }					t_system;
 
 typedef struct s_app
