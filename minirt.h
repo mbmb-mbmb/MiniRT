@@ -291,8 +291,10 @@ t_ray				ray_to_object_space(t_ray *ray, t_object *obj);
 void				intersect_sphere(t_ray *ray, t_intersection_list *list);
 void				intersect_plane(t_ray *ray, t_intersection_list *list);
 void				intersect_cylinder(t_ray *ray, t_intersection_list *list);
-void				intersect_cylinder_caps(t_ray *ray, t_intersection_list *list);
-void				intersect_cylinder_walls(t_ray *ray, t_intersection_list *list);
+void				intersect_cylinder_caps(t_ray *ray,
+						t_intersection_list *list);
+void				intersect_cylinder_walls(t_ray *ray,
+						t_intersection_list *list);
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray);
 t_intersection		*hit(t_intersection_list *list);
 bool				ray_misses_cylinder(float a, float discriminant);
