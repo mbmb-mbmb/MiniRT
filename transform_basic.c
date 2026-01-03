@@ -77,6 +77,7 @@ void	set_transform(t_object *obj, t_mat *transform)
 		inverse = invert_matrix(transform);
 		obj->sphere.inv_transform_to_obj = inverse;
 		obj->sphere.is_transformed = true;
+		obj->flags |= OBJ_HAS_TRANSFORM;
 	}
 	else if (obj->type == PLANE)
 	{
@@ -84,6 +85,7 @@ void	set_transform(t_object *obj, t_mat *transform)
 		inverse = invert_matrix(transform);
 		obj->plane.inv_transform_to_obj = inverse;
 		obj->plane.is_transformed = true;
+		obj->flags |= OBJ_HAS_TRANSFORM;
 	}
 	else if (obj->type == CYLINDER)
 	{
@@ -91,5 +93,6 @@ void	set_transform(t_object *obj, t_mat *transform)
 		inverse = invert_matrix(transform);
 		obj->cylinder.inv_transform_to_obj = inverse;
 		obj->cylinder.is_transformed = true;
+		obj->flags |= OBJ_HAS_TRANSFORM;
 	}
 }

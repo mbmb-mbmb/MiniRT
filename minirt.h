@@ -139,9 +139,17 @@ typedef enum e_type_flag
 	CYLINDER
 }					t_type_flag;
 
+typedef enum e_obj_flags
+{
+	OBJ_HAS_TRANSFORM = (1 << 0),
+	OBJ_CASTS_SHADOW = (1 << 1),
+	OBJ_VISIBLE = (1 << 2),
+}					t_obj_flags;
+
 typedef struct s_object
 {
 	t_type_flag	type;
+	uint32_t	flags;
 	t_material	material;
 	union
 	{

@@ -15,9 +15,10 @@ void	check_sphere(char *buffer, t_system *sys)
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
 				error_exit("Too many objects.\n", sys);
-			obj = &sys->obj_list[sys->object_count++];
-			obj->type = SPHERE;
-			phong_to_material(&obj->material);
+		obj = &sys->obj_list[sys->object_count++];
+		obj->type = SPHERE;
+		obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;
+		phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->sphere.location, POINT, sys);
 			i += parse_float(buffer + i, &obj->sphere.radius, POSITIVE, sys);
 			i += parse_rgb(buffer + i, &obj->material.color, sys);
@@ -47,9 +48,10 @@ void	check_cylinder(char *buffer, t_system *s)
 		{
 			i += 2;
 			max_object_check(s);
-			obj = &s->obj_list[s->object_count++];
-			obj->type = CYLINDER;
-			phong_to_material(&obj->material);
+		obj = &s->obj_list[s->object_count++];
+		obj->type = CYLINDER;
+		obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;
+		phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, s);
 			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, s);
 			normalize_or_error(&obj->cylinder.rotation, s);
@@ -77,9 +79,10 @@ void	check_plane(char *buffer, t_system *sys)
 			i += 2;
 			if (sys->object_count >= MAX_OBJECTS)
 				error_exit("Too many objects.\n", sys);
-			obj = &sys->obj_list[sys->object_count++];
-			obj->type = PLANE;
-			phong_to_material(&obj->material);
+		obj = &sys->obj_list[sys->object_count++];
+		obj->type = PLANE;
+		obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;
+		phong_to_material(&obj->material);
 			i += parse_xyz(buffer + i, &obj->plane.location, POINT, sys);
 			i += parse_xyz(buffer + i, &obj->plane.rotation, VECTOR, sys);
 			normalize_or_error(&obj->plane.rotation, sys);
