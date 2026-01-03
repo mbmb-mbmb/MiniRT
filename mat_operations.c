@@ -85,26 +85,26 @@ void	set_matrix_dim(t_mat *mat, int dim)
 		mat->type = -1;
 }
 
-// bool	matrices_are_equal(t_mat *a, t_mat *b)
-// {
-// 	int		row;
-// 	int		col;
-// 	int		dim;
+t_mat	create_identity_matrix(int dim)
+{
+	t_mat	mat;
+	int		i;
+	int		j;
 
-// 	dim = get_matrix_dim(a, b);
-// 	if (dim == -1)
-// 		return (false);
-// 	row = 0;
-// 	while (row < dim)
-// 	{
-// 		col = 0;
-// 		while (col < dim)
-// 		{
-// 			if (!is_float_equal(a->m[row][col], b->m[row][col]))
-// 				return (false);
-// 			col++;
-// 		}
-// 		row++;
-// 	}
-// 	return (true);
-// }
+	i = 0;
+	while (i < dim)
+	{
+		j = 0;
+		while (j < dim)
+		{
+			if (i == j)
+				mat.m[i][j] = 1;
+			else
+				mat.m[i][j] = 0;
+			j++;
+		}
+		i++;
+	}
+	set_matrix_dim(&mat, dim);
+	return (mat);
+}
