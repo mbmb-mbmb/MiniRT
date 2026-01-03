@@ -19,11 +19,11 @@ static bool	ray_misses_sphere(float a, float discriminant)
 
 void	intersect_sphere(t_ray *ray, t_intersection_list *list)
 {
-	float				discriminant;
-	t_tuple				origin_to_center;
-	float				a;
-	float				b;
-	float				c;
+	float	discriminant;
+	t_tuple	origin_to_center;
+	float	a;
+	float	b;
+	float	c;
 
 	origin_to_center = ray->origin;
 	origin_to_center.w = VECTOR;
@@ -34,11 +34,11 @@ void	intersect_sphere(t_ray *ray, t_intersection_list *list)
 	if (ray_misses_sphere(a, discriminant))
 		return ;
 	if (list->count < MAX_INTERSECTIONS)
-		list->intersections[list->count++].t
-			= (-b - sqrtf(discriminant)) / (2 * a);
+		list->intersections[list->count++].t = (-b - sqrtf(discriminant)) / (2
+				* a);
 	if (list->count < MAX_INTERSECTIONS)
-		list->intersections[list->count++].t
-			= (-b + sqrtf(discriminant)) / (2 * a);
+		list->intersections[list->count++].t = (-b + sqrtf(discriminant)) / (2
+				* a);
 }
 
 void	intersect_plane(t_ray *ray, t_intersection_list *list)
@@ -46,8 +46,8 @@ void	intersect_plane(t_ray *ray, t_intersection_list *list)
 	if (is_float_equal(ray->direction.y, 0.0f))
 		return ;
 	if (list->count < MAX_INTERSECTIONS)
-		list->intersections[list->count++].t
-			= -ray->origin.y / ray->direction.y;
+		list->intersections[list->count++].t = -ray->origin.y
+			/ ray->direction.y;
 }
 
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray)

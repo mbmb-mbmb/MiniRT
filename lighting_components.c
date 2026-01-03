@@ -12,7 +12,6 @@
 
 #include "minirt.h"
 
-
 static bool	is_light_behind_surface(t_tuple *light_dir, t_tuple *normal)
 {
 	return (dot_product_tuple(light_dir, normal) < 0);
@@ -31,7 +30,7 @@ t_tuple	calculate_ambient(t_material *material, t_amb_light *amb_light)
 }
 
 t_tuple	calculate_diffuse(t_material *material, t_spot_light *light,
-							t_shader_computs *comps)
+		t_shader_computs *comps)
 {
 	t_tuple	diffuse;
 	t_tuple	color;
@@ -48,7 +47,7 @@ t_tuple	calculate_diffuse(t_material *material, t_spot_light *light,
 }
 
 t_tuple	calculate_specular(t_material *material, t_spot_light *light,
-							t_shader_computs *comps)
+		t_shader_computs *comps)
 {
 	t_tuple	specular;
 	t_tuple	neg_lightv;
@@ -63,8 +62,8 @@ t_tuple	calculate_specular(t_material *material, t_spot_light *light,
 		return (create_color(0, 0, 0, 1));
 	factor = powf(dot_product_tuple(&reflectv, &comps->eyev),
 			material->shininess);
-	specular = multiply_tuple(&light->color,
-			material->specular * light->range * factor);
+	specular = multiply_tuple(&light->color, material->specular * light->range
+			* factor);
 	specular.w = 1.0f;
 	return (specular);
 }

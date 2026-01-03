@@ -1,5 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser_elements.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/03 14:16:52 by jyniemit          #+#    #+#             */
+/*   Updated: 2026/01/03 14:16:54 by jyniemit         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-# include "minirt.h"
+#include "minirt.h"
 
 void	check_ambient_light(char *buffer, t_system *sys)
 {

@@ -26,10 +26,8 @@ t_mat	multiply_matrices(t_mat *a, t_mat *b)
 		j = 0;
 		while (j < 4)
 		{
-			out.m[i][j] = a->m[i][0] * b->m[0][j]
-				+ a->m[i][1] * b->m[1][j]
-				+ a->m[i][2] * b->m[2][j]
-				+ a->m[i][3] * b->m[3][j];
+			out.m[i][j] = a->m[i][0] * b->m[0][j] + a->m[i][1] * b->m[1][j]
+				+ a->m[i][2] * b->m[2][j] + a->m[i][3] * b->m[3][j];
 			j++;
 		}
 		i++;
@@ -41,14 +39,14 @@ t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *in)
 {
 	t_tuple	out;
 
-	out.x = mat->m[0][0] * in->x + mat->m[0][1] * in->y
-		+ mat->m[0][2] * in->z + mat->m[0][3] * in->w;
-	out.y = mat->m[1][0] * in->x + mat->m[1][1] * in->y
-		+ mat->m[1][2] * in->z + mat->m[1][3] * in->w;
-	out.z = mat->m[2][0] * in->x + mat->m[2][1] * in->y
-		+ mat->m[2][2] * in->z + mat->m[2][3] * in->w;
-	out.w = mat->m[3][0] * in->x + mat->m[3][1] * in->y
-		+ mat->m[3][2] * in->z + mat->m[3][3] * in->w;
+	out.x = mat->m[0][0] * in->x + mat->m[0][1] * in->y + mat->m[0][2] * in->z
+		+ mat->m[0][3] * in->w;
+	out.y = mat->m[1][0] * in->x + mat->m[1][1] * in->y + mat->m[1][2] * in->z
+		+ mat->m[1][3] * in->w;
+	out.z = mat->m[2][0] * in->x + mat->m[2][1] * in->y + mat->m[2][2] * in->z
+		+ mat->m[2][3] * in->w;
+	out.w = mat->m[3][0] * in->x + mat->m[3][1] * in->y + mat->m[3][2] * in->z
+		+ mat->m[3][3] * in->w;
 	return (out);
 }
 

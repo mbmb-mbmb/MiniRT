@@ -2,17 +2,7 @@ NAME	= miniRT
 LIBMLX	= MLX42
 LIBFT	= libft
 
-UNAME = $(shell uname)
-ifeq ($(UNAME), Darwin)
-	# Mac
-	LIBS = $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -L"/opt/homebrew/lib" -lglfw -pthread -lm
-else ifeq ($(OS), Windows_NT)
-	# Windows
-	LIBS = $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a $(LIBMLX)/build/_deps/glfw-build/src/libglfw3.a -lopengl32 -lgdi32 -pthread -lm
-else
-	# Linux
-	LIBS = $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -lglfw -pthread -lm
-endif
+LIBS	= $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -lglfw -pthread -lm
 
 CC		= gcc
 CFLAGS	= -Wall -Wextra -Werror -O2 -ffast-math
@@ -23,7 +13,7 @@ SRC		= main.c parser.c parser_utils.c parser_helpers.c parser_elements.c parser_
 		  mat_operations.c mat_inverse.c \
 		  transforms.c transform_basic.c transform_rotate.c \
 		  lighting.c lighting_components.c \
-		  camera.c render.c ray.c \
+		  camera.c camera_controls.c render.c ray.c \
 		  intersect.c intersect_cylinder.c intersect_cylinder2.c \
 		  system_init.c normal.c error.c app_loop.c
 OBJS	= $(SRC:.c=.o)

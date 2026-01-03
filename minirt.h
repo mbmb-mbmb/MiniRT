@@ -50,7 +50,15 @@ typedef enum e_sys_state
 	SHOULD_EXIT = (1 << 2),
 	PARSING = (1 << 3),
 	INIT = (1 << 4),
+	DRAFT_RENDERED = (1 << 5),
 }					t_sys_state;
+
+typedef enum e_render_flags
+{
+	RENDER_SKIP_SHADOWS = (1 << 0),
+	RENDER_SKIP_MULTILIGHT = (1 << 1),
+	RENDER_DRAFT_BLOCKS = (1 << 2),
+}					t_render_flags;
 
 typedef enum e_matrix_type
 {
@@ -131,9 +139,17 @@ typedef enum e_type_flag
 	CYLINDER
 }					t_type_flag;
 
+typedef enum e_obj_flags
+{
+	OBJ_HAS_TRANSFORM = (1 << 0),
+	OBJ_CASTS_SHADOW = (1 << 1),
+	OBJ_VISIBLE = (1 << 2),
+}					t_obj_flags;
+
 typedef struct s_object
 {
 	t_type_flag	type;
+	uint32_t	flags;
 	t_material	material;
 	union
 	{
@@ -176,6 +192,8 @@ typedef struct s_camera
 	t_tuple			location;
 	t_tuple			rotation;
 	t_tuple			world_origin;
+	t_tuple			original_location;
+	t_tuple			original_rotation;
 	int				fov;
 	float			aspect_ratio;
 	t_mat			transform;
@@ -208,6 +226,7 @@ typedef struct s_shader_computs
 typedef struct s_system
 {
 	t_sys_state		state;
+	uint32_t		render_flags;
 	int				exit_code;
 	t_camera		camera;
 	t_object		obj_list[MAX_OBJECTS];
@@ -215,6 +234,7 @@ typedef struct s_system
 	t_amb_light		amb_light;
 	t_spot_light	light_list[MAX_LIGHTS];
 	int				light_count;
+	int				render_line;
 }					t_system;
 
 typedef struct s_app
@@ -325,10 +345,16 @@ void				init_system(t_system *sys);
 void				init_canvas_dimensions(t_camera *camera,
 						uint32_t img_width);
 void				camera_transform(t_camera *camera);
+void				camera_update_transform(t_camera *camera);
 void				setup_sphere_transform(t_object *obj);
 void				transform_plane(t_object *obj);
 void				transform_cylinder(t_object *obj);
 void				prepare_scene(t_system *sys);
+
+/* camera controls */
+void				camera_move(t_camera *camera, float dx, float dy, float dz);
+void				camera_rotate_yaw(t_camera *camera, float angle);
+void				camera_reset(t_camera *camera);
 
 /* render */
 void				frame(void *param);

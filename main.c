@@ -33,6 +33,8 @@ void	resize_callback(int32_t width, int32_t height, void *param)
 	sys->camera.aspect_ratio = (float)width / (float)height;
 	init_canvas_dimensions(&sys->camera, width);
 	sys->state &= ~RENDER_COMPLETE;
+	sys->state &= ~DRAFT_RENDERED;
+	sys->render_line = 0;
 }
 
 int	main(int argc, char **av)

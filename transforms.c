@@ -12,7 +12,7 @@
 
 #include "minirt.h"
 
-void	camera_transform(t_camera *camera)
+void	camera_update_transform(t_camera *camera)
 {
 	t_tuple	from;
 	t_tuple	to;
@@ -29,16 +29,21 @@ void	camera_transform(t_camera *camera)
 			&camera_obj_origin);
 }
 
+void	camera_transform(t_camera *camera)
+{
+	camera_update_transform(camera);
+	camera->original_location = camera->location;
+	camera->original_rotation = camera->rotation;
+}
+
 void	setup_sphere_transform(t_object *obj)
 {
 	t_transform_components	trs;
 	t_mat					temp;
 
 	trs.translation_mat = translation(obj->sphere.location.x,
-			obj->sphere.location.y,
-			obj->sphere.location.z);
-	trs.scale_mat = scaling(obj->sphere.radius,
-			obj->sphere.radius,
+			obj->sphere.location.y, obj->sphere.location.z);
+	trs.scale_mat = scaling(obj->sphere.radius, obj->sphere.radius,
 			obj->sphere.radius);
 	temp = multiply_matrices(&trs.translation_mat, &trs.scale_mat);
 	set_transform(obj, &temp);
@@ -50,8 +55,7 @@ void	transform_plane(t_object *obj)
 	t_transform_components	trs;
 
 	trs.translation_mat = translation(obj->plane.location.x,
-			obj->plane.location.y,
-			obj->plane.location.z);
+			obj->plane.location.y, obj->plane.location.z);
 	trs.rotation_mat = rotation_from_axis(&obj->plane.rotation);
 	temp = multiply_matrices(&trs.translation_mat, &trs.rotation_mat);
 	set_transform(obj, &temp);

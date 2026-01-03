@@ -24,8 +24,8 @@ void	normalize_or_error(t_tuple *vec, t_system *sys)
 	}
 	if (fabsf(len - 1.0f) > 0.01f)
 	{
-		printf("Warning: vector not normalized \
-				(len=%.3f), normalizing...\n", len);
+		printf("Warning: vector not normalized (len=%.3f), normalizing...\n",
+			len);
 		*vec = normalize_vector(vec);
 	}
 }
