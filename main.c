@@ -12,19 +12,6 @@
 
 #include "minirt.h"
 
-/* SYSTEM FUNCTIONS */
-
-static void	draft_transformations(t_system *sys)
-{
-	(void)sys;
-}
-
-static void	render_scene(t_system *sys, mlx_image_t *img)
-{
-	render(sys, img);
-	sys->state |= RENDER_COMPLETE;
-}
-
 static int	cleanup(t_system *sys)
 {
 	return (sys->exit_code);
@@ -48,26 +35,6 @@ void	resize_callback(int32_t width, int32_t height, void *param)
 	sys->state &= ~RENDER_COMPLETE;
 }
 
-static void	frame(void *param)
-{
-	t_app		*app;
-	t_system	*system;
-
-	app = (t_app *)param;
-	system = &app->system;
-	if (mlx_is_key_down(app->mlx, MLX_KEY_ESCAPE))
-		system->state |= SHOULD_EXIT;
-	if (!(system->state & SHOULD_EXIT))
-	{
-		if (system->state & DRAFT_MODE)
-			draft_transformations(system);
-		if (!(system->state & RENDER_COMPLETE))
-			render_scene(system, app->img);
-	}
-	else
-		mlx_close_window(app->mlx);
-}
-
 int	main(int argc, char **av)
 {
 	t_app	app;
@@ -79,7 +46,7 @@ int	main(int argc, char **av)
 		error_exit(NULL, &app.system);
 	init_system(&app.system);
 	app.system.state |= PARSING;
-	rt_parser(av[1], &app.system);
+	parser(av[1], &app.system);
 	prepare_scene(&app.system);
 	app.system.state &= ~PARSING;
 	app.mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", true);

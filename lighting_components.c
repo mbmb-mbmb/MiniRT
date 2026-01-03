@@ -12,6 +12,12 @@
 
 #include "minirt.h"
 
+
+static bool	is_light_behind_surface(t_tuple *light_dir, t_tuple *normal)
+{
+	return (dot_product_tuple(light_dir, normal) < 0);
+}
+
 t_tuple	calculate_ambient(t_material *material, t_amb_light *amb_light)
 {
 	t_tuple	ambient;
@@ -22,11 +28,6 @@ t_tuple	calculate_ambient(t_material *material, t_amb_light *amb_light)
 	ambient = multiply_tuple(&color, material->ambient);
 	final_ambient = multiply_tuple(&ambient, amb_light->range);
 	return (final_ambient);
-}
-
-bool	is_light_behind_surface(t_tuple *light_dir, t_tuple *normal)
-{
-	return (dot_product_tuple(light_dir, normal) < 0);
 }
 
 t_tuple	calculate_diffuse(t_material *material, t_spot_light *light,

@@ -12,7 +12,7 @@
 
 #include "minirt.h"
 
-t_tuple	normal_at(t_sphere *sphere, t_tuple *world_point)
+t_tuple	normal_at_sphere(t_sphere *sphere, t_tuple *world_point)
 {
 	t_tuple	object_point;
 	t_tuple	object_normal;

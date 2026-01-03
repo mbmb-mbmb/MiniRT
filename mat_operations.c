@@ -84,3 +84,27 @@ void	set_matrix_dim(t_mat *mat, int dim)
 	else
 		mat->type = -1;
 }
+
+// bool	matrices_are_equal(t_mat *a, t_mat *b)
+// {
+// 	int		row;
+// 	int		col;
+// 	int		dim;
+
+// 	dim = get_matrix_dim(a, b);
+// 	if (dim == -1)
+// 		return (false);
+// 	row = 0;
+// 	while (row < dim)
+// 	{
+// 		col = 0;
+// 		while (col < dim)
+// 		{
+// 			if (!is_float_equal(a->m[row][col], b->m[row][col]))
+// 				return (false);
+// 			col++;
+// 		}
+// 		row++;
+// 	}
+// 	return (true);
+// }
