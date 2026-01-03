@@ -12,7 +12,7 @@
 
 #include "minirt.h"
 
-t_mat	build_orientation_from_view(t_tuple *eye, t_tuple *target, t_tuple *up)
+static t_mat	build_orientation_from_view(t_tuple *eye, t_tuple *target, t_tuple *up)
 {
 	t_tuple	forward;
 	t_tuple	upn;
@@ -49,7 +49,7 @@ t_mat	view_transform(t_tuple *eye, t_tuple *target, t_tuple *up)
 	return (multiply_matrices(&orientation, &translate));
 }
 
-t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y)
+static t_tuple	compute_pixel_on_canvas(t_camera *camera, uint32_t x, uint32_t y)
 {
 	float	world_x;
 	float	world_y;

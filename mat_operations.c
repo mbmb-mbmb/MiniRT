@@ -84,3 +84,27 @@ void	set_matrix_dim(t_mat *mat, int dim)
 	else
 		mat->type = -1;
 }
+
+t_mat	create_identity_matrix(int dim)
+{
+	t_mat	mat;
+	int		i;
+	int		j;
+
+	i = 0;
+	while (i < dim)
+	{
+		j = 0;
+		while (j < dim)
+		{
+			if (i == j)
+				mat.m[i][j] = 1;
+			else
+				mat.m[i][j] = 0;
+			j++;
+		}
+		i++;
+	}
+	set_matrix_dim(&mat, dim);
+	return (mat);
+}

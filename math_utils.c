@@ -17,7 +17,12 @@ float	degrees_to_radians(float degrees)
 	return (degrees * M_PI / 180.0);
 }
 
-float	radians_to_degrees(float radians)
+bool	is_float_zero(float f)
 {
-	return (radians * 180.0 / M_PI);
+	return (fabsf(f) < EPSILON);
+}
+
+bool	is_float_equal(float a, float b)
+{
+	return (fabsf(a - b) < EPSILON);
 }

@@ -17,15 +17,15 @@ endif
 CC		= gcc
 CFLAGS	= -Wall -Wextra -Werror -O2 -ffast-math
 HEADERS	= -I . -I $(LIBMLX)/include -I $(LIBFT)
-SRC		= main.c rt_parser.c parser_utils.c parser_helpers.c \
-		  vec_basic.c vec_arithmetic.c vec_scaling.c vec_operations.c \
-		  tuple_utils.c math_utils.c \
-		  mat_core.c mat_operations.c mat_creation.c mat_inverse.c \
-		  transform_basic.c transform_rotate.c \
+SRC		= main.c parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
+		  vec_arithmetic.c vec_scaling.c vec_operations.c \
+		  tuple_utils.c tuple_create.c math_utils.c \
+		  mat_operations.c mat_inverse.c \
+		  transforms.c transform_basic.c transform_rotate.c \
 		  lighting.c lighting_components.c \
 		  camera.c render.c ray.c \
-		  intersect_sphere.c intersect_plane.c intersect_cylinder.c intersect_world.c \
-		  system_init.c normal.c color.c point_basic.c error.c
+		  intersect.c intersect_cylinder.c intersect_cylinder2.c \
+		  system_init.c normal.c error.c app_loop.c
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)
