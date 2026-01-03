@@ -20,7 +20,7 @@ HEADERS	= -I . -I $(LIBMLX)/include -I $(LIBFT)
 SRC		= main.c parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
 		  vec_arithmetic.c vec_scaling.c vec_operations.c \
 		  tuple_utils.c tuple_create.c math_utils.c \
-		  mat_core.c mat_operations.c mat_creation.c mat_inverse.c \
+		  mat_operations.c mat_inverse.c \
 		  transforms.c transform_basic.c transform_rotate.c \
 		  lighting.c lighting_components.c \
 		  camera.c render.c ray.c \
