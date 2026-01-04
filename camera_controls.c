@@ -12,6 +12,17 @@
 
 #include "minirt.h"
 
+void	add_directional_movement(t_tuple *movement, t_tuple *direction, float x)
+{
+	t_tuple	multiplied;
+
+	if (x != 0.0f)
+	{
+		multiplied = multiply_tuple(direction, x);
+		*movement = add_tuple(movement, &multiplied);
+	}
+}
+
 void	camera_move(t_camera *camera, float dx, float dy, float dz)
 {
 	t_tuple	forward;
@@ -24,21 +35,9 @@ void	camera_move(t_camera *camera, float dx, float dy, float dz)
 	right = cross_product_tuple(&forward, &up);
 	right = normalize_vector(&right);
 	movement = create_vector(0, 0, 0);
-	if (dx != 0.0f)
-	{
-		right = multiply_tuple(&right, dx);
-		movement = add_tuple(&movement, &right);
-	}
-	if (dy != 0.0f)
-	{
-		up = multiply_tuple(&up, dy);
-		movement = add_tuple(&movement, &up);
-	}
-	if (dz != 0.0f)
-	{
-		forward = multiply_tuple(&forward, dz);
-		movement = add_tuple(&movement, &forward);
-	}
+	add_directional_movement(&movement, &right, dx);
+	add_directional_movement(&movement, &up, dy);
+	add_directional_movement(&movement, &forward, dz);
 	camera->location = add_tuple(&camera->location, &movement);
 }
 
