@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_elements.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/03 14:16:52 by jyniemit          #+#    #+#             */
-/*   Updated: 2026/01/03 14:16:54 by jyniemit         ###   ########.fr       */
+/*   Updated: 2026/01/04 10:55:08 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void	check_lights(char *buffer, t_system *sys)
 		{
 			i++;
 			if (sys->light_count >= MAX_LIGHTS)
-				error_exit("Too many lights.\n", sys);
+				error_exit("Too many lights (L).\n", sys);
 			light = &sys->light_list[sys->light_count++];
 			i += parse_xyz(buffer + i, &light->location, POINT, sys);
 			i += parse_float(buffer + i, &light->range, RATIO_0_1, sys);

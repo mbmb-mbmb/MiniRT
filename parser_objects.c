@@ -3,14 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   parser_objects.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/03 14:16:08 by jyniemit          #+#    #+#             */
-/*   Updated: 2026/01/03 14:16:10 by jyniemit         ###   ########.fr       */
+/*   Updated: 2026/01/04 11:05:18 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
+
+static void	max_object_check(t_system *sys)
+{
+	if (sys->object_count >= MAX_OBJECTS)
+		error_exit("Too many objects.\n", sys);
+}
 
 void	check_sphere(char *buffer, t_system *sys)
 {
@@ -24,8 +30,7 @@ void	check_sphere(char *buffer, t_system *sys)
 				== '\n'))
 		{
 			i += 2;
-			if (sys->object_count >= MAX_OBJECTS)
-				error_exit("Too many objects.\n", sys);
+			max_object_check(sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = SPHERE;
 			obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;
@@ -38,12 +43,6 @@ void	check_sphere(char *buffer, t_system *sys)
 		}
 		i++;
 	}
-}
-
-static void	max_object_check(t_system *sys)
-{
-	if (sys->object_count >= MAX_OBJECTS)
-		error_exit("Too many objects.\n", sys);
 }
 
 void	check_cylinder(char *buffer, t_system *s)
@@ -88,8 +87,7 @@ void	check_plane(char *buffer, t_system *sys)
 				== '\n'))
 		{
 			i += 2;
-			if (sys->object_count >= MAX_OBJECTS)
-				error_exit("Too many objects.\n", sys);
+			max_object_check(sys);
 			obj = &sys->obj_list[sys->object_count++];
 			obj->type = PLANE;
 			obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;

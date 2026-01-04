@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:10 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/01 12:04:10 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/04 11:04:20 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int	parse_int(char *in, int *value, t_system *sys)
 	i = skip_spaces(in);
 	num = ft_atoi(in + i);
 	if (num < 0 || num > 255)
-		error_exit("RGB value must be between 0 and 255\n", sys);
+		error_exit("RGB values must be between 0 and 255.\n", sys);
 	*value = num;
 	while (in[i] == '-' || in[i] == '+' || ft_isdigit(in[i]))
 		i++;
@@ -35,7 +35,7 @@ int	parse_fov(char *in, int *value, t_system *sys)
 	i = skip_spaces(in);
 	num = ft_atoi(in + i);
 	if (num < 0 || num > 180)
-		error_exit("FOV must be between 0 and 180 degrees\n", sys);
+		error_exit("FOV must be between 0 and 180 degrees.\n", sys);
 	if (num == 0)
 		num = 1;
 	if (num == 180)
@@ -55,9 +55,9 @@ int	parse_float(char *in, float *out, t_float_check check, t_system *sys)
 	if (*out < -FLOAT_MAX || *out > FLOAT_MAX)
 		error_exit("Float overflow\n", sys);
 	if (check == POSITIVE && *out < 0.0f)
-		error_exit("Value must be positive\n", sys);
+		error_exit("Diameter and height must be positive.\n", sys);
 	else if (check == RATIO_0_1 && (*out < 0.0f || *out > 1.0f))
-		error_exit("Value must be between 0 and 1\n", sys);
+		error_exit("Ratios must be between 0.0 and 1.0\n", sys);
 	i += skip_float(in + i);
 	return (i);
 }

@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:12:49 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 12:58:29 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/04 11:09:40 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@
 # define MATERIAL_DIFFUSE 0.5f
 # define MATERIAL_SPECULAR 1.0f
 # define MATERIAL_SHININESS 50.0f
-// # define M_PI 3.14159265358979323846
 
 typedef enum e_sys_state
 {

@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 12:55:43 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/04 11:07:20 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	normalize_or_error(t_tuple *vec, t_system *sys)
 	len = magnitude_vector(vec);
 	if (len < EPSILON)
 	{
-		error_exit("Vector is a zero vector\n", sys);
+		error_exit("Vector is a zero vector.\n", sys);
 		return ;
 	}
 	if (fabsf(len - 1.0f) > 0.01f)
@@ -51,15 +51,15 @@ void	parser(char *input, t_system *sys)
 	char	buffer_overflow;
 
 	if (!check_extension(input))
-		error_exit("File must have .rt extension\n", sys);
+		error_exit("File must have .rt extension.\n", sys);
 	fd = open(input, O_RDONLY);
 	if (fd == -1)
-		error_exit("Cannot open file\n", sys);
+		error_exit("Cannot open file.\n", sys);
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
 	if (read(fd, &buffer_overflow, 1) > 0)
-		error_exit("File is too large\n", sys);
+		error_exit("File is too large.\n", sys);
 	if (bytes_read < 0)
-		error_exit("Cannot read file\n", sys);
+		error_exit("Cannot read file.\n", sys);
 	buffer[bytes_read] = '\0';
 	close(fd);
 	check_objects(buffer, sys);
