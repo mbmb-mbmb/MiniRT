@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/29 20:12:26 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/04 10:52:19 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/04 11:29:01 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,13 @@ static void	print_usage(void)
 	ft_putstr_fd("L  <x,y,z>  <ratio>  <R,G,B>\n", 2);
 	ft_putstr_fd("sp <x,y,z>  <diameter>  <R,G,B>\n", 2);
 	ft_putstr_fd("pl <x,y,z>  <nx,ny,nz>  <R,G,B>\n", 2);
-	ft_putstr_fd("cy <x,y,z>  <nx,ny,nz>  <dia>  <height>  <R,G,B>\n", 2);
+	ft_putstr_fd("cy <x,y,z>  <nx,ny,nz>  <dia>  <height>  <R,G,B>\n\n", 2);
+	ft_putstr_fd("Move camera: \n", 2);
+	ft_putstr_fd("W – forward  E – backward\n", 2);
+	ft_putstr_fd("Q – left, R – right\n", 2);
+	ft_putstr_fd("T – up, Y – down\n", 2);
+	ft_putstr_fd("U – Rotate left, P – Rotate right\n", 2);
+	ft_putstr_fd("X – Reset\n", 2);
 }
 
 void	error_exit(char *msg, t_system *sys)
