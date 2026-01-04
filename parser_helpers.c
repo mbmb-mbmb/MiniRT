@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:04 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/01 12:03:33 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/04 11:06:26 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int	skip_commas(char *buffer, t_system *sys)
 	while (buffer[i] && buffer[i] != ',' && buffer[i] != '\n')
 		i++;
 	if (buffer[i] != ',')
-		error_exit("Expected comma between componenets\n", sys);
+		error_exit("Expected comma between components.\n", sys);
 	return (i + 1);
 }
 
@@ -58,7 +58,7 @@ int	skip_to_end(char *buffer, t_system *sys)
 	}
 	if (buffer[i] == '\0')
 		return (i);
-	error_exit("some strange characters found around end of file\n", sys);
+	error_exit("Some strange characters found around end of file.\n", sys);
 	return (i);
 }
 

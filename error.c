@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/29 20:12:26 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/01 12:00:02 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/04 10:52:19 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,11 @@ static void	print_usage(void)
 
 void	error_exit(char *msg, t_system *sys)
 {
-	ft_putstr_fd("Error\n", 2);
 	if (msg)
+	{
+		ft_putstr_fd("Error\n", 2);
 		ft_putstr_fd(msg, 2);
+	}
 	else
 		print_usage();
 	if (sys)
