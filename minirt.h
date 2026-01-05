@@ -354,11 +354,17 @@ void				prepare_scene(t_system *sys);
 void				camera_move(t_camera *camera, float dx, float dy, float dz);
 void				camera_rotate_yaw(t_camera *camera, float angle);
 void				camera_reset(t_camera *camera);
+void				handle_camera_controls(t_app *app, t_system *system);
 
 /* render */
 void				frame(void *param);
 t_tuple				color_at(t_system *sys, t_ray *ray);
 void				render(t_system *sys, mlx_image_t *img);
+t_tuple				shade_hit(t_system *sys, t_material *mat,
+						t_shader_computs *comps);
+t_tuple				apply_green_tint(t_tuple *color);
+void				fill_pixel_block(mlx_image_t *img, int x, int y,
+						uint32_t color);
 
 /* lighting */
 t_tuple				calculate_light_direction(t_tuple *light_pos,

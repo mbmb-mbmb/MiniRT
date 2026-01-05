@@ -13,9 +13,9 @@ SRC		= main.c parser.c parser_utils.c parser_helpers.c parser_elements.c parser_
 		  mat_operations.c mat_inverse.c \
 		  transforms.c transform_basic.c transform_rotate.c \
 		  lighting.c lighting_components.c \
-		  camera.c camera_controls.c render.c ray.c \
+		  camera.c camera_controls.c render.c render_utils.c shading.c ray.c \
 		  intersect.c intersect_cylinder.c intersect_cylinder2.c \
-		  system_init.c normal.c error.c app_loop.c
+		  system_init.c normal.c error.c app_loop.c input_handlers.c
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)

@@ -45,6 +45,17 @@ void	check_sphere(char *buffer, t_system *sys)
 	}
 }
 
+void	parse_cylinder(char *buffer, t_object *obj, t_system *s, int i)
+{
+	i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, s);
+	i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, s);
+	normalize_or_error(&obj->cylinder.rotation, s);
+	i += parse_float(buffer + i, &obj->cylinder.diameter, POSITIVE, s);
+	i += parse_float(buffer + i, &obj->cylinder.length, POSITIVE, s);
+	i += parse_rgb(buffer + i, &obj->material.color, s);
+	i += skip_to_end(buffer + i, s);
+}
+
 void	check_cylinder(char *buffer, t_system *s)
 {
 	int			i;
@@ -62,13 +73,7 @@ void	check_cylinder(char *buffer, t_system *s)
 			obj->type = CYLINDER;
 			obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;
 			phong_to_material(&obj->material);
-			i += parse_xyz(buffer + i, &obj->cylinder.location, POINT, s);
-			i += parse_xyz(buffer + i, &obj->cylinder.rotation, VECTOR, s);
-			normalize_or_error(&obj->cylinder.rotation, s);
-			i += parse_float(buffer + i, &obj->cylinder.diameter, POSITIVE, s);
-			i += parse_float(buffer + i, &obj->cylinder.length, POSITIVE, s);
-			i += parse_rgb(buffer + i, &obj->material.color, s);
-			i += skip_to_end(buffer + i, s);
+			parse_cylinder(buffer, obj, s, i);
 			continue ;
 		}
 		i++;
