@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser.c                                           :+:      :+:    :+:   */
+/*   parser.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,25 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
-
-void	normalize_or_error(t_tuple *vec, t_system *sys)
-{
-	float	len;
-
-	len = magnitude_vector(vec);
-	if (len < EPSILON)
-	{
-		error_exit("Vector is a zero vector.\n", sys);
-		return ;
-	}
-	if (fabsf(len - 1.0f) > 0.01f)
-	{
-		printf("Warning: vector not normalized (len=%.3f), normalizing...\n",
-			len);
-		*vec = normalize_vector(vec);
-	}
-}
+#include "../../minirt.h"
 
 static void	check_objects(char *buffer, t_system *sys)
 {
@@ -50,7 +32,7 @@ void	parser(char *input, t_system *sys)
 	int		bytes_read;
 	char	buffer_overflow;
 
-	if (!check_extension(input))
+	if (!validate_rt_file_extension(input))
 		error_exit("File must have .rt extension.\n", sys);
 	fd = open(input, O_RDONLY);
 	if (fd == -1)
