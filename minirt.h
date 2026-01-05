@@ -252,10 +252,10 @@ int					skip_float(char *buffer);
 int					skip_to_end(char *buffer, t_system *sys);
 int					parse_float(char *in, float *out, t_float_check check,
 						t_system *sys);
-int					parse_rgb(char *buffer, t_tuple *color, t_system *sys);
-int					parse_xyz(char *buffer, t_tuple *tuple, float w,
+int					parse_rgb_color(char *buffer, t_tuple *color, t_system *sys);
+int					parse_vector3(char *buffer, t_tuple *tuple, float w,
 						t_system *sys);
-int					check_extension(char *filename);
+int					validate_rt_file_extension(char *filename);
 
 void				check_ambient_light(char *buffer, t_system *sys);
 void				check_camera(char *buffer, t_system *sys);
@@ -265,7 +265,7 @@ void				check_cylinder(char *buffer, t_system *s);
 void				check_plane(char *buffer, t_system *sys);
 
 void				parser(char *input, t_system *sys);
-void				normalize_or_error(t_tuple *vec, t_system *sys);
+void				validate_and_normalize_direction(t_tuple *vec, t_system *sys);
 void				phong_to_material(t_material *material);
 t_mat				create_identity_matrix(int dim);
 

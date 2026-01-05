@@ -1,0 +1,35 @@
+#include "../../minirt.h"
+
+static void	max_object_check(t_system *sys)
+{
+	if (sys->object_count >= MAX_OBJECTS)
+		error_exit("Too many objects.\n", sys);
+}
+
+void	check_plane(char *buffer, t_system *sys)
+{
+	int			i;
+	t_object	*obj;
+
+	i = 0;
+	while (buffer[i])
+	{
+		if (ft_strncmp(buffer + i, "pl", 2) == 0 && (i == 0 || buffer[i - 1]
+				== '\n'))
+		{
+			i += 2;
+			max_object_check(sys);
+			obj = &sys->obj_list[sys->object_count++];
+			obj->type = PLANE;
+			obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;
+			phong_to_material(&obj->material);
+			i += parse_vector3(buffer + i, &obj->plane.location, POINT, sys);
+			i += parse_vector3(buffer + i, &obj->plane.rotation, VECTOR, sys);
+			validate_and_normalize_direction(&obj->plane.rotation, sys);
+			i += parse_rgb_color(buffer + i, &obj->material.color, sys);
+			i += skip_to_end(buffer + i, sys);
+			continue ;
+		}
+		i++;
+	}
+}

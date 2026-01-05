@@ -76,14 +76,40 @@ LIGHTING_SRC = lighting/reflect.c lighting/is_shadowed.c \
 RENDER_SRC = render/shade_hit.c render/color_at.c render/render.c \
              render/apply_green_tint.c render/fill_pixel_block.c
 
+# Parser - Core (2 files)
+PARSER_CORE_SRC = parser/core/parser.c \
+                  parser/core/validate_and_normalize_direction.c
+
+# Parser - Primitives (5 files)
+PARSER_PRIMITIVES_SRC = parser/primitives/parse_int.c parser/primitives/parse_fov.c \
+                        parser/primitives/parse_float.c \
+                        parser/primitives/parse_rgb_color.c \
+                        parser/primitives/parse_vector3.c
+
+# Parser - Validation (5 files)
+PARSER_VALIDATION_SRC = parser/validation/skip_spaces.c \
+                        parser/validation/skip_commas.c \
+                        parser/validation/skip_float.c \
+                        parser/validation/skip_to_end.c \
+                        parser/validation/validate_rt_file_extension.c
+
+# Parser - Elements (7 files)
+PARSER_ELEMENTS_SRC = parser/elements/check_ambient_light.c \
+                      parser/elements/check_camera.c \
+                      parser/elements/check_lights.c \
+                      parser/elements/phong_to_material.c \
+                      parser/elements/check_sphere.c \
+                      parser/elements/check_cylinder.c \
+                      parser/elements/check_plane.c
+
 # Old files (keep for now, will remove after testing)
-OLD_SRC = parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
-          system_init.c error.c app_loop.c
+OLD_SRC = system_init.c error.c app_loop.c
 
 SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
       $(RAY_SRC) $(NORMALS_SRC) $(TRANSFORMS_SRC) $(CAMERA_SRC) \
       $(CAMERA_CONTROLS_SRC) $(INTERSECTIONS_SRC) $(LIGHTING_SRC) \
-      $(RENDER_SRC) $(OLD_SRC)
+      $(RENDER_SRC) $(PARSER_CORE_SRC) $(PARSER_PRIMITIVES_SRC) \
+      $(PARSER_VALIDATION_SRC) $(PARSER_ELEMENTS_SRC) $(OLD_SRC)
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)
