@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:12:49 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/04 11:09:40 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/05 15:01:19 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,7 +252,8 @@ int					skip_float(char *buffer);
 int					skip_to_end(char *buffer, t_system *sys);
 int					parse_float(char *in, float *out, t_float_check check,
 						t_system *sys);
-int					parse_rgb_color(char *buffer, t_tuple *color, t_system *sys);
+int					parse_rgb_color(char *buffer,\
+					t_tuple *color, t_system *sys);
 int					parse_vector3(char *buffer, t_tuple *tuple, float w,
 						t_system *sys);
 int					validate_rt_file_extension(char *filename);
@@ -265,7 +266,8 @@ void				check_cylinder(char *buffer, t_system *s);
 void				check_plane(char *buffer, t_system *sys);
 
 void				parser(char *input, t_system *sys);
-void				validate_and_normalize_direction(t_tuple *vec, t_system *sys);
+void				validate_and_normalize_direction(t_tuple *vec,\
+					t_system *sys);
 void				phong_to_material(t_material *material);
 t_mat				create_identity_matrix(int dim);
 
