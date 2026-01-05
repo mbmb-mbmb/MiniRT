@@ -102,14 +102,19 @@ PARSER_ELEMENTS_SRC = parser/elements/check_ambient_light.c \
                       parser/elements/check_cylinder.c \
                       parser/elements/check_plane.c
 
-# Old files (keep for now, will remove after testing)
-OLD_SRC = system_init.c error.c app_loop.c
+# System (4 files)
+SYSTEM_SRC = system/init_system.c system/init_canvas_dimensions.c \
+             system/prepare_scene.c system/error_exit.c
+
+# App (1 file)
+APP_SRC = app/frame.c
 
 SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
       $(RAY_SRC) $(NORMALS_SRC) $(TRANSFORMS_SRC) $(CAMERA_SRC) \
       $(CAMERA_CONTROLS_SRC) $(INTERSECTIONS_SRC) $(LIGHTING_SRC) \
       $(RENDER_SRC) $(PARSER_CORE_SRC) $(PARSER_PRIMITIVES_SRC) \
-      $(PARSER_VALIDATION_SRC) $(PARSER_ELEMENTS_SRC) $(OLD_SRC)
+      $(PARSER_VALIDATION_SRC) $(PARSER_ELEMENTS_SRC) $(SYSTEM_SRC) \
+      $(APP_SRC)
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)
