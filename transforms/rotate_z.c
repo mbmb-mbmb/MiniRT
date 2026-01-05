@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   transform_rotate.c                                 :+:      :+:    :+:   */
+/*   rotate_z.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,31 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
-
-t_mat	rotate_x(float x)
-{
-	t_mat	mat;
-
-	mat = create_identity_matrix(4);
-	mat.m[1][1] = cos(x);
-	mat.m[2][1] = -sin(x);
-	mat.m[1][2] = sin(x);
-	mat.m[2][2] = cos(x);
-	return (mat);
-}
-
-t_mat	rotate_y(float y)
-{
-	t_mat	mat;
-
-	mat = create_identity_matrix(4);
-	mat.m[0][0] = cos(y);
-	mat.m[0][2] = sin(y);
-	mat.m[2][0] = -sin(y);
-	mat.m[2][2] = cos(y);
-	return (mat);
-}
+#include "../minirt.h"
 
 t_mat	rotate_z(float z)
 {

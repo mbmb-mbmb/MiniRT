@@ -325,7 +325,7 @@ t_mat				scaling(float x, float y, float z);
 t_mat				rotate_x(float x);
 t_mat				rotate_y(float y);
 t_mat				rotate_z(float z);
-t_mat				rotation_from_axis(t_tuple *axis);
+t_mat				create_rotation_matrix_from_axis(t_tuple *axis);
 void				set_transform(t_object *obj, t_mat *transform);
 t_mat				view_transform(t_tuple *eye, t_tuple *target, t_tuple *up);
 

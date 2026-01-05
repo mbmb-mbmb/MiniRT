@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ray.c                                              :+:      :+:    :+:   */
+/*   ray_to_object_space.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,37 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
-
-t_ray	ray_make(t_tuple origin, t_tuple direction)
-{
-	t_ray	ray;
-
-	ray.origin = origin;
-	ray.direction = direction;
-	return (ray);
-}
-
-t_tuple	ray_position(t_ray *ray, float t)
-{
-	t_tuple	v_pos;
-	t_tuple	v_dirmult;
-
-	v_dirmult = multiply_tuple(&ray->direction, t);
-	v_pos = add_tuple(&ray->origin, &v_dirmult);
-	return (v_pos);
-}
-
-t_ray	ray_transform(t_ray *ray, t_mat *mat)
-{
-	t_ray	ray_out;
-
-	ray_out.origin = transform_tuple_by_matrix(mat, &ray->origin);
-	ray_out.direction = transform_tuple_by_matrix(mat, &ray->direction);
-	ray_out.origin.w = POINT;
-	ray_out.direction.w = VECTOR;
-	return (ray_out);
-}
+#include "../minirt.h"
 
 t_ray	ray_to_object_space(t_ray *ray, t_object *obj)
 {

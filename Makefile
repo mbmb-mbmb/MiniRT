@@ -32,15 +32,33 @@ MATH_MATRIX_SRC = math/matrix/create_identity_matrix.c \
                   math/matrix/set_matrix_dim.c \
                   math/matrix/invert_matrix.c
 
+# Ray (4 files)
+RAY_SRC = ray/ray_make.c ray/ray_position.c ray/ray_transform.c \
+          ray/ray_to_object_space.c
+
+# Normals (3 files)
+NORMALS_SRC = normals/normal_at_sphere.c normals/normal_at_plane.c \
+              normals/normal_at_cylinder.c
+
+# Transforms (10 files)
+TRANSFORMS_SRC = transforms/translation.c transforms/scaling.c \
+                 transforms/rotate_x.c transforms/rotate_y.c transforms/rotate_z.c \
+                 transforms/create_rotation_matrix_from_axis.c \
+                 transforms/set_transform.c transforms/setup_sphere_transform.c \
+                 transforms/transform_plane.c transforms/transform_cylinder.c
+
+# Camera (2 files from transforms)
+CAMERA_SRC = camera/camera_transform.c camera/camera_update_transform.c
+
 # Old files (keep for now, will remove after testing)
 OLD_SRC = parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
-          transforms.c transform_basic.c transform_rotate.c \
           lighting.c lighting_components.c \
-          camera.c camera_controls.c render.c render_utils.c shading.c ray.c \
+          camera.c camera_controls.c render.c render_utils.c shading.c \
           intersect.c intersect_cylinder.c intersect_cylinder2.c \
-          system_init.c normal.c error.c app_loop.c input_handlers.c
+          system_init.c error.c app_loop.c input_handlers.c
 
-SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) $(OLD_SRC)
+SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
+      $(RAY_SRC) $(NORMALS_SRC) $(TRANSFORMS_SRC) $(CAMERA_SRC) $(OLD_SRC)
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)
