@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   render_utils.c                                     :+:      :+:    :+:   */
+/*   fill_pixel_block.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,18 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
-
-t_tuple	apply_green_tint(t_tuple *color)
-{
-	t_tuple	tinted;
-
-	tinted.x = color->x * 0.7f;
-	tinted.y = color->y * 1.3f;
-	tinted.z = color->z * 0.7f;
-	tinted.w = color->w;
-	return (tinted);
-}
+#include "../minirt.h"
 
 void	fill_pixel_block(mlx_image_t *img, int x, int y, uint32_t color)
 {

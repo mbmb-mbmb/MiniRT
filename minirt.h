@@ -367,7 +367,7 @@ void				fill_pixel_block(mlx_image_t *img, int x, int y,
 						uint32_t color);
 
 /* lighting */
-t_tuple				calculate_light_direction(t_tuple *light_pos,
+t_tuple				calculate_point_to_light_direction(t_tuple *light_pos,
 						t_tuple *point);
 t_tuple				calculate_ambient(t_material *material,
 						t_amb_light *amb_light);
