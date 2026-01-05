@@ -32,11 +32,14 @@ void	parser(char *input, t_system *sys)
 	int		bytes_read;
 	char	buffer_overflow;
 
+	sys->state |= PARSING;
 	if (!validate_rt_file_extension(input))
 		error_exit("File must have .rt extension.\n", sys);
+	sys->parser_fd = -1;
 	fd = open(input, O_RDONLY);
 	if (fd == -1)
 		error_exit("Cannot open file.\n", sys);
+	sys->parser_fd = fd;
 	bytes_read = read(fd, buffer, sizeof(buffer) - 1);
 	if (read(fd, &buffer_overflow, 1) > 0)
 		error_exit("File is too large.\n", sys);
@@ -44,5 +47,6 @@ void	parser(char *input, t_system *sys)
 		error_exit("Cannot read file.\n", sys);
 	buffer[bytes_read] = '\0';
 	close(fd);
+	sys->parser_fd = -1;
 	check_objects(buffer, sys);
 }

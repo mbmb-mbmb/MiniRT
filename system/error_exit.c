@@ -32,6 +32,21 @@ static void	print_usage(void)
 
 void	error_exit(char *msg, t_system *sys)
 {
+	if (sys)
+	{
+		if (sys->parser_fd >= 0)
+		{
+			close(sys->parser_fd);
+			sys->parser_fd = -1;
+		}
+		if (sys->mlx_instance)
+		{
+			mlx_terminate(sys->mlx_instance);
+			sys->mlx_instance = NULL;
+		}
+		sys->exit_code = 1;
+		sys->state |= SHOULD_EXIT;
+	}
 	if (msg)
 	{
 		ft_putstr_fd("Error\n", 2);
@@ -39,10 +54,5 @@ void	error_exit(char *msg, t_system *sys)
 	}
 	else
 		print_usage();
-	if (sys)
-	{
-		sys->exit_code = 1;
-		sys->state |= SHOULD_EXIT;
-	}
 	exit(1);
 }

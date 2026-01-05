@@ -17,5 +17,7 @@ void	init_system(t_system *sys)
 	*sys = (t_system){0};
 	sys->state = DRAFT_MODE;
 	sys->exit_code = 0;
+	sys->parser_fd = -1;
+	sys->mlx_instance = NULL;
 	sys->camera.aspect_ratio = (float)WIDTH / (float)HEIGHT;
 }

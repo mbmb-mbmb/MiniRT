@@ -227,6 +227,8 @@ typedef struct s_system
 	t_sys_state		state;
 	uint32_t		render_flags;
 	int				exit_code;
+	int				parser_fd;
+	mlx_t			*mlx_instance;
 	t_camera		camera;
 	t_object		obj_list[MAX_OBJECTS];
 	int				object_count;
