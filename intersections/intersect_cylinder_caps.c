@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   intersect_cylinder.c                               :+:      :+:    :+:   */
+/*   intersect_cylinder_caps.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,20 +10,30 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+#include "../minirt.h"
 
-bool	ray_misses_cylinder(float a, float discriminant)
+void	intersect_cylinder_caps(t_ray *ray, t_intersection_list *list)
 {
-	return (fabsf(a) < EPSILON || discriminant < 0.0f);
-}
+	float	t;
+	float	x;
+	float	z;
 
-bool	ray_parallel_to_y(t_ray *ray)
-{
-	return (fabsf(ray->direction.y) < EPSILON);
-}
-
-void	intersect_cylinder(t_ray *ray, t_intersection_list *list)
-{
-	intersect_cylinder_walls(ray, list);
-	intersect_cylinder_caps(ray, list);
+	if (ray_parallel_to_y(ray))
+		return ;
+	t = (-1.0f - ray->origin.y) / ray->direction.y;
+	if (t > 0.0f && list->count < MAX_INTERSECTIONS)
+	{
+		x = ray->origin.x + t * ray->direction.x;
+		z = ray->origin.z + t * ray->direction.z;
+		if (x * x + z * z <= 1.0f)
+			list->intersections[list->count++].t = t;
+	}
+	t = (1.0f - ray->origin.y) / ray->direction.y;
+	if (t > 0.0f && list->count < MAX_INTERSECTIONS)
+	{
+		x = ray->origin.x + t * ray->direction.x;
+		z = ray->origin.z + t * ray->direction.z;
+		if (x * x + z * z <= 1.0f)
+			list->intersections[list->count++].t = t;
+	}
 }

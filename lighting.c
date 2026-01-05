@@ -37,7 +37,7 @@ bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
 	shadow_ray.direction = normalize_vector(&overpoint_to_light);
 	shadow_ray.origin = *over_point;
 	shadow_inters = intersect_world(sys, &shadow_ray);
-	shadow_hit = hit(&shadow_inters);
+	shadow_hit = find_closest_intersection(&shadow_inters);
 	if (shadow_hit != NULL && shadow_hit->t < distance)
 		return (true);
 	return (false);

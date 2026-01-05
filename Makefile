@@ -50,15 +50,23 @@ TRANSFORMS_SRC = transforms/translation.c transforms/scaling.c \
 # Camera (2 files from transforms)
 CAMERA_SRC = camera/camera_transform.c camera/camera_update_transform.c
 
+# Intersections (7 files)
+INTERSECTIONS_SRC = intersections/intersect_sphere.c intersections/intersect_plane.c \
+                    intersections/intersect_world.c \
+                    intersections/find_closest_intersection.c \
+                    intersections/intersect_cylinder.c \
+                    intersections/intersect_cylinder_walls.c \
+                    intersections/intersect_cylinder_caps.c
+
 # Old files (keep for now, will remove after testing)
 OLD_SRC = parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
           lighting.c lighting_components.c \
           camera.c camera_controls.c render.c render_utils.c shading.c \
-          intersect.c intersect_cylinder.c intersect_cylinder2.c \
           system_init.c error.c app_loop.c input_handlers.c
 
 SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
-      $(RAY_SRC) $(NORMALS_SRC) $(TRANSFORMS_SRC) $(CAMERA_SRC) $(OLD_SRC)
+      $(RAY_SRC) $(NORMALS_SRC) $(TRANSFORMS_SRC) $(CAMERA_SRC) \
+      $(INTERSECTIONS_SRC) $(OLD_SRC)
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)

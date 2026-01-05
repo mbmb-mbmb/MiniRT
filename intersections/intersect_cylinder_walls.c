@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   intersect_cylinder2.c                              :+:      :+:    :+:   */
+/*   intersect_cylinder_walls.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+#include "../minirt.h"
 
 static void	add_wall_hit(t_ray *ray, t_intersection_list *list, float t)
 {
@@ -38,30 +38,4 @@ void	intersect_cylinder_walls(t_ray *ray, t_intersection_list *list)
 		return ;
 	add_wall_hit(ray, list, (-b - sqrtf(disc)) / (2.0f * a));
 	add_wall_hit(ray, list, (-b + sqrtf(disc)) / (2.0f * a));
-}
-
-void	intersect_cylinder_caps(t_ray *ray, t_intersection_list *list)
-{
-	float	t;
-	float	x;
-	float	z;
-
-	if (ray_parallel_to_y(ray))
-		return ;
-	t = (-1.0f - ray->origin.y) / ray->direction.y;
-	if (t > 0.0f && list->count < MAX_INTERSECTIONS)
-	{
-		x = ray->origin.x + t * ray->direction.x;
-		z = ray->origin.z + t * ray->direction.z;
-		if (x * x + z * z <= 1.0f)
-			list->intersections[list->count++].t = t;
-	}
-	t = (1.0f - ray->origin.y) / ray->direction.y;
-	if (t > 0.0f && list->count < MAX_INTERSECTIONS)
-	{
-		x = ray->origin.x + t * ray->direction.x;
-		z = ray->origin.z + t * ray->direction.z;
-		if (x * x + z * z <= 1.0f)
-			list->intersections[list->count++].t = t;
-	}
 }

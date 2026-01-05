@@ -315,7 +315,7 @@ void				intersect_cylinder_caps(t_ray *ray,
 void				intersect_cylinder_walls(t_ray *ray,
 						t_intersection_list *list);
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray);
-t_intersection		*hit(t_intersection_list *list);
+t_intersection		*find_closest_intersection(t_intersection_list *list);
 bool				ray_misses_cylinder(float a, float discriminant);
 bool				ray_parallel_to_y(t_ray *ray);
 
