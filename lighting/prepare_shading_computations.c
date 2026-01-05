@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lighting.c                                         :+:      :+:    :+:   */
+/*   prepare_shading_computations.c                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,38 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
-
-t_tuple	reflect(t_tuple *vec, t_tuple *normal)
-{
-	t_tuple	v_reflected;
-	t_tuple	v_temp;
-	float	dot;
-
-	dot = dot_product_tuple(vec, normal);
-	v_temp = multiply_tuple(normal, 2.0f * dot);
-	v_reflected = subtract_tuple(vec, &v_temp);
-	return (v_reflected);
-}
-
-bool	is_shadowed(t_system *sys, t_tuple *light_pos, t_tuple *over_point)
-{
-	t_intersection_list	shadow_inters;
-	t_intersection		*shadow_hit;
-	t_ray				shadow_ray;
-	t_tuple				overpoint_to_light;
-	float				distance;
-
-	overpoint_to_light = subtract_tuple(light_pos, over_point);
-	distance = magnitude_vector(&overpoint_to_light);
-	shadow_ray.direction = normalize_vector(&overpoint_to_light);
-	shadow_ray.origin = *over_point;
-	shadow_inters = intersect_world(sys, &shadow_ray);
-	shadow_hit = find_closest_intersection(&shadow_inters);
-	if (shadow_hit != NULL && shadow_hit->t < distance)
-		return (true);
-	return (false);
-}
+#include "../minirt.h"
 
 static void	flip_normal_if_inside(t_tuple *normalv, t_tuple *eyev)
 {

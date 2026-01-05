@@ -65,15 +65,25 @@ INTERSECTIONS_SRC = intersections/intersect_sphere.c intersections/intersect_pla
                     intersections/intersect_cylinder_walls.c \
                     intersections/intersect_cylinder_caps.c
 
+# Lighting (7 files)
+LIGHTING_SRC = lighting/reflect.c lighting/is_shadowed.c \
+               lighting/prepare_shading_computations.c \
+               lighting/calculate_ambient.c lighting/calculate_diffuse.c \
+               lighting/calculate_specular.c \
+               lighting/calculate_point_to_light_direction.c
+
+# Render (5 files)
+RENDER_SRC = render/shade_hit.c render/color_at.c render/render.c \
+             render/apply_green_tint.c render/fill_pixel_block.c
+
 # Old files (keep for now, will remove after testing)
 OLD_SRC = parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
-          lighting.c lighting_components.c \
-          render.c render_utils.c shading.c \
           system_init.c error.c app_loop.c
 
 SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
       $(RAY_SRC) $(NORMALS_SRC) $(TRANSFORMS_SRC) $(CAMERA_SRC) \
-      $(CAMERA_CONTROLS_SRC) $(INTERSECTIONS_SRC) $(OLD_SRC)
+      $(CAMERA_CONTROLS_SRC) $(INTERSECTIONS_SRC) $(LIGHTING_SRC) \
+      $(RENDER_SRC) $(OLD_SRC)
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)
