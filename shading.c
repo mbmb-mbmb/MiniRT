@@ -63,7 +63,7 @@ t_tuple	color_at(t_system *sys, t_ray *ray)
 	t_tuple				color;
 
 	intersections = intersect_world(sys, ray);
-	closest_hit = hit(&intersections);
+	closest_hit = find_closest_intersection(&intersections);
 	if (closest_hit == NULL)
 		return (create_color(0, 0, 0, 1));
 	mat = &closest_hit->object->material;
