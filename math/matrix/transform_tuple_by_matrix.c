@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mat_operations.c                                   :+:      :+:    :+:   */
+/*   transform_tuple_by_matrix.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,32 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
+#include "../../minirt.h"
 
-t_mat	multiply_matrices(t_mat *a, t_mat *b)
-{
-	t_mat	out;
-	int		i;
-	int		j;
-
-	out = (t_mat){0};
-	out.type = a->type;
-	i = 0;
-	while (i < 4)
-	{
-		j = 0;
-		while (j < 4)
-		{
-			out.m[i][j] = a->m[i][0] * b->m[0][j] + a->m[i][1] * b->m[1][j]
-				+ a->m[i][2] * b->m[2][j] + a->m[i][3] * b->m[3][j];
-			j++;
-		}
-		i++;
-	}
-	return (out);
-}
-
-t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *in)
+t_tuple	transform_tuple_by_matrix(t_mat *mat, t_tuple *in)
 {
 	t_tuple	out;
 
@@ -48,61 +25,4 @@ t_tuple	multiply_matrix_and_tuple(t_mat *mat, t_tuple *in)
 	out.w = mat->m[3][0] * in->x + mat->m[3][1] * in->y + mat->m[3][2] * in->z
 		+ mat->m[3][3] * in->w;
 	return (out);
-}
-
-t_mat	transpose_matrix(t_mat *mat, int dim)
-{
-	int		i;
-	int		j;
-	t_mat	mat_trans;
-
-	mat_trans.type = mat->type;
-	i = 0;
-	while (i < dim)
-	{
-		j = 0;
-		while (j < dim)
-		{
-			mat_trans.m[j][i] = mat->m[i][j];
-			j++;
-		}
-		i++;
-	}
-	return (mat_trans);
-}
-
-void	set_matrix_dim(t_mat *mat, int dim)
-{
-	if (dim == 3)
-		mat->type = THREE;
-	else if (dim == 2)
-		mat->type = TWO;
-	else if (dim == 4)
-		mat->type = FOUR;
-	else
-		mat->type = -1;
-}
-
-t_mat	create_identity_matrix(int dim)
-{
-	t_mat	mat;
-	int		i;
-	int		j;
-
-	i = 0;
-	while (i < dim)
-	{
-		j = 0;
-		while (j < dim)
-		{
-			if (i == j)
-				mat.m[i][j] = 1;
-			else
-				mat.m[i][j] = 0;
-			j++;
-		}
-		i++;
-	}
-	set_matrix_dim(&mat, dim);
-	return (mat);
 }

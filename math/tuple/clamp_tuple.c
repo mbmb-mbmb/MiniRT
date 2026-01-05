@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   vec_scaling.c                                      :+:      :+:    :+:   */
+/*   clamp_tuple.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,18 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minirt.h"
-
-t_tuple	multiply_tuple_w_tuple(t_tuple *a, t_tuple *b)
-{
-	t_tuple	result;
-
-	result.x = a->x * b->x;
-	result.y = a->y * b->y;
-	result.z = a->z * b->z;
-	result.w = 1.0f;
-	return (result);
-}
+#include "../../minirt.h"
 
 t_tuple	clamp_tuple(t_tuple *in, float min, float max)
 {
@@ -32,9 +21,4 @@ t_tuple	clamp_tuple(t_tuple *in, float min, float max)
 	clamped.z = fminf(max, fmaxf(min, in->z));
 	clamped.w = 1.0f;
 	return (clamped);
-}
-
-float	magnitude_vector(t_tuple *a)
-{
-	return (sqrtf(a->x * a->x + a->y * a->y + a->z * a->z));
 }

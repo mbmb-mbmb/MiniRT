@@ -7,15 +7,40 @@ LIBS	= $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -lglfw -pthread -lm
 CC		= gcc
 CFLAGS	= -Wall -Wextra -Werror -O2 -ffast-math
 HEADERS	= -I . -I $(LIBMLX)/include -I $(LIBFT)
-SRC		= main.c parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
-		  vec_arithmetic.c vec_scaling.c vec_operations.c \
-		  tuple_utils.c tuple_create.c math_utils.c \
-		  mat_operations.c mat_inverse.c \
-		  transforms.c transform_basic.c transform_rotate.c \
-		  lighting.c lighting_components.c \
-		  camera.c camera_controls.c render.c render_utils.c shading.c ray.c \
-		  intersect.c intersect_cylinder.c intersect_cylinder2.c \
-		  system_init.c normal.c error.c app_loop.c input_handlers.c
+# Math - Utils (3 files)
+MATH_UTILS_SRC = math/utils/degrees_to_radians.c math/utils/is_float_zero.c \
+                 math/utils/is_float_equal.c
+
+# Math - Tuple (19 files)
+MATH_TUPLE_SRC = math/tuple/create_point.c math/tuple/create_vector.c \
+                 math/tuple/create_color.c math/tuple/tuple_to_rgba.c \
+                 math/tuple/get_tuple_type.c math/tuple/get_w_value_for_type.c \
+                 math/tuple/validate_tuple_addition.c \
+                 math/tuple/validate_tuple_subtraction.c \
+                 math/tuple/add_tuple.c math/tuple/subtract_tuple.c \
+                 math/tuple/negate_tuple.c math/tuple/multiply_tuple.c \
+                 math/tuple/divide_tuple.c math/tuple/multiply_tuple_w_tuple.c \
+                 math/tuple/clamp_tuple.c math/tuple/magnitude_vector.c \
+                 math/tuple/normalize_vector.c math/tuple/dot_product_tuple.c \
+                 math/tuple/cross_product_tuple.c
+
+# Math - Matrix (6 files)
+MATH_MATRIX_SRC = math/matrix/create_identity_matrix.c \
+                  math/matrix/multiply_matrices.c \
+                  math/matrix/transform_tuple_by_matrix.c \
+                  math/matrix/transpose_matrix.c \
+                  math/matrix/set_matrix_dim.c \
+                  math/matrix/invert_matrix.c
+
+# Old files (keep for now, will remove after testing)
+OLD_SRC = parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
+          transforms.c transform_basic.c transform_rotate.c \
+          lighting.c lighting_components.c \
+          camera.c camera_controls.c render.c render_utils.c shading.c ray.c \
+          intersect.c intersect_cylinder.c intersect_cylinder2.c \
+          system_init.c normal.c error.c app_loop.c input_handlers.c
+
+SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) $(OLD_SRC)
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)
