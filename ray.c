@@ -35,8 +35,8 @@ t_ray	ray_transform(t_ray *ray, t_mat *mat)
 {
 	t_ray	ray_out;
 
-	ray_out.origin = multiply_matrix_and_tuple(mat, &ray->origin);
-	ray_out.direction = multiply_matrix_and_tuple(mat, &ray->direction);
+	ray_out.origin = transform_tuple_by_matrix(mat, &ray->origin);
+	ray_out.direction = transform_tuple_by_matrix(mat, &ray->direction);
 	ray_out.origin.w = POINT;
 	ray_out.direction.w = VECTOR;
 	return (ray_out);

@@ -47,7 +47,7 @@ void	camera_rotate_yaw(t_camera *camera, float angle)
 	t_tuple	new_rotation;
 
 	rotation = rotate_y(angle);
-	new_rotation = multiply_matrix_and_tuple(&rotation, &camera->rotation);
+	new_rotation = transform_tuple_by_matrix(&rotation, &camera->rotation);
 	camera->rotation = normalize_vector(&new_rotation);
 }
 

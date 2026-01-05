@@ -71,7 +71,7 @@ t_ray	ray_for_pixel(t_camera *camera, uint32_t x, uint32_t y)
 	t_tuple	direction;
 
 	pixel_on_canvas = compute_pixel_on_canvas(camera, x, y);
-	pixel_in_world = multiply_matrix_and_tuple(&camera->inverse,
+	pixel_in_world = transform_tuple_by_matrix(&camera->inverse,
 			&pixel_on_canvas);
 	direction = subtract_tuple(&pixel_in_world, &camera->world_origin);
 	ray.origin = camera->world_origin;

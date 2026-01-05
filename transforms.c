@@ -25,7 +25,7 @@ void	camera_update_transform(t_camera *camera)
 	camera->transform = view_transform(&from, &to, &up);
 	camera->inverse = invert_matrix(&camera->transform);
 	camera_obj_origin = (t_tuple){0.0f, 0.0f, 0.0f, POINT};
-	camera->world_origin = multiply_matrix_and_tuple(&camera->inverse,
+	camera->world_origin = transform_tuple_by_matrix(&camera->inverse,
 			&camera_obj_origin);
 }
 

@@ -284,10 +284,10 @@ float				magnitude_vector(t_tuple *a);
 t_tuple				normalize_vector(t_tuple *a);
 float				dot_product_tuple(t_tuple *a, t_tuple *b);
 t_tuple				cross_product_tuple(t_tuple *a, t_tuple *b);
-int					classify_w(const t_tuple *t);
-int					canonical_w(int kind);
-int					add_kind(int ak, int bk);
-int					sub_kind(int ak, int bk);
+int					get_tuple_type(const t_tuple *t);
+int					get_w_value_for_type(int kind);
+int					validate_tuple_addition(int ak, int bk);
+int					validate_tuple_subtraction(int ak, int bk);
 float				degrees_to_radians(float degrees);
 uint32_t			tuple_to_rgba(t_tuple *color);
 t_tuple				create_color(float red, float green,
@@ -296,7 +296,7 @@ t_tuple				create_color(float red, float green,
 /* matrix helpers */
 void				set_matrix_dim(t_mat *mat, int dim);
 t_mat				multiply_matrices(t_mat *ina, t_mat *inb);
-t_tuple				multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in);
+t_tuple				transform_tuple_by_matrix(t_mat *mat, t_tuple *tup_in);
 t_mat				transpose_matrix(t_mat *mat, int dim);
 t_mat				invert_matrix(t_mat *m);
 
