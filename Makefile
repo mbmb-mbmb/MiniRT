@@ -7,11 +7,9 @@ LIBS	= $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -lglfw -pthread -lm
 CC		= gcc
 CFLAGS	= -Wall -Wextra -Werror -O2 -ffast-math
 HEADERS	= -I . -I $(LIBMLX)/include -I $(LIBFT)
-# Math - Utils (3 files)
 MATH_UTILS_SRC = math/utils/degrees_to_radians.c math/utils/is_float_zero.c \
                  math/utils/is_float_equal.c
 
-# Math - Tuple (19 files)
 MATH_TUPLE_SRC = math/tuple/create_point.c math/tuple/create_vector.c \
                  math/tuple/create_color.c math/tuple/tuple_to_rgba.c \
                  math/tuple/get_tuple_type.c math/tuple/get_w_value_for_type.c \
@@ -24,7 +22,6 @@ MATH_TUPLE_SRC = math/tuple/create_point.c math/tuple/create_vector.c \
                  math/tuple/normalize_vector.c math/tuple/dot_product_tuple.c \
                  math/tuple/cross_product_tuple.c
 
-# Math - Matrix (6 files)
 MATH_MATRIX_SRC = math/matrix/create_identity_matrix.c \
                   math/matrix/multiply_matrices.c \
                   math/matrix/transform_tuple_by_matrix.c \
@@ -32,32 +29,26 @@ MATH_MATRIX_SRC = math/matrix/create_identity_matrix.c \
                   math/matrix/set_matrix_dim.c \
                   math/matrix/invert_matrix.c
 
-# Ray (4 files)
 RAY_SRC = ray/ray_make.c ray/ray_position.c ray/ray_transform.c \
           ray/ray_to_object_space.c
 
-# Normals (3 files)
 NORMALS_SRC = normals/normal_at_sphere.c normals/normal_at_plane.c \
               normals/normal_at_cylinder.c
 
-# Transforms (10 files)
 TRANSFORMS_SRC = transforms/translation.c transforms/scaling.c \
                  transforms/rotate_x.c transforms/rotate_y.c transforms/rotate_z.c \
                  transforms/create_rotation_matrix_from_axis.c \
                  transforms/set_transform.c transforms/setup_sphere_transform.c \
                  transforms/transform_plane.c transforms/transform_cylinder.c
 
-# Camera (4 files)
 CAMERA_SRC = camera/camera_transform.c camera/camera_update_transform.c \
              camera/view_transform.c camera/ray_for_pixel.c
 
-# Camera Controls (4 files)
 CAMERA_CONTROLS_SRC = camera_controls/camera_move.c \
                       camera_controls/camera_rotate_yaw.c \
                       camera_controls/camera_reset.c \
                       camera_controls/handle_camera_controls.c
 
-# Intersections (7 files)
 INTERSECTIONS_SRC = intersections/intersect_sphere.c intersections/intersect_plane.c \
                     intersections/intersect_world.c \
                     intersections/find_closest_intersection.c \
@@ -65,35 +56,29 @@ INTERSECTIONS_SRC = intersections/intersect_sphere.c intersections/intersect_pla
                     intersections/intersect_cylinder_walls.c \
                     intersections/intersect_cylinder_caps.c
 
-# Lighting (7 files)
 LIGHTING_SRC = lighting/reflect.c lighting/is_shadowed.c \
                lighting/prepare_shading_computations.c \
                lighting/calculate_ambient.c lighting/calculate_diffuse.c \
                lighting/calculate_specular.c \
                lighting/calculate_point_to_light_direction.c
 
-# Render (5 files)
 RENDER_SRC = render/shade_hit.c render/color_at.c render/render.c \
              render/apply_green_tint.c render/fill_pixel_block.c
 
-# Parser - Core (2 files)
 PARSER_CORE_SRC = parser/core/parser.c \
                   parser/core/validate_and_normalize_direction.c
 
-# Parser - Primitives (5 files)
 PARSER_PRIMITIVES_SRC = parser/primitives/parse_int.c parser/primitives/parse_fov.c \
                         parser/primitives/parse_float.c \
                         parser/primitives/parse_rgb_color.c \
                         parser/primitives/parse_vector3.c
 
-# Parser - Validation (5 files)
 PARSER_VALIDATION_SRC = parser/validation/skip_spaces.c \
                         parser/validation/skip_commas.c \
                         parser/validation/skip_float.c \
                         parser/validation/skip_to_end.c \
                         parser/validation/validate_rt_file_extension.c
 
-# Parser - Elements (7 files)
 PARSER_ELEMENTS_SRC = parser/elements/check_ambient_light.c \
                       parser/elements/check_camera.c \
                       parser/elements/check_lights.c \
@@ -102,11 +87,9 @@ PARSER_ELEMENTS_SRC = parser/elements/check_ambient_light.c \
                       parser/elements/check_cylinder.c \
                       parser/elements/check_plane.c
 
-# System (4 files)
 SYSTEM_SRC = system/init_system.c system/init_canvas_dimensions.c \
              system/prepare_scene.c system/error_exit.c
 
-# App (1 file)
 APP_SRC = app/frame.c
 
 SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
@@ -117,12 +100,12 @@ SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
       $(APP_SRC)
 OBJS	= $(SRC:.c=.o)
 
-all: libft libmlx $(NAME)
+all: $(LIBFT)/libft.a $(LIBMLX)/build/libmlx42.a $(NAME)
 
-libft:
+$(LIBFT)/libft.a:
 	$(MAKE) -C $(LIBFT)
 
-libmlx:
+$(LIBMLX)/build/libmlx42.a:
 	@if [ ! -d "$(LIBMLX)" ]; then \
 		git clone https://github.com/codam-coding-college/MLX42.git $(LIBMLX); \
 	fi
@@ -134,7 +117,6 @@ $(NAME): $(OBJS)
 clean:
 	rm -f $(OBJS)
 	$(MAKE) -C $(LIBFT) clean
-	rm -rf $(LIBMLX)/build
 
 fclean: clean
 	rm -f $(NAME)
@@ -143,4 +125,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re libmlx libft
+.PHONY: all clean fclean re
