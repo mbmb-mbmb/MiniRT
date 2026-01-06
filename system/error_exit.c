@@ -32,6 +32,13 @@ static void	print_usage(void)
 
 void	error_exit(char *msg, t_system *sys)
 {
+	if (msg)
+	{
+		ft_putstr_fd("Error\n", 2);
+		ft_putstr_fd(msg, 2);
+	}
+	else
+		print_usage();
 	if (sys)
 	{
 		if (sys->parser_fd >= 0)
@@ -47,12 +54,5 @@ void	error_exit(char *msg, t_system *sys)
 		sys->exit_code = 1;
 		sys->state |= SHOULD_EXIT;
 	}
-	if (msg)
-	{
-		ft_putstr_fd("Error\n", 2);
-		ft_putstr_fd(msg, 2);
-	}
-	else
-		print_usage();
 	exit(1);
 }
