@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:12:49 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/04 11:09:40 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/05 15:01:19 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,6 +227,8 @@ typedef struct s_system
 	t_sys_state		state;
 	uint32_t		render_flags;
 	int				exit_code;
+	int				parser_fd;
+	mlx_t			*mlx_instance;
 	t_camera		camera;
 	t_object		obj_list[MAX_OBJECTS];
 	int				object_count;
@@ -252,10 +254,11 @@ int					skip_float(char *buffer);
 int					skip_to_end(char *buffer, t_system *sys);
 int					parse_float(char *in, float *out, t_float_check check,
 						t_system *sys);
-int					parse_rgb(char *buffer, t_tuple *color, t_system *sys);
-int					parse_xyz(char *buffer, t_tuple *tuple, float w,
+int					parse_rgb_color(char *buffer,\
+					t_tuple *color, t_system *sys);
+int					parse_vector3(char *buffer, t_tuple *tuple, float w,
 						t_system *sys);
-int					check_extension(char *filename);
+int					validate_rt_file_extension(char *filename);
 
 void				check_ambient_light(char *buffer, t_system *sys);
 void				check_camera(char *buffer, t_system *sys);
@@ -265,7 +268,8 @@ void				check_cylinder(char *buffer, t_system *s);
 void				check_plane(char *buffer, t_system *sys);
 
 void				parser(char *input, t_system *sys);
-void				normalize_or_error(t_tuple *vec, t_system *sys);
+void				validate_and_normalize_direction(t_tuple *vec,\
+					t_system *sys);
 void				phong_to_material(t_material *material);
 t_mat				create_identity_matrix(int dim);
 
@@ -284,10 +288,10 @@ float				magnitude_vector(t_tuple *a);
 t_tuple				normalize_vector(t_tuple *a);
 float				dot_product_tuple(t_tuple *a, t_tuple *b);
 t_tuple				cross_product_tuple(t_tuple *a, t_tuple *b);
-int					classify_w(const t_tuple *t);
-int					canonical_w(int kind);
-int					add_kind(int ak, int bk);
-int					sub_kind(int ak, int bk);
+int					get_tuple_type(const t_tuple *t);
+int					get_w_value_for_type(int kind);
+int					validate_tuple_addition(int ak, int bk);
+int					validate_tuple_subtraction(int ak, int bk);
 float				degrees_to_radians(float degrees);
 uint32_t			tuple_to_rgba(t_tuple *color);
 t_tuple				create_color(float red, float green,
@@ -296,7 +300,7 @@ t_tuple				create_color(float red, float green,
 /* matrix helpers */
 void				set_matrix_dim(t_mat *mat, int dim);
 t_mat				multiply_matrices(t_mat *ina, t_mat *inb);
-t_tuple				multiply_matrix_and_tuple(t_mat *mat, t_tuple *tup_in);
+t_tuple				transform_tuple_by_matrix(t_mat *mat, t_tuple *tup_in);
 t_mat				transpose_matrix(t_mat *mat, int dim);
 t_mat				invert_matrix(t_mat *m);
 
@@ -315,7 +319,7 @@ void				intersect_cylinder_caps(t_ray *ray,
 void				intersect_cylinder_walls(t_ray *ray,
 						t_intersection_list *list);
 t_intersection_list	intersect_world(t_system *sys, t_ray *ray);
-t_intersection		*hit(t_intersection_list *list);
+t_intersection		*find_closest_intersection(t_intersection_list *list);
 bool				ray_misses_cylinder(float a, float discriminant);
 bool				ray_parallel_to_y(t_ray *ray);
 
@@ -325,7 +329,7 @@ t_mat				scaling(float x, float y, float z);
 t_mat				rotate_x(float x);
 t_mat				rotate_y(float y);
 t_mat				rotate_z(float z);
-t_mat				rotation_from_axis(t_tuple *axis);
+t_mat				create_rotation_matrix_from_axis(t_tuple *axis);
 void				set_transform(t_object *obj, t_mat *transform);
 t_mat				view_transform(t_tuple *eye, t_tuple *target, t_tuple *up);
 
@@ -367,7 +371,7 @@ void				fill_pixel_block(mlx_image_t *img, int x, int y,
 						uint32_t color);
 
 /* lighting */
-t_tuple				calculate_light_direction(t_tuple *light_pos,
+t_tuple				calculate_point_to_light_direction(t_tuple *light_pos,
 						t_tuple *point);
 t_tuple				calculate_ambient(t_material *material,
 						t_amb_light *amb_light);

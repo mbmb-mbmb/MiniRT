@@ -7,15 +7,114 @@ LIBS	= $(LIBMLX)/build/libmlx42.a $(LIBFT)/libft.a -ldl -lglfw -pthread -lm
 CC		= gcc
 CFLAGS	= -Wall -Wextra -Werror -O2 -ffast-math
 HEADERS	= -I . -I $(LIBMLX)/include -I $(LIBFT)
-SRC		= main.c parser.c parser_utils.c parser_helpers.c parser_elements.c parser_objects.c \
-		  vec_arithmetic.c vec_scaling.c vec_operations.c \
-		  tuple_utils.c tuple_create.c math_utils.c \
-		  mat_operations.c mat_inverse.c \
-		  transforms.c transform_basic.c transform_rotate.c \
-		  lighting.c lighting_components.c \
-		  camera.c camera_controls.c render.c render_utils.c shading.c ray.c \
-		  intersect.c intersect_cylinder.c intersect_cylinder2.c \
-		  system_init.c normal.c error.c app_loop.c input_handlers.c
+# Math - Utils (3 files)
+MATH_UTILS_SRC = math/utils/degrees_to_radians.c math/utils/is_float_zero.c \
+                 math/utils/is_float_equal.c
+
+# Math - Tuple (19 files)
+MATH_TUPLE_SRC = math/tuple/create_point.c math/tuple/create_vector.c \
+                 math/tuple/create_color.c math/tuple/tuple_to_rgba.c \
+                 math/tuple/get_tuple_type.c math/tuple/get_w_value_for_type.c \
+                 math/tuple/validate_tuple_addition.c \
+                 math/tuple/validate_tuple_subtraction.c \
+                 math/tuple/add_tuple.c math/tuple/subtract_tuple.c \
+                 math/tuple/negate_tuple.c math/tuple/multiply_tuple.c \
+                 math/tuple/divide_tuple.c math/tuple/multiply_tuple_w_tuple.c \
+                 math/tuple/clamp_tuple.c math/tuple/magnitude_vector.c \
+                 math/tuple/normalize_vector.c math/tuple/dot_product_tuple.c \
+                 math/tuple/cross_product_tuple.c
+
+# Math - Matrix (6 files)
+MATH_MATRIX_SRC = math/matrix/create_identity_matrix.c \
+                  math/matrix/multiply_matrices.c \
+                  math/matrix/transform_tuple_by_matrix.c \
+                  math/matrix/transpose_matrix.c \
+                  math/matrix/set_matrix_dim.c \
+                  math/matrix/invert_matrix.c
+
+# Ray (4 files)
+RAY_SRC = ray/ray_make.c ray/ray_position.c ray/ray_transform.c \
+          ray/ray_to_object_space.c
+
+# Normals (3 files)
+NORMALS_SRC = normals/normal_at_sphere.c normals/normal_at_plane.c \
+              normals/normal_at_cylinder.c
+
+# Transforms (10 files)
+TRANSFORMS_SRC = transforms/translation.c transforms/scaling.c \
+                 transforms/rotate_x.c transforms/rotate_y.c transforms/rotate_z.c \
+                 transforms/create_rotation_matrix_from_axis.c \
+                 transforms/set_transform.c transforms/setup_sphere_transform.c \
+                 transforms/transform_plane.c transforms/transform_cylinder.c
+
+# Camera (4 files)
+CAMERA_SRC = camera/camera_transform.c camera/camera_update_transform.c \
+             camera/view_transform.c camera/ray_for_pixel.c
+
+# Camera Controls (4 files)
+CAMERA_CONTROLS_SRC = camera_controls/camera_move.c \
+                      camera_controls/camera_rotate_yaw.c \
+                      camera_controls/camera_reset.c \
+                      camera_controls/handle_camera_controls.c
+
+# Intersections (7 files)
+INTERSECTIONS_SRC = intersections/intersect_sphere.c intersections/intersect_plane.c \
+                    intersections/intersect_world.c \
+                    intersections/find_closest_intersection.c \
+                    intersections/intersect_cylinder.c \
+                    intersections/intersect_cylinder_walls.c \
+                    intersections/intersect_cylinder_caps.c
+
+# Lighting (7 files)
+LIGHTING_SRC = lighting/reflect.c lighting/is_shadowed.c \
+               lighting/prepare_shading_computations.c \
+               lighting/calculate_ambient.c lighting/calculate_diffuse.c \
+               lighting/calculate_specular.c \
+               lighting/calculate_point_to_light_direction.c
+
+# Render (5 files)
+RENDER_SRC = render/shade_hit.c render/color_at.c render/render.c \
+             render/apply_green_tint.c render/fill_pixel_block.c
+
+# Parser - Core (2 files)
+PARSER_CORE_SRC = parser/core/parser.c \
+                  parser/core/validate_and_normalize_direction.c
+
+# Parser - Primitives (5 files)
+PARSER_PRIMITIVES_SRC = parser/primitives/parse_int.c parser/primitives/parse_fov.c \
+                        parser/primitives/parse_float.c \
+                        parser/primitives/parse_rgb_color.c \
+                        parser/primitives/parse_vector3.c
+
+# Parser - Validation (5 files)
+PARSER_VALIDATION_SRC = parser/validation/skip_spaces.c \
+                        parser/validation/skip_commas.c \
+                        parser/validation/skip_float.c \
+                        parser/validation/skip_to_end.c \
+                        parser/validation/validate_rt_file_extension.c
+
+# Parser - Elements (7 files)
+PARSER_ELEMENTS_SRC = parser/elements/check_ambient_light.c \
+                      parser/elements/check_camera.c \
+                      parser/elements/check_lights.c \
+                      parser/elements/phong_to_material.c \
+                      parser/elements/check_sphere.c \
+                      parser/elements/check_cylinder.c \
+                      parser/elements/check_plane.c
+
+# System (4 files)
+SYSTEM_SRC = system/init_system.c system/init_canvas_dimensions.c \
+             system/prepare_scene.c system/error_exit.c
+
+# App (1 file)
+APP_SRC = app/frame.c
+
+SRC = main.c $(MATH_UTILS_SRC) $(MATH_TUPLE_SRC) $(MATH_MATRIX_SRC) \
+      $(RAY_SRC) $(NORMALS_SRC) $(TRANSFORMS_SRC) $(CAMERA_SRC) \
+      $(CAMERA_CONTROLS_SRC) $(INTERSECTIONS_SRC) $(LIGHTING_SRC) \
+      $(RENDER_SRC) $(PARSER_CORE_SRC) $(PARSER_PRIMITIVES_SRC) \
+      $(PARSER_VALIDATION_SRC) $(PARSER_ELEMENTS_SRC) $(SYSTEM_SRC) \
+      $(APP_SRC)
 OBJS	= $(SRC:.c=.o)
 
 all: libft libmlx $(NAME)

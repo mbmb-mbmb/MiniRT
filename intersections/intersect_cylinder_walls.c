@@ -1,0 +1,41 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   intersect_cylinder_walls.c                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/05 14:22:18 by jyniemit          #+#    #+#             */
+/*   Updated: 2026/01/05 14:22:18 by jyniemit         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../minirt.h"
+
+static void	add_wall_hit(t_ray *ray, t_intersection_list *list, float t)
+{
+	float	y;
+
+	y = ray->origin.y + t * ray->direction.y;
+	if (y > -1.0f && y < 1.0f && list->count < MAX_INTERSECTIONS)
+		list->intersections[list->count++].t = t;
+}
+
+void	intersect_cylinder_walls(t_ray *ray, t_intersection_list *list)
+{
+	float	a;
+	float	b;
+	float	c;
+	float	disc;
+
+	a = ray->direction.x * ray->direction.x + ray->direction.z
+		* ray->direction.z;
+	b = 2.0f * (ray->origin.x * ray->direction.x + ray->origin.z
+			* ray->direction.z);
+	c = ray->origin.x * ray->origin.x + ray->origin.z * ray->origin.z - 1.0f;
+	disc = b * b - 4.0f * a * c;
+	if (ray_misses_cylinder(a, disc))
+		return ;
+	add_wall_hit(ray, list, (-b - sqrtf(disc)) / (2.0f * a));
+	add_wall_hit(ray, list, (-b + sqrtf(disc)) / (2.0f * a));
+}
