@@ -22,6 +22,7 @@ void	check_sphere(char *buffer, t_system *sys)
 {
 	int			i;
 	t_object	*obj;
+	float		diameter;
 
 	i = 0;
 	while (buffer[i])
@@ -36,7 +37,8 @@ void	check_sphere(char *buffer, t_system *sys)
 			obj->flags = OBJ_VISIBLE | OBJ_CASTS_SHADOW;
 			phong_to_material(&obj->material);
 			i += parse_vector3(buffer + i, &obj->sphere.location, POINT, sys);
-			i += parse_float(buffer + i, &obj->sphere.radius, POSITIVE, sys);
+			i += parse_float(buffer + i, &diameter, POSITIVE, sys);
+			obj->sphere.radius = diameter / 2;
 			i += parse_rgb_color(buffer + i, &obj->material.color, sys);
 			i += skip_to_end(buffer + i, sys);
 			continue ;

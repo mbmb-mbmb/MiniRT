@@ -22,7 +22,7 @@ void	prepare_scene(t_system *sys)
 	while (i < sys->object_count)
 	{
 		if (sys->obj_list[i].type == SPHERE)
-			setup_sphere_transform(&sys->obj_list[i]);
+			transform_sphere(&sys->obj_list[i]);
 		else if (sys->obj_list[i].type == PLANE)
 			transform_plane(&sys->obj_list[i]);
 		else if (sys->obj_list[i].type == CYLINDER)
