@@ -31,11 +31,11 @@ int	ft_atoi(const char *str)
 	}
 	while (str[i] && ft_isdigit(str[i]))
 	{
+		if (sign == 1 && out > (INT_MAX - (str[i] - '0')) / 10)
+			return (INT_MAX);
+		if (sign == -1 && out > (-(long)INT_MIN - (str[i] - '0')) / 10)
+			return (INT_MIN);
 		out = out * 10 + (str[i] - '0');
-		if (out < 0 && sign == 1)
-			return ((int)LONG_MAX);
-		if (out < 0 && sign == -1)
-			return ((int)LONG_MIN);
 		i++;
 	}
 	return ((int)(out * sign));

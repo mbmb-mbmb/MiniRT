@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   skip_to_end.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jyniemit <jyniemit@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 15:54:13 by jyniemit          #+#    #+#             */
-/*   Updated: 2026/01/05 15:54:13 by jyniemit         ###   ########.fr       */
+/*   Updated: 2026/01/07 17:46:23 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,6 @@ int	skip_to_end(char *buffer, t_system *sys)
 	}
 	if (buffer[i] == '\0')
 		return (i);
-	error_exit("Some strange characters found around end of file.\n", sys);
+	error_exit("Some strange characters found.\n", sys);
 	return (i);
 }

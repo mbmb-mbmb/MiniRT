@@ -6,7 +6,7 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:08:29 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/05 15:44:29 by jyniemit         ###   ########.fr       */
+/*   Updated: 2026/01/07 17:45:09 by mbonsdor         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@ static void	check_objects(char *buffer, t_system *sys)
 	check_sphere(buffer, sys);
 	check_cylinder(buffer, sys);
 	check_plane(buffer, sys);
+	if (sys->object_count == 0)
+		error_exit("A scene needs at least one object.\n", sys);
 	ft_putstr_fd("Inputfile OK!\n", 1);
 }
 
@@ -34,7 +36,7 @@ void	parser(char *input, t_system *sys)
 
 	sys->state |= PARSING;
 	if (!validate_rt_file_extension(input))
-		error_exit("File must have .rt extension.\n", sys);
+		error_exit("File must have a name and an .rt extension.\n", sys);
 	sys->parser_fd = -1;
 	fd = open(input, O_RDONLY);
 	if (fd == -1)

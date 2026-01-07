@@ -37,7 +37,7 @@
 # define MAX_INTERSECTIONS 1024
 # define INFILE_BUFSIZE 16384
 
-# define MATERIAL_AMBIENT 0.1f
+# define MATERIAL_AMBIENT 1.0f
 # define MATERIAL_DIFFUSE 0.5f
 # define MATERIAL_SPECULAR 1.0f
 # define MATERIAL_SHININESS 50.0f
@@ -349,7 +349,7 @@ void				init_canvas_dimensions(t_camera *camera,
 						uint32_t img_width);
 void				camera_transform(t_camera *camera);
 void				camera_update_transform(t_camera *camera);
-void				setup_sphere_transform(t_object *obj);
+void				transform_sphere(t_object *obj);
 void				transform_plane(t_object *obj);
 void				transform_cylinder(t_object *obj);
 void				prepare_scene(t_system *sys);

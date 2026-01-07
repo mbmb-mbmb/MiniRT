@@ -17,6 +17,8 @@ int	parse_float(char *in, float *out, t_float_check check, t_system *sys)
 	int	i;
 
 	i = skip_spaces(in);
+	if (!ft_isdigit(in[i]) && in[i] != '-' && in[i] != '+' && in[i] != '.')
+		error_exit("Expected float value.\n", sys);
 	*out = ft_atof(in + i);
 	if (*out < -FLOAT_MAX || *out > FLOAT_MAX)
 		error_exit("Float overflow\n", sys);

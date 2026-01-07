@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   prepare_scene.c                                    :+:      :+:    :+:   */
+/*   setup_sphere_transform.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,21 +12,15 @@
 
 #include "../minirt.h"
 
-void	prepare_scene(t_system *sys)
+void	transform_sphere(t_object *obj)
 {
-	int	i;
+	t_transform_components	trs;
+	t_mat					temp;
 
-	camera_transform(&sys->camera);
-	init_canvas_dimensions(&sys->camera, WIDTH);
-	i = 0;
-	while (i < sys->object_count)
-	{
-		if (sys->obj_list[i].type == SPHERE)
-			transform_sphere(&sys->obj_list[i]);
-		else if (sys->obj_list[i].type == PLANE)
-			transform_plane(&sys->obj_list[i]);
-		else if (sys->obj_list[i].type == CYLINDER)
-			transform_cylinder(&sys->obj_list[i]);
-		i++;
-	}
+	trs.translation_mat = translation(obj->sphere.location.x,
+			obj->sphere.location.y, obj->sphere.location.z);
+	trs.scale_mat = scaling(obj->sphere.radius, obj->sphere.radius,
+			obj->sphere.radius);
+	temp = multiply_matrices(&trs.translation_mat, &trs.scale_mat);
+	set_transform(obj, &temp);
 }
