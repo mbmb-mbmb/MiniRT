@@ -18,8 +18,10 @@ int	parse_int(char *in, int *value, t_system *sys)
 	int	num;
 
 	i = skip_spaces(in);
+	if (in[i] == '-')
+		error_exit("RGB values must be between 0 and 255.\n", sys);
 	num = ft_atoi(in + i);
-	if (num < 0 || num > 255)
+	if (num > 255)
 		error_exit("RGB values must be between 0 and 255.\n", sys);
 	*value = num;
 	while (in[i] == '-' || in[i] == '+' || ft_isdigit(in[i]))
