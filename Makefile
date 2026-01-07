@@ -38,7 +38,7 @@ NORMALS_SRC = normals/normal_at_sphere.c normals/normal_at_plane.c \
 TRANSFORMS_SRC = transforms/translation.c transforms/scaling.c \
                  transforms/rotate_x.c transforms/rotate_y.c transforms/rotate_z.c \
                  transforms/create_rotation_matrix_from_axis.c \
-                 transforms/set_transform.c transforms/setup_sphere_transform.c \
+                 transforms/set_transform.c transforms/transform_sphere.c \
                  transforms/transform_plane.c transforms/transform_cylinder.c
 
 CAMERA_SRC = camera/camera_transform.c camera/camera_update_transform.c \

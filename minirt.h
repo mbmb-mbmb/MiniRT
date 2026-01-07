@@ -349,7 +349,7 @@ void				init_canvas_dimensions(t_camera *camera,
 						uint32_t img_width);
 void				camera_transform(t_camera *camera);
 void				camera_update_transform(t_camera *camera);
-void				setup_sphere_transform(t_object *obj);
+void				transform_sphere(t_object *obj);
 void				transform_plane(t_object *obj);
 void				transform_cylinder(t_object *obj);
 void				prepare_scene(t_system *sys);
