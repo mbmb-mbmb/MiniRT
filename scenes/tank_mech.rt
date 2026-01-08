@@ -1,0 +1,172 @@
+A 0.4 255,255,255
+C 15,6,15 -0.6,-0.25,-0.6 70
+L 10,20,10 1.0 255,255,255
+L -10,15,-10 0.8 240,240,220
+L 15,10,15 0.7 255,240,240
+L 0,25,0 0.6 220,220,255
+L -15,5,15 0.5 255,255,240
+
+# MAIN TANK BODY (boxy hull made with cylinders)
+# Lower hull - horizontal
+cy 0,3,0 1,0,0 1.2 4.0 80,85,75
+
+# Upper hull - horizontal
+cy 0,4,0 1,0,0 1.0 3.5 85,90,80
+
+# Front hull plate (angled)
+cy 1.5,3.5,0 0,0,1 0.8 2.0 75,80,70
+
+# Rear hull plate
+cy -1.5,3.5,0 0,0,1 0.7 1.8 70,75,65
+
+# TURRET (rotating top section)
+# Main turret base (cylinder)
+cy 0,5,0 0,1,0 1.3 1.2 90,95,85
+
+# Turret top armor (sphere)
+sp 0,5.8,0 1.1 95,100,90
+
+# MAIN CANNON - Large primary weapon (centered on body)
+# Big main gun barrel (thick, long cylinder extending from center)
+cy 0,3.5,3 0,0,1 0.7 7.0 55,55,50
+
+# Main gun base/breech (large sphere at body)
+sp 0,3.5,-0.5 0.9 85,90,80
+
+# Gun mantlet armor (sphere)
+sp 0,3.5,0.5 0.95 80,85,75
+
+# SECONDARY WEAPONS
+# Coaxial machine gun
+cy 0.6,5.3,0.6 0.707,0,0.707 0.1 2.0 55,55,50
+
+# Top-mounted MG (cupola)
+cy 0,6.5,0 0,1,0 0.15 0.5 70,70,65
+cy 0,7,0.3 0,0.2,1 0.08 0.8 60,60,55
+
+# VIEWPORTS/HATCHES
+# Commander's hatch (sphere)
+sp -0.5,6.3,-0.5 0.3 100,120,140
+
+# Driver viewport (small sphere)
+sp 1.3,4,-0.2 0.2 120,140,160
+
+# MECHANICAL WALKER LEGS (chicken-walker style)
+
+# RIGHT LEG
+# Hip joint (sphere)
+sp 1.5,2,0 0.5 70,75,70
+
+# Upper leg (angled back - cylinder)
+cy 1.5,1,-1 0.1,-1,-0.8 0.35 2.0 75,80,75
+
+# Knee joint (sphere)
+sp 1.6,-0.8,-2.5 0.45 65,70,65
+
+# Lower leg (angled forward - cylinder)
+cy 1.7,-2,-1 0.1,-1,1 0.3 2.5 70,75,70
+
+# Ankle joint (sphere)
+sp 1.8,-4.2,0.5 0.4 60,65,60
+
+# Foot base (sphere)
+sp 1.8,-4.8,0.5 0.35 55,60,55
+
+# RIGHT FOOT - Hawk claws (3 forward, 1 back)
+# Front claw 1 (center)
+sp 1.8,-4.8,1.2 0.15 50,55,50
+cy 1.8,-4.85,1.2 0,-0.1,1 0.08 0.8 50,55,50
+sp 1.8,-4.95,1.9 0.12 45,50,45
+
+# Front claw 2 (left side)
+sp 1.5,-4.8,1.1 0.15 50,55,50
+cy 1.4,-4.85,1.1 -0.3,-0.1,1 0.08 0.8 50,55,50
+sp 1.1,-4.95,1.8 0.12 45,50,45
+
+# Front claw 3 (right side)
+sp 2.1,-4.8,1.1 0.15 50,55,50
+cy 2.2,-4.85,1.1 0.3,-0.1,1 0.08 0.8 50,55,50
+sp 2.5,-4.95,1.8 0.12 45,50,45
+
+# Back claw (rear talon)
+sp 1.8,-4.8,-0.2 0.15 50,55,50
+cy 1.8,-4.85,-0.2 0,-0.1,-1 0.08 0.7 50,55,50
+sp 1.8,-4.95,-0.8 0.12 45,50,45
+
+# LEFT LEG
+# Hip joint (sphere)
+sp -1.5,2,0 0.5 70,75,70
+
+# Upper leg (angled back - cylinder)
+cy -1.5,1,-1 -0.1,-1,-0.8 0.35 2.0 75,80,75
+
+# Knee joint (sphere)
+sp -1.6,-0.8,-2.5 0.45 65,70,65
+
+# Lower leg (angled forward - cylinder)
+cy -1.7,-2,-1 -0.1,-1,1 0.3 2.5 70,75,70
+
+# Ankle joint (sphere)
+sp -1.8,-4.2,0.5 0.4 60,65,60
+
+# Foot base (sphere)
+sp -1.8,-4.8,0.5 0.35 55,60,55
+
+# LEFT FOOT - Hawk claws (3 forward, 1 back)
+# Front claw 1 (center)
+sp -1.8,-4.8,1.2 0.15 50,55,50
+cy -1.8,-4.85,1.2 0,-0.1,1 0.08 0.8 50,55,50
+sp -1.8,-4.95,1.9 0.12 45,50,45
+
+# Front claw 2 (right side from left foot)
+sp -1.5,-4.8,1.1 0.15 50,55,50
+cy -1.4,-4.85,1.1 0.3,-0.1,1 0.08 0.8 50,55,50
+sp -1.1,-4.95,1.8 0.12 45,50,45
+
+# Front claw 3 (left side from left foot)
+sp -2.1,-4.8,1.1 0.15 50,55,50
+cy -2.2,-4.85,1.1 -0.3,-0.1,1 0.08 0.8 50,55,50
+sp -2.5,-4.95,1.8 0.12 45,50,45
+
+# Back claw (rear talon)
+sp -1.8,-4.8,-0.2 0.15 50,55,50
+cy -1.8,-4.85,-0.2 0,-0.1,-1 0.08 0.7 50,55,50
+sp -1.8,-4.95,-0.8 0.12 45,50,45
+
+# DETAILS AND ARMOR
+# Side armor skirts (cylinders)
+cy 2,3,0 0,0,1 0.15 3.0 75,80,70
+cy -2,3,0 0,0,1 0.15 3.0 75,80,70
+
+# Engine exhaust pipes (back)
+cy -1.8,4.5,-0.8 0,0,-1 0.12 0.6 40,40,35
+cy -1.5,4.5,-0.8 0,0,-1 0.12 0.6 40,40,35
+
+# Exhaust smoke (spheres)
+sp -1.8,4.5,-1.3 0.15 60,50,40
+sp -1.5,4.5,-1.3 0.15 60,50,40
+
+# Track/tread housing detail (cylinders on body)
+cy 1.8,2.5,0 0,0,1 0.2 2.5 70,75,65
+cy -1.8,2.5,0 0,0,1 0.2 2.5 70,75,65
+
+# Fuel tanks (side-mounted spheres)
+sp 1.7,3.5,-0.8 0.35 75,80,70
+sp -1.7,3.5,-0.8 0.35 75,80,70
+
+# Antenna (thin cylinder)
+cy -0.8,6.5,-0.5 0,1,0.1 0.05 0.8 50,50,50
+
+# Headlights (small spheres on front)
+sp 1.5,3.2,0.9 0.15 255,255,200
+sp 1.8,3.2,0.9 0.15 255,255,200
+
+# Rivets and bolts (tiny spheres)
+sp 1.5,4.5,0.8 0.08 50,50,45
+sp -1.5,4.5,0.8 0.08 50,50,45
+sp 1.5,3.5,0.8 0.08 50,50,45
+sp -1.5,3.5,0.8 0.08 50,50,45
+
+# Tool/supply boxes on back (small cylinders)
+cy -1.5,5,-0.7 1,0,0 0.15 0.6 70,65,60
+cy -1.5,5.5,-0.7 1,0,0 0.15 0.5 65,60,55

@@ -1,0 +1,61 @@
+A 0.2 255,255,255
+C -10,5,-10 0.6,-0.3,0.6 70
+L 5,10,5 0.8 255,255,255
+L -5,8,-8 0.5 200,200,255
+
+# Fuselage (main body - cylinder along Z axis)
+cy 0,0,-1 0,0,1 0.5 5.0 200,200,220
+
+# Nose cone (sphere at front)
+sp 0,0,1.8 0.45 220,220,240
+
+# Cockpit (sphere)
+sp 0,0.35,0.8 0.3 100,150,220
+
+# Main wings (thin cylinders extending left-right)
+cy -2.5,0,0 1,0,0 0.12 5.0 180,180,210
+cy 2.5,0,0 -1,0,0 0.12 5.0 180,180,210
+
+# Wing leading edge detail (small cylinders)
+cy -1.5,0,0.5 1,0,0.3 0.08 3.0 160,160,190
+cy 1.5,0,0.5 -1,0,0.3 0.08 3.0 160,160,190
+
+# Wing tips (spheres)
+sp -5,0,0 0.25 255,100,100
+sp 5,0,0 0.25 255,100,100
+
+# Tail vertical stabilizer (cylinder going up)
+cy 0,0,-2.8 0,1,0 0.08 1.2 170,170,200
+
+# Tail top (small sphere)
+sp 0,0.6,-2.8 0.15 180,180,210
+
+# Horizontal tail wings (thin cylinders)
+cy -0.8,0.3,-3 1,0,0 0.08 1.6 160,160,190
+cy 0.8,0.3,-3 -1,0,0 0.08 1.6 160,160,190
+
+# Tail wing tips (small spheres)
+sp -1.6,0.3,-3 0.15 200,150,150
+sp 1.6,0.3,-3 0.15 200,150,150
+
+# Engine nacelles (cylinders under wings)
+cy -2,-0.3,0.2 0,0,1 0.28 1.0 230,230,245
+cy 2,-0.3,0.2 0,0,1 0.28 1.0 230,230,245
+
+# Engine fronts (spheres)
+sp -2,-0.3,0.8 0.32 245,245,255
+sp 2,-0.3,0.8 0.32 245,245,255
+
+# Engine backs (spheres with darker color)
+sp -2,-0.3,-0.3 0.3 100,100,120
+sp 2,-0.3,-0.3 0.3 100,100,120
+
+# Landing gear (small spheres)
+sp 0,-0.6,0.5 0.18 40,40,40
+sp -1.8,-0.5,-0.3 0.18 40,40,40
+sp 1.8,-0.5,-0.3 0.18 40,40,40
+
+# Landing gear struts (thin cylinders)
+cy 0,-0.3,0.5 0,-1,0 0.05 0.3 60,60,60
+cy -1.8,-0.2,-0.3 0,-1,0 0.05 0.3 60,60,60
+cy 1.8,-0.2,-0.3 0,-1,0 0.05 0.3 60,60,60
