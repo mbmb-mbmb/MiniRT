@@ -6,16 +6,11 @@
 /*   By: mbonsdor <mbonsdor@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/26 16:07:14 by mbonsdor          #+#    #+#             */
-/*   Updated: 2026/01/02 11:41:53 by mbonsdor         ###   ########.fr       */
+/*   Updated: 2026/01/08 14:49:32 by jyniemit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
-
-static int	cleanup(t_system *sys)
-{
-	return (sys->exit_code);
-}
 
 void	resize_callback(int32_t width, int32_t height, void *param)
 {
@@ -40,7 +35,6 @@ void	resize_callback(int32_t width, int32_t height, void *param)
 int	main(int argc, char **av)
 {
 	t_app	app;
-	int		return_code;
 
 	app = (t_app){};
 	app.system = (t_system){};
@@ -59,8 +53,7 @@ int	main(int argc, char **av)
 	mlx_loop_hook(app.mlx, frame, &app);
 	mlx_resize_hook(app.mlx, resize_callback, &app);
 	mlx_loop(app.mlx);
-	return_code = cleanup(&app.system);
 	app.system.mlx_instance = NULL;
 	mlx_terminate(app.mlx);
-	return (return_code);
+	return (app.system.exit_code);
 }

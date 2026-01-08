@@ -12,16 +12,6 @@
 
 #include "../minirt.h"
 
-static void	draft_transformations(t_system *sys)
-{
-	(void)sys;
-}
-
-static void	render_scene(t_system *sys, mlx_image_t *img)
-{
-	render(sys, img);
-}
-
 void	frame(void *param)
 {
 	t_app		*app;
@@ -34,10 +24,8 @@ void	frame(void *param)
 	if (!(system->state & SHOULD_EXIT))
 	{
 		handle_camera_controls(app, system);
-		if (system->state & DRAFT_MODE)
-			draft_transformations(system);
 		if (!(system->state & RENDER_COMPLETE))
-			render_scene(system, app->img);
+			render(system, app->img);
 	}
 	else
 		mlx_close_window(app->mlx);
